@@ -1,0 +1,80 @@
+#PageDashboard .page-dashboard-scanner {
+  position: relative;
+  width: 30%;
+  height: 130px;
+  background-color: #fff;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1ab394;
+}
+#PageDashboard .page-dashboard-scanner .ant-btn-icon {
+  font-size: 24px;
+  margin-right: 8px;
+  color: #1ab394;
+}
+#PageDashboard .page-dashboard-scanner:hover {
+  background-color: #1ab394;
+  color: #fff;
+  border-color: #1ab394;
+}
+#PageDashboard .page-dashboard-scanner:hover .ant-btn-icon {
+  color: #fff;
+}
+#PageDashboard .page-dashboard-scanner:hover .ant-btn-icon .span {
+  color: #fff;
+}
+#PageDashboard .page-dashboard-scanner.active {
+  background-color: #1ab394;
+  color: #fff;
+  border-color: #1ab394;
+}
+#PageDashboard .page-dashboard-scanner.active .ant-btn-icon {
+  color: #fff;
+}
+#PageDashboard .page-student-card-list {
+  height: auto;
+  width: 70%;
+  border: 2px solid #ccc;
+}
+#PageDashboard .ant-table-wrapper .ant-table-thead > tr > th,
+#PageDashboard .ant-table-wrapper .ant-table-thead > tr > td,
+#PageDashboard .ant-table-wrapper .ant-table-thead > tr > th::before {
+  position: relative;
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+  text-align: start;
+  background: none;
+  border-bottom: 1px solid #f0f0f0;
+}
+#PageDashboard .ant-image-img .page-student-card-list-image {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 8px;
+}
+#PageDashboard .ant-image-img .page-student-card-list-image .ant-mask {
+  border-radius: 8px;
+  height: 100px;
+}
+#PageDashboard .page-student-card-list-type.circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+}
+#PageDashboard .page-student-card-list-type.circle.In {
+  background-color: #1ab394;
+}
+#PageDashboard .page-student-card-list-type.circle.Out {
+  background-color: #ff4d4f;
+}/*# sourceMappingURL=page-dashboard-scanner-qrcode.css.map */

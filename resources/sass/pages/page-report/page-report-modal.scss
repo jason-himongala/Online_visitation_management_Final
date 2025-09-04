@@ -1,0 +1,87 @@
+#PageReportConsolidated,
+#PageReportSf10,
+#PageReportSf9 {
+    .ant-modal-root {
+        .ant-modal-mask {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .ant-modal-wrap {
+            .ant-modal {
+                padding-bottom: 20px;
+                // width: 90%;
+
+                .ant-modal-content {
+                    border-radius: 0px;
+                    padding: 0px;
+
+                    .ant-modal-close {
+                        top: 20px;
+                        right: 15px;
+                        color: #ffffff;
+                        background-color: transparent;
+                        width: auto;
+                        height: auto;
+                    }
+
+                    .ant-modal-header {
+                        margin-bottom: 0px;
+                        padding: 15px 15px;
+                        background-color: #0025a0 !important;
+                        border-radius: 0px;
+
+                        .ant-modal-title {
+                            color: #ffffff;
+                        }
+                    }
+
+                    .ant-modal-body {
+                        padding: 15px;
+                        width: 100%;
+                    }
+
+                    .ant-modal-footer {
+                        padding: 0px 15px 15px 15px;
+                        margin-top: 0px;
+
+                        .ant-btn {
+                            &.ant-btn-primary {
+                                color: #114eaf;
+                                background-color: #114eaf;
+                                border-color: #114eaf;
+
+                                &:hover {
+                                    color: #114eaf;
+                                    background-color: #ffffff;
+                                    border-color: #114eaf;
+                                }
+
+                                &:focus {
+                                    color: #ffffff;
+                                    background-color: #114eaf;
+                                    border-color: #114eaf;
+                                }
+                            }
+
+                            &.ant-btn-default {
+                                color: #ffffff;
+                                background-color: #114eaf;
+                                border-color: #114eaf;
+
+                                &:hover {
+                                    border-color: #114eaf;
+                                }
+
+                                &:focus {
+                                    color: #ffffff;
+                                    background-color: #114eaf;
+                                    border-color: #114eaf;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

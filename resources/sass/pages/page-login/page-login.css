@@ -1,0 +1,21 @@
+#PageLogin {
+  height: 100vh;
+}
+#PageLogin .login-form-button {
+  cursor: pointer;
+  border: 0;
+  border-radius: 4px;
+  font-weight: 600;
+  margin: 0 10px;
+  width: 462px;
+  padding: 10px 0;
+  box-shadow: 0 0 20px rgba(104, 85, 224, 0.2);
+  transition: 0.4s;
+  background: #1ab394;
+}
+#PageLogin .login-form-button:hover {
+  box-shadow: 0 0 20px rgba(104, 85, 224, 0.4);
+}
+#PageLogin .page-login-card {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}/*# sourceMappingURL=page-login.css.map */

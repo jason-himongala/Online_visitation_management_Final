@@ -1,0 +1,91 @@
+#PageReportConsolidated .ant-modal-root .ant-modal-mask,
+#PageReportSf10 .ant-modal-root .ant-modal-mask,
+#PageReportSf9 .ant-modal-root .ant-modal-mask {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal {
+  padding-bottom: 20px;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content {
+  border-radius: 0px;
+  padding: 0px;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-close,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-close,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-close {
+  top: 20px;
+  right: 15px;
+  color: #ffffff;
+  background-color: transparent;
+  width: auto;
+  height: auto;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-header,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-header,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-header {
+  margin-bottom: 0px;
+  padding: 15px 15px;
+  background-color: #0025a0 !important;
+  border-radius: 0px;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-header .ant-modal-title,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-header .ant-modal-title,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-header .ant-modal-title {
+  color: #ffffff;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-body,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-body,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-body {
+  padding: 15px;
+  width: 100%;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer {
+  padding: 0px 15px 15px 15px;
+  margin-top: 0px;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary {
+  color: #114eaf;
+  background-color: #114eaf;
+  border-color: #114eaf;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary:hover,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary:hover,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary:hover {
+  color: #114eaf;
+  background-color: #ffffff;
+  border-color: #114eaf;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary:focus,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary:focus,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-primary:focus {
+  color: #ffffff;
+  background-color: #114eaf;
+  border-color: #114eaf;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default {
+  color: #ffffff;
+  background-color: #114eaf;
+  border-color: #114eaf;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default:hover,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default:hover,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default:hover {
+  border-color: #114eaf;
+}
+#PageReportConsolidated .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default:focus,
+#PageReportSf10 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default:focus,
+#PageReportSf9 .ant-modal-root .ant-modal-wrap .ant-modal .ant-modal-content .ant-modal-footer .ant-btn.ant-btn-default:focus {
+  color: #ffffff;
+  background-color: #114eaf;
+  border-color: #114eaf;
+}/*# sourceMappingURL=page-report-modal.css.map */

@@ -1,0 +1,82 @@
+@use "../index" as *;
+
+.ant-btn {
+    height: 40px;
+
+    &.ant-btn-lg {
+        height: 45px;
+    }
+
+    &.ant-btn-sm {
+        height: 30px;
+    }
+
+    &.btn-active-archived {
+        width: 100px;
+
+        @include atXSMax {
+            width: 100%;
+        }
+    }
+
+    span {
+        line-height: normal;
+    }
+
+    &.ant-btn-primary {
+        background-color: var(--color-primary);
+        color: var(--color-white);
+
+        &:hover {
+            background: var(--color-secondary) !important;
+            color: var(--color-white) !important;
+        }
+    }
+
+    &.ant-btn-secondary {
+        background-color: var(--color-secondary);
+        color: var(--color-white);
+
+        &:hover {
+            background: var(--color-primary) !important;
+            color: var(--color-white) !important;
+        }
+    }
+
+    &.ant-btn-default {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+
+        &:hover {
+            background: transparent !important;
+            border-color: var(--color-secondary) !important;
+            color: var(--color-primary) !important;
+        }
+    }
+    &.ant-btn-dashed {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+
+        &:hover,
+        &:focus {
+            border-color: var(--color-secondary) !important;
+            color: var(--color-secondary) !important;
+        }
+    }
+    &.ant-btn-text {
+        &:hover,
+        &:focus {
+            background-color: var(--color-primary) !important;
+            color: var(--color-white) !important;
+        }
+    }
+
+    &.ant-btn-link {
+        color: var(--color-primary);
+
+        &:hover,
+        &:focus {
+            color: var(--color-secondary) !important;
+        }
+    }
+}

@@ -1,0 +1,233 @@
+@use "../index" as *;
+
+.private-layout {
+    > .ant-layout-sider {
+        background-color: var(--color-primary);
+        width: 240px !important;
+        min-width: 240px !important;
+        max-width: 240px !important;
+        overflow: hidden auto;
+        position: fixed;
+        height: 100%;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 6;
+        scrollbar-width: none;
+        scrollbar-gutter: stable;
+
+        @include atSMMax {
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        &.ant-layout-sider-collapsed {
+            width: 0px !important;
+            min-width: 55px !important;
+
+            @include atSMMax {
+                display: none;
+            }
+
+            @include atXSMax {
+                display: none;
+            }
+        }
+
+        @include atSMMax {
+            position: fixed;
+        }
+
+        > .ant-layout-sider-children {
+            > .ant-side-header {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                padding: 15px;
+                align-items: center;
+                gap: 10px;
+
+                @include atSMMax {
+                    height: 70px;
+                }
+
+                @include atXSMax {
+                    height: 70px;
+                }
+
+                // Icon
+                .anticon {
+                    font-size: 22px;
+                    color: var(--color-white);
+
+                    a:hover {
+                        color: var(--color-cyan-400);
+                    }
+                }
+
+                // End Icon
+
+                .logo_wrapper {
+                    width: 100%;
+                    display: flex;
+                    justify-content: center;
+
+                    img {
+                        width: 150px;
+
+                        @include atSMMax {
+                            width: 90px;
+                        }
+
+                        @include atXSMax {
+                            width: 80px;
+                        }
+                    }
+                }
+            }
+
+            .ant-menu {
+                background-color: transparent;
+                height: 100%;
+
+                > .ant-menu-item {
+                    margin-block: 0px;
+                    margin-inline: 0px;
+                    width: 100%;
+                    border-radius: 0px;
+                    padding-left: 16px !important;
+                    line-height: 45px;
+                    font-weight: bolder;
+
+                    &.ant-menu-item-selected,
+                    &.ant-menu-item-active {
+                        background: var(
+                            --color-white
+                        ); //Dashboard, Employees, Ministries, Venue, Users, Permissions, Hover Color
+                    }
+
+                    a {
+                        color: var(
+                            --color-white
+                        ); //Dashboard, Employees, Ministries, Venue, Users, Permissions, Default TextColor
+                        text-decoration: none;
+                    }
+
+                    a:hover,
+                    &.ant-menu-item-selected a,
+                    &.ant-menu-item-active a {
+                        color: var(
+                            --color-primary
+                        ) !important; //Dashboard, Employees, Ministries, Venue, Users, Permissions, Hover TextColor
+                        text-decoration: none;
+                    }
+
+                    .ant-menu-item-icon {
+                        color: var(
+                            --color-white
+                        ); //Dashboard, Employees, Ministries, Venue, Users, Permissions, IconColor
+                        font-size: 18px;
+                        width: 20px;
+                    }
+                }
+
+                // When hovered
+                .ant-menu-item:hover .ant-menu-item-icon {
+                    color: var(--color-primary) !important;
+                }
+
+                // When selected
+                .ant-menu-item.ant-menu-item-selected .ant-menu-item-icon {
+                    color: var(--color-primary) !important;
+                }
+
+                // .ant-menu-submenu-selected {
+                //     background: var(--color-blue-600);
+                // }
+
+                > .ant-menu-submenu {
+                    background-color: transparent;
+                    border-radius: 0px;
+
+                    .ant-menu-submenu-title {
+                        padding-left: 16px !important;
+                        padding-inline-end: 0px !important;
+                        margin-inline: 0px;
+                        border-radius: 0px;
+                        margin-block: 0px;
+                        line-height: 45px;
+                        width: 100%;
+
+                        .ant-menu-submenu-arrow,
+                        .ant-menu-item-icon {
+                            color: var(--color-white);
+                            font-size: 18px;
+                        }
+
+                        .ant-menu-item-icon {
+                            width: 20px;
+                        }
+
+                        &:active,
+                        &:selected {
+                            background-color: var(--color-white) !important;
+                        }
+
+                        .ant-menu-title-content {
+                            color: var(--color-white);
+                            font-weight: bolder;
+                        }
+                    }
+
+                    // &.ant-menu-submenu-selected,
+                    // &.ant-menu-submenu-active  {
+                    //     background: var(--color-green-400); //Sacraments, Accounting, Report, Settings, Hover Color
+                    // }
+
+                    // a {
+                    //     color: var(--color-red-400);
+                    // }
+
+                    .ant-menu.ant-menu-sub {
+                        > .ant-menu-item {
+                            // background-color: $sideBarBackground;
+                            margin-block: 0px;
+                            margin-inline: 0px;
+                            width: 100%;
+                            border-radius: 0px;
+                            padding-left: 46px !important;
+                            line-height: 45px;
+
+                            &.ant-menu-item-selected,
+                            &.ant-menu-item-active {
+                                background: var(
+                                    --color-white
+                                ); //Children HoverColor
+                            }
+
+                            a {
+                                color: var(--color-white); //Children TextColor
+                                font-weight: normal;
+                            }
+
+                            a:hover,
+                            &.ant-menu-item-selected a,
+                            &.ant-menu-item-active a {
+                                color: var(
+                                    --color-green-400
+                                ); //Children TextHoverColor
+                            }
+
+                            .ant-menu-title-content {
+                                line-height: 40px;
+                                a {
+                                    text-decoration: none !important;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

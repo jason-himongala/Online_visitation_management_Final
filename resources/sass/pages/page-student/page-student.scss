@@ -1,0 +1,81 @@
+@use "../../ui/index" as *;
+
+#PageRegistionForm {
+    .ant-collapse {
+        .ant-collapse-item {
+            &.collapse-item-profile-picture {
+                .ant-collapse-content {
+                    &.ant-collapse-content-active {
+                        display: flex;
+                        justify-content: center;
+                        text-align: center;
+                    }
+
+                    .ant-collapse-content-box {
+                        position: relative;
+                        height: 250px;
+
+                        @include atMax(375) {
+                            height: 172px;
+                        }
+
+                        @include atMax(575) {
+                            height: 175px;
+                        }
+
+                        .upload-profile-picture-wrapper {
+                            width: 200px;
+                            height: 200px;
+                            position: absolute;
+                            left: calc(50% - (200px / 2));
+
+                            @include atMax(375) {
+                                width: 135px;
+                                height: 135px;
+                                left: calc(50% - (67px));
+                            }
+
+                            @include atMax(575) {
+                                width: 138px;
+                                height: 138px;
+                                left: calc(50% - (69px));
+                            }
+
+                            img {
+                                width: 200px;
+                                height: 200px;
+                                object-fit: cover;
+                                border-radius: 50%;
+
+                                @include atMax(375) {
+                                    width: 135px;
+                                    height: 135px;
+                                }
+
+                                @include atMax(575) {
+                                    width: 138px;
+                                    height: 138px;
+                                }
+                            }
+
+                            .btn-upload {
+                                position: absolute;
+                                bottom: 8px;
+                                right: 8px;
+                                width: 40px;
+                                height: 40px;
+                                border-radius: 50% !important;
+                                background-color: var(--color-primary);
+                                color: #ffffff;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+.ant-btn {
+  line-height: normal;
+  border-radius: 20px !important;
+  height: 35px;
+}
+.ant-btn.ant-btn-lg {
+  height: 40px;
+}
+.ant-btn.ant-btn-sm {
+  height: 30px;
+}
+.ant-btn span {
+  line-height: normal;
+}
+
+.ant-btn-primary {
+  color: #fff;
+  background: #0025a0;
+  border-color: #0025a0;
+}
+.ant-btn-primary:hover {
+  color: #fff;
+  background: #0025a0;
+  border-color: #0025a0;
+}
+.ant-btn-primary .ant-btn-variant-primary {
+  color: #fff;
+  background: #0025a0;
+  border-color: #0025a0;
+}/*# sourceMappingURL=button.css.map */
