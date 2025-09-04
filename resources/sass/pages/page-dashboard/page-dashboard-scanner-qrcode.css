@@ -9,17 +9,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1ab394;
+  color: #0025a0;
 }
 #PageDashboard .page-dashboard-scanner .ant-btn-icon {
   font-size: 24px;
   margin-right: 8px;
-  color: #1ab394;
+  color: #0025a0;
 }
 #PageDashboard .page-dashboard-scanner:hover {
-  background-color: #1ab394;
+  background-color: #0025a0;
   color: #fff;
-  border-color: #1ab394;
+  border-color: #0025a0;
 }
 #PageDashboard .page-dashboard-scanner:hover .ant-btn-icon {
   color: #fff;
@@ -28,9 +28,9 @@
   color: #fff;
 }
 #PageDashboard .page-dashboard-scanner.active {
-  background-color: #1ab394;
+  background-color: #0025a0;
   color: #fff;
-  border-color: #1ab394;
+  border-color: #0025a0;
 }
 #PageDashboard .page-dashboard-scanner.active .ant-btn-icon {
   color: #fff;
@@ -73,7 +73,7 @@
   color: #fff;
 }
 #PageDashboard .page-student-card-list-type.circle.In {
-  background-color: #1ab394;
+  background-color: #0025a0;
 }
 #PageDashboard .page-student-card-list-type.circle.Out {
   background-color: #ff4d4f;

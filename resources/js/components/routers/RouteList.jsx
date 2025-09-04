@@ -9,16 +9,17 @@ import {
 import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
 
-import Page404 from "../views/errors/Page404";
-import PageRequestPermission from "../views/errors/PageRequestPermission";
+import Page404 from "../views/Private/PageEditProfile/errors/Page404";
+import PageRequestPermission from "../views/Private/PageEditProfile/errors/PageRequestPermission";
 
 import PageLogin from "../views/public/PageLogin/PageLogin";
-import PageEditProfile from "../views/private/PageEditProfile/PageEditProfile";
+import PageEditProfile from "../views/Private/PageEditProfile/PageEditProfile";
 import PageDashboard from "../views/private/PageDashboard/PageDashboard";
 
 import PageUser from "../views/Private/PageUser/PageUser";
+import PageUserForm from "../views/Private/PageUser/PageUserForm";
 
-import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
+// import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
 export default function RouteList() {
     return (
@@ -132,25 +133,6 @@ export default function RouteList() {
                             },
                         ]}
                         component={PageUserForm}
-                    />
-                }
-            />
-            // Email Templates //End Email Templates
-            <Route
-                path="/email-templates"
-                element={
-                    <PrivateRoute
-                        // moduleCode="M-02"
-                        moduleName="Email Templates"
-                        title="Email Templates"
-                        pageId="PageEmailTemplates"
-                        pageHeaderIcon={faUsers}
-                        breadcrumb={[
-                            {
-                                name: "Email Templates",
-                            },
-                        ]}
-                        component={PageEmailTemplate}
                     />
                 }
             />

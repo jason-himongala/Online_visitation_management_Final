@@ -49,54 +49,14 @@ export const adminSideMenu = [
     {
         title: "Dashboard",
         path: "/dashboard",
-        icon: <FontAwesomeIcon icon={faHome} />, // Good choice
+        icon: <FontAwesomeIcon icon={faHome} />,
         moduleCode: "M-01",
     },
-    {
-        title: "Subjects",
-        path: "/subjects",
-        icon: <FontAwesomeIcon icon={faBookOpen} />, // Subjects -> books
-    },
-    {
-        title: "Classes",
-        path: "/classes",
-        icon: <FontAwesomeIcon icon={faChalkboardTeacher} />, // Classes -> teaching board
-    },
-    {
-        title: "Faculty",
-        path: "/faculty",
-        icon: <FontAwesomeIcon icon={faUserTie} />, // Faculty -> professional user
-    },
-    {
-        title: "Academic Year",
-        path: "/academic-year",
-        icon: <FontAwesomeIcon icon={faCalendarAlt} />, // Academic Year -> calendar
-    },
-    {
-        title: "Questionnaires",
-        path: "/questionnaires",
-        icon: <FontAwesomeIcon icon={faClipboardQuestion} />, // Questionnaires -> clipboard with question
-        moduleCode: "M-13",
-    },
-    {
-        title: "Evaluation Criteria",
-        path: "/evaluation-criteria",
-        icon: <FontAwesomeIcon icon={faClipboardCheck} />, // Criteria -> checklist
-    },
-    {
-        title: "Evaluation Report",
-        path: "/evaluation-report",
-        icon: <FontAwesomeIcon icon={faFileLines} />, // Report -> document
-    },
-    {
-        title: "Evaluation Graph Report",
-        path: "/evaluation-graph-report",
-        icon: <FontAwesomeIcon icon={faChartBar} />, // Graph report -> bar chart
-    },
+
     {
         title: "User",
-        path: "/user",
-        icon: <FontAwesomeIcon icon={faUsersCog} />, // User management -> users with settings
+        path: "/users",
+        icon: <FontAwesomeIcon icon={faUsersCog} />,
     },
 ];
 

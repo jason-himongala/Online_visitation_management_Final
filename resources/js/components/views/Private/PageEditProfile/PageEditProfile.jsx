@@ -1,10 +1,12 @@
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import { Row, Col, Button, Form, Collapse, notification } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faAngleDown,
     faAngleUp,
+    faArrowLeft,
     faCamera,
 } from "@fortawesome/pro-regular-svg-icons";
 
@@ -21,6 +23,7 @@ import SignaturePad from "./components/SignaturePad";
 
 export default function PageEditProfile() {
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const [toggleModalFormEmail, setToggleModalFormEmail] = useState({
         open: false,
@@ -62,12 +65,14 @@ export default function PageEditProfile() {
             let name_ext = data.profile.name_ext;
             let gender = data.profile.gender;
 
-            let profilePicture = data.profile?.attachments.filter(
-                (f) => f.file_description === "Profile Picture"
-            );
-            let signature = data.profile?.attachments.filter(
-                (f) => f.file_description === "Signature"
-            );
+            let profilePicture =
+                data.profile?.attachments?.filter(
+                    (f) => f.file_description === "Profile Picture"
+                ) || [];
+            let signature =
+                data.profile?.attachments?.filter(
+                    (f) => f.file_description === "Signature"
+                ) || [];
 
             if (profilePicture.length > 0) {
                 setToggleModalUploadProfilePicture({
@@ -144,6 +149,41 @@ export default function PageEditProfile() {
     return (
         <Form form={form} onFinish={onFinish}>
             <Row gutter={[12, 12]}>
+                <Col
+                    xs={{
+                        span: 24,
+                        order: 0,
+                    }}
+                    sm={{
+                        span: 24,
+                        order: 0,
+                    }}
+                    md={{
+                        span: 24,
+                        order: 0,
+                    }}
+                    lg={{
+                        span: 24,
+                        order: 0,
+                    }}
+                    xl={{
+                        span: 24,
+                        order: 0,
+                    }}
+                    xxl={{
+                        span: 24,
+                        order: 0,
+                    }}
+                >
+                    <Button
+                        icon={<FontAwesomeIcon icon={faArrowLeft} />}
+                        onClick={() => navigate(-1)}
+                        className="w-full sm:w-auto"
+                        shape="round"
+                    >
+                        Back
+                    </Button>
+                </Col>
                 <Col
                     sm={24}
                     md={24}
@@ -384,12 +424,13 @@ export default function PageEditProfile() {
                             {
                                 key: "0",
                                 label: "Profile Photo",
+                                className: "collapse-item-profile-picture",
                                 children: (
                                     <Row gutter={[12, 0]}>
                                         <Col xs={24} sm={24} md={24} lg={24}>
-                                            <div className="profile-picture-wrapper">
+                                            <div className="upload-profile-picture-wrapper">
                                                 <img
-                                                    alt=""
+                                                    alt="profile-picture-wrapper"
                                                     src={
                                                         toggleModalUploadProfilePicture.src
                                                             ? toggleModalUploadProfilePicture.src
@@ -428,23 +469,23 @@ export default function PageEditProfile() {
                                     </Row>
                                 ),
                             },
-                            {
-                                key: "1",
-                                label: "Signature",
-                                className: "collapse-signature",
-                                children: (
-                                    <Row gutter={[12, 0]}>
-                                        <Col xs={24} sm={24} md={24} lg={24}>
-                                            <SignaturePad
-                                                fileSignature={fileSignature}
-                                                setFileSignature={
-                                                    setFileSignature
-                                                }
-                                            />
-                                        </Col>
-                                    </Row>
-                                ),
-                            },
+                            // {
+                            //     key: "1",
+                            //     label: "Signature",
+                            //     className: "collapse-signature",
+                            //     children: (
+                            //         <Row gutter={[12, 0]}>
+                            //             <Col xs={24} sm={24} md={24} lg={24}>
+                            //                 <SignaturePad
+                            //                     fileSignature={fileSignature}
+                            //                     setFileSignature={
+                            //                         setFileSignature
+                            //                     }
+                            //                 />
+                            //             </Col>
+                            //         </Row>
+                            //     ),
+                            // },
                         ]}
                     />
                 </Col>

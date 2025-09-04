@@ -36,7 +36,10 @@
 
     <div id="root">
         <div class="splash-centered">
-            <img width="180" src="/images/ecard_logo.png" />
+            {{-- <img width="180" src="/images/ecard_logo.png" /> --}}
+            <Typography.Title level={2} className="mb-0">
+                LOGO HERE
+            </Typography.Title>
             <div class="splash-loader">
                 <div class="splash-inner one"></div>
                 <div class="splash-inner two"></div>

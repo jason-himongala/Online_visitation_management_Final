@@ -4,7 +4,6 @@
 .float-wrapper .ant-input-number .ant-input-number-input,
 .float-wrapper .ant-input-password .ant-input,
 .float-wrapper .ant-input {
-  border-radius: 0px;
   padding-top: 14px;
   padding-bottom: 2px;
   border-color: var(--color-gray-600);
@@ -12,61 +11,85 @@
 .float-wrapper .ant-input-number .ant-input-number-input:not(textarea),
 .float-wrapper .ant-input-password .ant-input:not(textarea),
 .float-wrapper .ant-input:not(textarea) {
-  height: 35px;
+  height: 40px;
 }
 .float-wrapper .ant-input-number .ant-input-number-input:not(textarea).ant-input-lg,
 .float-wrapper .ant-input-password .ant-input:not(textarea).ant-input-lg,
 .float-wrapper .ant-input:not(textarea).ant-input-lg {
-  height: 40px;
+  height: 45px;
 }
 .float-wrapper .ant-input-number .ant-input-number-input:not(textarea).ant-input-sm,
 .float-wrapper .ant-input-password .ant-input:not(textarea).ant-input-sm,
 .float-wrapper .ant-input:not(textarea).ant-input-sm {
-  height: 30px;
+  height: 35px;
 }
 .float-wrapper .ant-input-password {
   padding-top: 0px;
   padding-bottom: 0px;
-  border-radius: 0px;
   border-color: var(--color-gray-600);
 }
 .float-wrapper .ant-input-number {
   width: 100%;
-  border-radius: 0px;
 }
 .float-wrapper .ant-select {
   width: 100%;
-  border-radius: 0px;
-  height: 35px;
-}
-.float-wrapper .ant-select .ant-select-selector {
-  border-radius: 0px;
-}
-.float-wrapper .ant-select.ant-select-lg {
   height: 40px;
 }
-.float-wrapper .ant-select.ant-select-sm {
-  height: 30px;
+.float-wrapper .ant-select.ant-select-multiple .ant-select-selector {
+  overflow-y: auto;
 }
-.float-wrapper .ant-select .ant-select-selection-item,
-.float-wrapper .ant-select .ant-select-selection-search-input {
+.float-wrapper .ant-select .ant-select-selector {
+  border-color: var(--color-gray-600);
   padding-top: 14px !important;
-  padding-bottom: 2px !important;
+}
+.float-wrapper .ant-select .ant-select-selector:hover {
+  border-color: var(--color-gray-600) !important;
+}
+.float-wrapper .ant-select .ant-select-arrow {
+  color: var(--color-gray-600);
+}
+.float-wrapper .ant-select.ant-select-lg {
+  height: 45px;
+}
+.float-wrapper .ant-select.ant-select-sm {
+  height: 35px;
 }
 .float-wrapper .ant-picker {
   width: 100%;
-  border-radius: 0px;
-  height: 35px;
+  height: 40px;
+  border-color: var(--color-gray-600);
 }
 .float-wrapper .ant-picker .ant-picker-input input {
-  padding-top: 14px;
+  padding-top: 2px;
   padding-bottom: 2px;
 }
-.float-wrapper .ant-picker.ant-picker-large {
+.float-wrapper .ant-picker .ant-picker-range {
   height: 40px;
 }
+.float-wrapper .ant-picker .ant-picker-active-bar {
+  background-color: var(--color-secondary) !important;
+}
+.float-wrapper .ant-picker .ant-picker-suffix {
+  color: var(--color-gray-600);
+}
+.float-wrapper .ant-picker.ant-picker-large {
+  height: 45px;
+}
 .float-wrapper .ant-picker.ant-picker-small {
-  height: 30px;
+  height: 35px;
+}
+.float-wrapper.quill {
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-600);
+}
+.float-wrapper.quill .ql-toolbar {
+  border-radius: 8px 8px 0 0;
+  border: none;
+  border-bottom: 1px solid var(--color-gray-600);
+}
+.float-wrapper.quill .ql-container {
+  border-radius: 0 0 8px 8px;
+  border: none;
 }
 .float-wrapper.quill .ql-editor {
   min-height: 120px;
@@ -76,26 +99,36 @@
   font-weight: normal;
   position: absolute;
   pointer-events: none;
-  left: 12px;
+  left: 1px;
   top: 10px;
-  transition: 0.2s ease all;
   color: var(--color-gray-600);
   z-index: 1;
   line-height: normal;
+  width: auto;
+  padding-left: 12px;
+  background-color: var(--color-white);
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  vertical-align: sub;
+  transition: 0.2s ease all;
 }
 .float-wrapper .label.float-label {
-  top: 2px;
+  top: 1px;
   font-size: 11px;
+  width: calc(100% - 2px);
 }
 .float-wrapper .label.large {
-  top: 12px;
+  top: 14px;
 }
 .float-wrapper .label.large.float-label {
-  top: 2px;
+  top: 1px;
 }
 .float-wrapper .label.small {
   top: 8px;
 }
 .float-wrapper .label.small.float-label {
   top: 2px;
+}
+.float-wrapper.disabled .label {
+  background-color: transparent;
 }/*# sourceMappingURL=input.css.map */

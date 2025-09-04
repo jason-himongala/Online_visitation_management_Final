@@ -95,7 +95,8 @@
 html,
 body {
     font-family: MontserratRegular !important;
-    background-image: url("../img/login_bg.png");
+    /* background-image: url("../img/login_bg.png"); */
+    background-color: #0d5b10;
     background-repeat: no-repeat;
     background-size: cover;
     margin: 0px;

@@ -52,7 +52,10 @@ export default function PageLogin() {
             <Row gutter={[20, 20]} className="w-full" justify="center">
                 <Card className="page-login-card w-lg">
                     <Flex align="center" justify="center">
-                        <img src={appLogo} className="w-50" />
+                        {/* <img src={appLogo} className="w-50" /> */}
+                        <Typography.Title level={2} className="mb-0">
+                            LOGO HERE
+                        </Typography.Title>
                     </Flex>
                     <Typography.Title level={3} className="text-center mb-5!">
                         Account Login
@@ -106,7 +109,9 @@ export default function PageLogin() {
                         )}
                     </Form>
                     <Flex justify="end" className="" style={{ marginTop: 15 }}>
-                        {`© ${date.getFullYear()} ${description}. All Rights
+                        {/* {`© ${date.getFullYear()} ${description}. All Rights
+                        Reserved.`} */}
+                        {`© ${date.getFullYear()} Title Of System. All Rights
                         Reserved.`}
                     </Flex>
                 </Card>

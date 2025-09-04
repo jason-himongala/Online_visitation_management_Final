@@ -1,7 +1,5 @@
 # LARAVEL REACT VITE SETUP
 
-This theme is for DSAC usage/distribution. Any other usage of this is not allowed.
-
 ### setup database
 
 ### setup .env

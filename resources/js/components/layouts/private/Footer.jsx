@@ -7,7 +7,8 @@ export default function Footer() {
     return (
         <Layout.Footer>
             <Flex justify="space-between">
-                <span>{`${appName} ©2025 DEVELOPED BY DSAC TEAM`}</span>
+                {/* <span>{`${appName} ©2025 DEVELOPED BY TEAM`}</span> */}
+                <span>{`Title Of System ©2025 DEVELOPED BY TEAM`}</span>
 
                 <span>
                     V:{" "}

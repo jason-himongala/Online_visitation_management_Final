@@ -200,7 +200,7 @@ export default function Sidemenu(props) {
                 <br />
                 <br />
                 <br />
-                <div className="logo_wrapper">
+                {/* <div className="logo_wrapper">
                     {!sideMenuCollapse && (
                         <img
                             src={appLogoFullWidth}
@@ -209,7 +209,7 @@ export default function Sidemenu(props) {
                             margin-top="81px"
                         />
                     )}
-                </div>
+                </div> */}
             </div>
 
             <Menu

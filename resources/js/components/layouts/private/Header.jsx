@@ -1,10 +1,11 @@
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Dropdown, Image, Layout, Typography, Badge } from "antd"; // Added Badge
+import { Link } from "react-router-dom";
+import { Dropdown, Image, Layout, Typography } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faPowerOff } from "@fortawesome/pro-light-svg-icons";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { faBell } from "@fortawesome/pro-regular-svg-icons";
+import { faBell, faMessageMinus } from "@fortawesome/pro-solid-svg-icons";
 
 import {
     apiUrl,
@@ -12,17 +13,14 @@ import {
     role,
     userData,
 } from "../../providers/appConfig";
+import ModalMessage from "./components/ModalMessage";
 
 export default function Header(props) {
     const { width, sideMenuCollapse, setSideMenuCollapse } = props;
 
     const [profilePicture, setProfilePicture] = useState(defaultProfile);
-    const [notificationCount, setNotificationCount] = useState(3);
-    // const [notifications, setNotifications] = useState([
-    //     { id: 1, message: "Welcome to the app!" },
-    //     { id: 2, message: "Your profile was updated." },
-    //     { id: 3, message: "You have a new message." },
-    // ]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         if (userData().profile_picture) {
@@ -53,27 +51,18 @@ export default function Header(props) {
                 label: "Notifications",
                 key: "0",
             },
+
             {
                 type: "divider",
             },
-            // ...(notifications.length > 0
-            //     ? notifications.map((notif, idx) => ({
-            //           label: notif.message,
-            //           key: `notif-${notif.id}`,
-            //       }))
-            //     : [
-            //           {
-            //               label: "No notification",
-            //               key: "1",
-            //           },
-            //       ]),
 
             {
                 label: "No notification",
                 key: "1",
             },
         ];
-        return { items };
+
+        return items;
     };
 
     const menuProfile = () => {
@@ -122,7 +111,7 @@ export default function Header(props) {
             ),
         });
 
-        return { items };
+        return items;
     };
 
     return (
@@ -146,8 +135,16 @@ export default function Header(props) {
             </div>
 
             <div className="header-right-menu">
+                <FontAwesomeIcon
+                    className="menu-submenu-message"
+                    icon={faMessageMinus}
+                    onClick={() => setIsModalOpen(true)}
+                />
+
                 <Dropdown
-                    menu={menuNotification()}
+                    menu={{
+                        items: menuNotification(),
+                    }}
                     placement="bottomRight"
                     overlayClassName="menu-submenu-notification-popup"
                     trigger={["click"]}
@@ -156,20 +153,12 @@ export default function Header(props) {
                         className="menu-submenu-notification"
                         icon={faBell}
                     />
-                    {/* <Badge
-                        count={notificationCount}
-                        size="medium"
-                        offset={[0, 5]}
-                    >
-                        <FontAwesomeIcon
-                            className="menu-submenu-notification"
-                            icon={faBell}
-                        />
-                    </Badge> */}
                 </Dropdown>
 
                 <Dropdown
-                    menu={menuProfile()}
+                    menu={{
+                        items: menuProfile(),
+                    }}
                     placement="bottomRight"
                     overlayClassName="menu-submenu-profile-popup"
                     trigger={["click"]}
@@ -182,6 +171,17 @@ export default function Header(props) {
                     />
                 </Dropdown>
             </div>
+
+            <ModalMessage
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+            />
         </Layout.Header>
     );
 }
+
+Header.propTypes = {
+    width: PropTypes.number,
+    sideMenuCollapse: PropTypes.bool,
+    setSideMenuCollapse: PropTypes.func,
+};

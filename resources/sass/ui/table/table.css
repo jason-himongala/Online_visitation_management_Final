@@ -1,3 +1,14 @@
+:root {
+  --color-primary: #0d5b10;
+  --color-secondary: #69b31e;
+  --color-tertiary: #ededed;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+  --color-highlight: #ebfca3;
+}
+
 .tbl-search-wrapper {
   width: 300px;
 }
@@ -6,8 +17,8 @@
     width: 100%;
   }
 }
-.tbl-search-wrapper .ant-input-outlined:focus {
-  box-shadow: none !important;
+.tbl-search-wrapper .ant-input-outlined:focus, .tbl-search-wrapper .ant-input-outlined:focus-within {
+  box-shadow: 0 0 0 1px var(--color-primary) !important;
   outline: none;
 }
 .tbl-search-wrapper .ant-input-group-wrapper {
@@ -56,6 +67,7 @@
   border-bottom: 1px solid #000000;
   padding: 0px 11px;
   width: 100%;
+  border-radius: 5px;
 }
 .tbl-search-wrapper.animated.show .ant-input-affix-wrapper::before {
   display: inline-block;
@@ -74,11 +86,14 @@
 }
 
 .tbl-showing-entries {
-  height: 35px;
   display: flex;
   align-items: center;
 }
 
+.tbl-top-filter .float-wrapper .ant-select,
+.tbl-bottom-filter .float-wrapper .ant-select {
+  width: 200px !important;
+}
 .tbl-top-filter .ant-pagination,
 .tbl-bottom-filter .ant-pagination {
   height: 30px;
@@ -106,6 +121,7 @@
   padding: 0px;
   background-color: #ffffff;
   border: 0px;
+  height: 30px !important;
   border-top-right-radius: 0px !important;
   border-bottom-right-radius: 0px !important;
 }
@@ -114,6 +130,7 @@
   padding: 0px;
   background-color: #ffffff;
   border: 0px;
+  height: 30px !important;
   border-top-left-radius: 0px !important;
   border-bottom-left-radius: 0px !important;
 }
@@ -124,8 +141,8 @@
 }
 .tbl-top-filter .ant-pagination .ant-pagination-item,
 .tbl-bottom-filter .ant-pagination .ant-pagination-item {
-  border-radius: 5px;
-  border-color: #d9d9d9;
+  border-radius: 10px;
+  border-color: var(--color-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -133,17 +150,23 @@
 }
 .tbl-top-filter .ant-pagination .ant-pagination-item.ant-pagination-item-active,
 .tbl-bottom-filter .ant-pagination .ant-pagination-item.ant-pagination-item-active {
-  border-color: var(--color-blue-600);
+  border-color: var(--color-primary) !important;
 }
 .tbl-top-filter .ant-pagination .ant-pagination-item.ant-pagination-item-active a,
 .tbl-bottom-filter .ant-pagination .ant-pagination-item.ant-pagination-item-active a {
-  color: var(--color-blue-600);
+  color: var(--color-primary) !important;
 }
 .tbl-top-filter .ant-pagination .ant-pagination-item a,
 .tbl-bottom-filter .ant-pagination .ant-pagination-item a {
   color: rgba(0, 0, 0, 0.85);
 }
 
+.ant-table-wrapper .ant-table {
+  border-radius: 0px;
+}
+.ant-table-wrapper .ant-table .ant-table-container {
+  border-radius: 0px;
+}
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-header {
   border-radius: 0px;
 }
@@ -151,7 +174,7 @@
   z-index: 3;
   overflow: auto hidden !important;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-blue-400) var(--color-blue-200);
+  scrollbar-color: var(--color-secondary) !important;
 }
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-header table {
   border-radius: 0px;
@@ -159,6 +182,7 @@
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-header table thead.ant-table-thead tr th.ant-table-cell {
   font-weight: 600;
   padding-block: 8px;
+  border-radius: 0px;
 }
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-header table thead.ant-table-thead tr th.ant-table-cell .ant-table-selection .ant-checkbox-wrapper .ant-checkbox .ant-checkbox-inner {
   border: 1px solid #000000;
@@ -178,7 +202,7 @@
 }
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-body {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-blue-400) var(--color-blue-200);
+  scrollbar-color: var(--color-secondary) !important;
 }
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-body table tbody.ant-table-tbody tr td.ant-table-cell {
   vertical-align: baseline;
@@ -188,7 +212,7 @@
   opacity: 1;
 }
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-sticky-scroll .ant-table-sticky-scroll-bar {
-  background-color: var(--color-blue-200) !important;
+  background-color: var(--color-secondary) !important;
 }
 .ant-table-wrapper .ant-table .ant-table-container .ant-table-content table thead.ant-table-thead tr th.ant-table-cell {
   padding-block: 8px;
