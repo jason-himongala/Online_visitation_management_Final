@@ -20,6 +20,7 @@ class AuthController extends Controller
         $studentAllowedURL = explode(",", env("APP_ALLOWED_DOMAINS_STUDENT"));
         $host = $request->getHttpHost();
 
+
         $credentialsEmail = [
             'email' => $request->email,
             'password' => $request->password
