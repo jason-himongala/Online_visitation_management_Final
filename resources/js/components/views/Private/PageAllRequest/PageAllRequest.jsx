@@ -13,6 +13,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCheckCircle,
+    faFile,
     faPlus,
     faTimesCircle,
 } from "@fortawesome/pro-regular-svg-icons";
@@ -25,10 +26,15 @@ import {
     TableShowingEntriesV2,
 } from "../../../providers/CustomTableFilter";
 import useTableScrollOnTop from "../../../providers/useTableScrollOnTop";
+import ModalFileReview from "./component/ModalFileReview";
 
 export default function PageAllRequest() {
     const navigate = useNavigate();
     const location = useLocation();
+    const [openModalFileReview, setOpenModalFileReview] = useState({
+        open: false,
+        data: null,
+    });
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
@@ -58,7 +64,7 @@ export default function PageAllRequest() {
                     fullname: "CCIS",
                     gender: "2023-01-01 09:00 AM",
                     purpose_of_visit: "Inquiry",
-                    file: "document.pdf",
+                    file: "",
                 },
                 {
                     id: 2,
@@ -66,7 +72,7 @@ export default function PageAllRequest() {
                     fullname: "CCIS",
                     gender: "2023-01-02 10:30 AM",
                     purpose_of_visit: "Payment",
-                    file: "receipt.pdf",
+                    file: "",
                 },
             ],
         },
@@ -232,6 +238,21 @@ export default function PageAllRequest() {
                                                 }
                                             />
                                         </Popconfirm>
+                                        <Button
+                                            type="link"
+                                            name="btn_file"
+                                            onClick={() =>
+                                                setOpenModalFileReview({
+                                                    open: true,
+                                                    data: record.file,
+                                                })
+                                            }
+                                            icon={
+                                                <FontAwesomeIcon
+                                                    icon={faFile}
+                                                />
+                                            }
+                                        />
                                     </Flex>
                                 );
                             }}
@@ -240,35 +261,24 @@ export default function PageAllRequest() {
                             title="Visitors"
                             key="visitors"
                             dataIndex="visitors"
-                            sorter
                             width={180}
                         />
                         <Table.Column
                             title="Office"
                             key="fullname"
                             dataIndex="fullname"
-                            sorter
                             width={180}
                         />
                         <Table.Column
                             title="Date&Time"
                             key="gender"
                             dataIndex="gender"
-                            sorter
                             width={150}
                         />
                         <Table.Column
                             title="Purpose of Visit"
                             key="purpose_of_visit"
                             dataIndex="purpose_of_visit"
-                            sorter
-                            width={150}
-                        />
-                        <Table.Column
-                            title="File"
-                            key="file"
-                            dataIndex="file"
-                            sorter
                             width={150}
                         />
                     </Table>
@@ -296,6 +306,11 @@ export default function PageAllRequest() {
                     </Flex>
                 </Col>
             </Row>
+
+            <ModalFileReview
+                openModalFileReview={openModalFileReview}
+                setOpenModalFileReview={setOpenModalFileReview}
+            />
         </Card>
     );
 }

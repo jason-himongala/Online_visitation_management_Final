@@ -115,6 +115,13 @@ export const DepartmentSideMenu = [
         icon: <FontAwesomeIcon icon={faTimesCircle} />,
         moduleCode: "M-05",
     },
+
+    {
+        title: "Available Schedules",
+        path: "/available-schedules",
+        icon: <FontAwesomeIcon icon={faBook} />,
+        moduleCode: "M-05",
+    },
 ];
 
 export const PicoSideMenu = [

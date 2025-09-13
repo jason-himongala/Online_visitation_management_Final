@@ -30,6 +30,8 @@ import PageVisitionForm from "../views/Public/PageVisitorView/PageVisition";
 import PageVisition from "../views/Public/PageVisitorView/PageVisition";
 import PageFeedBack from "../views/Public/PageVisitorView/PageFeedBack";
 import PageVisitationContent from "../views/Public/PageVisitorView/component/PageVisitionContent";
+import PageDepartment from "../views/Private/PageDepartment/PageDepartment";
+import PageEvent from "../views/Private/PageEvent/PageEvent";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -289,6 +291,29 @@ export default function RouteList() {
                             },
                         ]}
                         component={PageDeclined}
+                    />
+                }
+            />
+            <Route
+                path="/available-schedules"
+                element={
+                    <PrivateRoute
+                        // moduleCode="M-02"
+                        moduleName="Available Schedules"
+                        title="PageAvailableSchedules"
+                        subtitle="VIEW / EDIT"
+                        pageId="PageAvailableSchedules"
+                        pageHeaderIcon={faUserCircle}
+                        breadcrumb={[
+                            {
+                                name: "Available Schedules",
+                                link: "/available-schedules",
+                            },
+                            {
+                                name: "View Available Schedules",
+                            },
+                        ]}
+                        component={PageEvent}
                     />
                 }
             />
