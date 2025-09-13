@@ -5,7 +5,11 @@ import { Dropdown, Image, Layout, Typography } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faPowerOff } from "@fortawesome/pro-light-svg-icons";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { faBell, faMessageMinus } from "@fortawesome/pro-solid-svg-icons";
+import {
+    faBell,
+    faMessages,
+    faMessageMinus,
+} from "@fortawesome/pro-solid-svg-icons";
 
 import {
     apiUrl,
@@ -17,6 +21,10 @@ import ModalMessage from "./components/ModalMessage";
 
 export default function Header(props) {
     const { width, sideMenuCollapse, setSideMenuCollapse } = props;
+    const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({
+        open: false,
+        data: null,
+    });
 
     const [profilePicture, setProfilePicture] = useState(defaultProfile);
 
@@ -137,8 +145,8 @@ export default function Header(props) {
             <div className="header-right-menu">
                 <FontAwesomeIcon
                     className="menu-submenu-message"
-                    icon={faMessageMinus}
-                    onClick={() => setIsModalOpen(true)}
+                    icon={faMessages}
+                    onClick={() => setToggleModalOpenGroupChat({ open: true })}
                 />
 
                 <Dropdown
@@ -173,8 +181,8 @@ export default function Header(props) {
             </div>
 
             <ModalMessage
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                toggleModalOpenGroupChat={toggleModalOpenGroupChat}
+                setToggleModalOpenGroupChat={setToggleModalOpenGroupChat}
             />
         </Layout.Header>
     );

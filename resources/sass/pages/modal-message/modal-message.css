@@ -161,6 +161,12 @@
   height: 100%;
 }
 
+.custom-blur-modal .ant-modal-root .ant-modal-mask {
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px); /* blur strength */
+  background-color: rgba(0, 0, 0, 0.3); /* optional dim effect */
+}
+
 @keyframes typing-animation {
   0%, 80%, 100% {
     transform: scale(0.8);

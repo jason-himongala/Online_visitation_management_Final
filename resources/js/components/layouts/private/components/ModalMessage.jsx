@@ -1,52 +1,83 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Modal, Input, Button, List, Avatar, Typography } from "antd";
 import {
     SendOutlined,
     CheckOutlined,
     CheckCircleOutlined,
 } from "@ant-design/icons";
-import "../../../../../sass/pages/modal-message/modal-message.scss";
-import { faA, faArrowLeft } from "@fortawesome/pro-regular-svg-icons";
+import { faArrowLeft } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const { Title, Text } = Typography;
 
-const usersList = [
+// Example groups
+const groupsList = [
     {
-        id: 1,
-        name: "Alice Johnson",
-        avatar: "https://i.pravatar.cc/40?img=1",
-        status: "online",
+        id: "mnhs",
+        name: "MNHS",
+        avatar: "https://via.placeholder.com/40",
+        members: [
+            {
+                id: 1,
+                name: "PICO",
+                avatar: "https://static.beebom.com/wp-content/uploads/2025/03/cha-hae-in-solo-leveling.jpg?w=1250&quality=75",
+                status: "online",
+            },
+            {
+                id: 2,
+                name: "Juan Dela Cruz",
+                avatar: "https://via.placeholder.com/40/f5222d/ffffff?text=J",
+                status: "offline",
+            },
+        ],
     },
     {
-        id: 2,
-        name: "Bob Smith",
-        avatar: "https://i.pravatar.cc/40?img=2",
-        status: "away",
-    },
-    {
-        id: 3,
-        name: "Charlie Brown",
-        avatar: "https://i.pravatar.cc/40?img=3",
-        status: "offline",
+        id: "science",
+        name: "Science Department",
+        avatar: "https://via.placeholder.com/40",
+        members: [
+            {
+                id: 3,
+                name: "Teacher A",
+                avatar: "https://via.placeholder.com/40/52c41a/ffffff?text=A",
+                status: "online",
+            },
+            {
+                id: 4,
+                name: "Teacher B",
+                avatar: "https://via.placeholder.com/40/722ed1/ffffff?text=B",
+                status: "away",
+            },
+        ],
     },
 ];
 
-function ModalMessage({ isOpen, onClose }) {
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [messages, setMessages] = useState({});
+export default function ModalMessage(props) {
+    const { setToggleModalOpenGroupChat, toggleModalOpenGroupChat } = props;
+    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [messages, setMessages] = useState({
+        mnhs: [
+            {
+                id: 1,
+                sender: "PICO",
+                text: "Nag kaon kana love?",
+                timestamp: Date.now(),
+                status: "seen",
+            },
+        ],
+    });
     const [newMessage, setNewMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
-    const [typingUsers, setTypingUsers] = useState({}); // Track typing status per user
-    const [showTypingResponse, setShowTypingResponse] = useState(false); // Track if we should show typing indicator for response
-    const typingTimeouts = useRef({}); // Track timeouts per user
+    const [hasOpened, setHasOpened] = useState(false);
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        if (isOpen) {
-            scrollToBottom();
+        if (toggleModalOpenGroupChat.open) {
+            setHasOpened(true);
+        } else {
+            setSelectedGroup(null);
         }
-    }, [messages, isOpen, typingUsers, showTypingResponse]);
+    }, [toggleModalOpenGroupChat.open]);
 
     const formatTime = (timestamp) => {
         return new Date(timestamp).toLocaleTimeString([], {
@@ -79,57 +110,8 @@ function ModalMessage({ isOpen, onClose }) {
         });
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case "online":
-                return "#52c41a";
-            case "away":
-                return "#faad14";
-            case "offline":
-            default:
-                return "#d9d9d9";
-        }
-    };
-
-    const handleInputChange = (e) => {
-        setNewMessage(e.target.value);
-
-        if (!selectedUser) return;
-
-        // Set typing status for the current user
-        if (!typingUsers[selectedUser.id]) {
-            setTypingUsers((prev) => ({
-                ...prev,
-                [selectedUser.id]: true,
-            }));
-        }
-
-        // Clear existing timeout for this user
-        if (typingTimeouts.current[selectedUser.id]) {
-            clearTimeout(typingTimeouts.current[selectedUser.id]);
-        }
-
-        // Set new timeout to clear typing status
-        typingTimeouts.current[selectedUser.id] = setTimeout(() => {
-            setTypingUsers((prev) => ({
-                ...prev,
-                [selectedUser.id]: false,
-            }));
-        }, 2000);
-    };
-
     const handleSend = () => {
-        if (newMessage.trim() === "" || !selectedUser) return;
-
-        setTypingUsers((prev) => ({
-            ...prev,
-            [selectedUser.id]: false,
-        }));
-
-        if (typingTimeouts.current[selectedUser.id]) {
-            clearTimeout(typingTimeouts.current[selectedUser.id]);
-            delete typingTimeouts.current[selectedUser.id];
-        }
+        if (newMessage.trim() === "" || !selectedGroup) return;
 
         const timestamp = Date.now();
         const newMsg = {
@@ -140,212 +122,182 @@ function ModalMessage({ isOpen, onClose }) {
             status: "sent",
         };
 
-        setMessages((prevMessages) => ({
-            ...prevMessages,
-            [selectedUser.id]: [
-                ...(prevMessages[selectedUser.id] || []),
-                newMsg,
-            ],
+        setMessages((prev) => ({
+            ...prev,
+            [selectedGroup.id]: [...(prev[selectedGroup.id] || []), newMsg],
         }));
+
         setNewMessage("");
-
-        setTimeout(() => {
-            setMessages((prevMessages) => {
-                const updatedMessages = [
-                    ...(prevMessages[selectedUser.id] || []),
-                ];
-                const lastMsgIndex = updatedMessages.findIndex(
-                    (msg) => msg.id === timestamp
-                );
-                if (lastMsgIndex !== -1) {
-                    updatedMessages[lastMsgIndex] = {
-                        ...updatedMessages[lastMsgIndex],
-                        status: "delivered",
-                    };
-                }
-
-                return {
-                    ...prevMessages,
-                    [selectedUser.id]: updatedMessages,
-                };
-            });
-        }, 500);
-
-        // Show typing indicator before sending response
-        setTimeout(() => {
-            setShowTypingResponse(true);
-
-            // After showing typing indicator for 1.5 seconds, send the response
-            setTimeout(() => {
-                setShowTypingResponse(false);
-                const responseTimestamp = Date.now();
-                setMessages((prevMessages) => ({
-                    ...prevMessages,
-                    [selectedUser.id]: [
-                        ...(prevMessages[selectedUser.id] || []),
-                        {
-                            id: responseTimestamp,
-                            text: "Maayong adlaw",
-                            sender: selectedUser.name,
-                            timestamp: responseTimestamp,
-                        },
-                    ],
-                }));
-
-                setTimeout(() => {
-                    setMessages((prevMessages) => {
-                        const updatedMessages = [
-                            ...(prevMessages[selectedUser.id] || []),
-                        ];
-                        const lastMsgIndex = updatedMessages.findIndex(
-                            (msg) => msg.id === timestamp
-                        );
-                        if (lastMsgIndex !== -1) {
-                            updatedMessages[lastMsgIndex] = {
-                                ...updatedMessages[lastMsgIndex],
-                                status: "seen",
-                            };
-                        }
-
-                        return {
-                            ...prevMessages,
-                            [selectedUser.id]: updatedMessages,
-                        };
-                    });
-                }, 300);
-            }, 1500);
-        }, 1000);
     };
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    const filteredUsers = usersList.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const groupMessagesByDate = (messages = []) => {
+    const groupMessagesByDate = (msgs = []) => {
         const grouped = {};
-        messages.forEach((message) => {
-            const date = formatDate(message.timestamp);
+        msgs.forEach((msg) => {
+            const date = formatDate(msg.timestamp);
             if (!grouped[date]) {
                 grouped[date] = [];
             }
-            grouped[date].push(message);
+            grouped[date].push(msg);
         });
         return grouped;
     };
 
-    const groupedMessages = selectedUser
-        ? groupMessagesByDate(messages[selectedUser.id])
+    const filteredGroups = groupsList.filter((g) =>
+        g.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const groupedMessages = selectedGroup
+        ? groupMessagesByDate(messages[selectedGroup.id] || [])
         : {};
 
     return (
         <Modal
-            title="Messages"
-            open={isOpen}
-            onCancel={onClose}
-            footer={null}
+            title="Group Chat"
+            className="custom-blur-modal"
+            blur={true}
+            open={toggleModalOpenGroupChat.open}
+            onCancel={() => {
+                setToggleModalOpenGroupChat({
+                    open: false,
+                    data: null,
+                });
+                setSelectedGroup(null);
+            }}
+            footer={[
+                <Button
+                    key="submit"
+                    type="default"
+                    shape="round"
+                    size="large"
+                    onClick={() => {
+                        setToggleModalOpenGroupChat({
+                            open: false,
+                            data: null,
+                        });
+                    }}
+                >
+                    Close
+                </Button>,
+            ]}
             width={1100}
             closable={true}
         >
-            <div className="modal-message-container">
-                <div className="user-list">
-                    <Title level={4} className="chat-title">
-                        Chats
-                    </Title>
+            <div
+                className="modal-message-container"
+                style={{ display: "flex" }}
+            >
+                <div
+                    className="group-list"
+                    style={{ width: "300px", marginRight: "16px" }}
+                >
+                    <Title level={4}>Groups</Title>
                     <Input
-                        placeholder="Search users..."
+                        placeholder="Search groups..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
+                        allowClear
+                        style={{ marginBottom: 12 }}
                     />
                     <List
-                        dataSource={filteredUsers}
-                        renderItem={(user) => (
+                        dataSource={filteredGroups}
+                        renderItem={(group) => (
                             <List.Item
-                                key={user.id}
-                                className={`user-item ${
-                                    selectedUser?.id === user.id
+                                key={group.id}
+                                className={`group-item ${
+                                    selectedGroup?.id === group.id
                                         ? "selected"
                                         : ""
                                 }`}
-                                onClick={() => setSelectedUser(user)}
+                                onClick={() => setSelectedGroup(group)}
+                                style={{
+                                    cursor: "pointer",
+                                    background:
+                                        selectedGroup?.id === group.id
+                                            ? "#f0f5ff"
+                                            : "transparent",
+                                    borderRadius: 6,
+                                }}
                             >
                                 <List.Item.Meta
-                                    avatar={
-                                        <div style={{ position: "relative" }}>
-                                            <Avatar src={user.avatar} />
-                                            <span
-                                                style={{
-                                                    position: "absolute",
-                                                    bottom: 0,
-                                                    right: 0,
-                                                    width: "10px",
-                                                    height: "10px",
-                                                    borderRadius: "50%",
-                                                    backgroundColor:
-                                                        getStatusColor(
-                                                            user.status
-                                                        ),
-                                                    border: "2px solid #fff",
-                                                    display: "block",
-                                                }}
-                                            />
-                                        </div>
-                                    }
-                                    title={<span>{user.name}</span>}
+                                    avatar={<Avatar src={group.avatar} />}
+                                    title={<span>{group.name}</span>}
+                                    description={`${group.members.length} members`}
                                 />
                             </List.Item>
                         )}
                     />
                 </div>
 
-                <div className="chat-window">
-                    {selectedUser ? (
+                <div className="chat-window" style={{ flex: 1 }}>
+                    {selectedGroup ? (
                         <>
                             <Title level={5} className="chat-header">
                                 <Button
                                     type="link"
                                     shape="default"
-                                    onClick={() => setSelectedUser(null)}
-                                    style={{ marginBottom: 16 }}
+                                    onClick={() => setSelectedGroup(null)}
+                                    style={{ marginRight: 12 }}
                                     icon={
                                         <FontAwesomeIcon icon={faArrowLeft} />
                                     }
-                                ></Button>
+                                />
+                                <Avatar src={selectedGroup.avatar} />
+                                <b style={{ marginLeft: 8 }}>
+                                    {selectedGroup.name}
+                                </b>
                                 <div
-                                    style={{
-                                        position: "relative",
-                                        display: "inline-block",
-                                        marginRight: 8,
-                                    }}
+                                    style={{ fontSize: "12px", color: "#888" }}
                                 >
-                                    <Avatar src={selectedUser.avatar} />
-                                    <span
-                                        style={{
-                                            position: "absolute",
-                                            bottom: 0,
-                                            right: 0,
-                                            width: "10px",
-                                            height: "10px",
-                                            borderRadius: "50%",
-                                            backgroundColor: getStatusColor(
-                                                selectedUser.status
-                                            ),
-                                            border: "2px solid #fff",
-                                            display: "block",
-                                        }}
-                                    />
+                                    {selectedGroup.members
+                                        .map((m) => m.name)
+                                        .join(", ")}
                                 </div>
-                                <b>{selectedUser.name}</b>
                             </Title>
-                            <div className="messages-container">
+
+                            {/* Messages */}
+                            <div
+                                className="messages-container"
+                                style={{
+                                    maxHeight: "400px",
+                                    overflowY: "auto",
+                                }}
+                            >
                                 {Object.entries(groupedMessages).map(
                                     ([date, dateMessages]) => (
                                         <div key={date}>
-                                            <div className="date-divider">
+                                            <div className="empty-chat-message flex flex-col items-center justify-center py-10">
+                                                <div className="flex items-center -space-x-8">
+                                                    <Avatar
+                                                        size={56}
+                                                        src="https://wallpaper.forfun.com/fetch/62/629c409637a4efc5fc0dc0c3114fd435.jpeg"
+                                                        className="border-2 border-white shadow-md"
+                                                    />
+                                                    <Avatar
+                                                        size={72}
+                                                        src="https://static.beebom.com/wp-content/uploads/2025/03/cha-hae-in-solo-leveling.jpg?w=1250&quality=75"
+                                                        className="border-2 border-white shadow-md z-10"
+                                                    />
+                                                    <Avatar
+                                                        size={56}
+                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdBCfmXFkG8CuyRB-_w6LqfTKJISRudOCdhw&s"
+                                                        className="border-2 border-white shadow-md"
+                                                    />
+                                                </div>
+                                                <p className="mt-4 text-gray-700 text-sm font-medium text-center">
+                                                    Group Chat Created{" "}
+                                                    <span className="ml-1">
+                                                        You can now contact each
+                                                        other.
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div
+                                                className="date-divider"
+                                                style={{
+                                                    textAlign: "center",
+                                                    margin: "12px 0",
+                                                }}
+                                            >
                                                 <Text type="secondary">
                                                     {date}
                                                 </Text>
@@ -359,30 +311,96 @@ function ModalMessage({ isOpen, onClose }) {
                                                                 ? "sent"
                                                                 : "received"
                                                         }`}
+                                                        style={{
+                                                            display: "flex",
+                                                            justifyContent:
+                                                                msg.sender ===
+                                                                "You"
+                                                                    ? "flex-end"
+                                                                    : "flex-start",
+                                                        }}
                                                     >
-                                                        <div className="message-content">
+                                                        <div
+                                                            className="message-content"
+                                                            style={{
+                                                                display: "flex",
+                                                                alignItems:
+                                                                    "flex-end",
+                                                            }}
+                                                        >
                                                             {msg.sender !==
                                                                 "You" && (
                                                                 <Avatar
                                                                     src={
-                                                                        selectedUser.avatar
+                                                                        selectedGroup.members.find(
+                                                                            (
+                                                                                m
+                                                                            ) =>
+                                                                                m.name ===
+                                                                                msg.sender
+                                                                        )
+                                                                            ?.avatar
                                                                     }
                                                                     className="message-avatar"
+                                                                    style={{
+                                                                        marginRight: 8,
+                                                                    }}
                                                                 />
                                                             )}
-                                                            <div className="message-bubble">
+                                                            <div
+                                                                className="message-bubble"
+                                                                style={{
+                                                                    background:
+                                                                        msg.sender ===
+                                                                        "You"
+                                                                            ? "#e6f7ff"
+                                                                            : "#fafafa",
+                                                                    padding:
+                                                                        "8px 12px",
+                                                                    borderRadius: 12,
+                                                                    maxWidth:
+                                                                        "70%",
+                                                                }}
+                                                            >
+                                                                {msg.sender !==
+                                                                    "You" && (
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 12,
+                                                                            fontWeight:
+                                                                                "bold",
+                                                                            marginBottom: 4,
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            msg.sender
+                                                                        }
+                                                                    </div>
+                                                                )}
                                                                 <div className="message-text">
                                                                     {msg.text}
                                                                 </div>
-                                                                <div className="message-meta">
-                                                                    <span className="message-time">
-                                                                        {formatTime(
-                                                                            msg.timestamp
-                                                                        )}
-                                                                    </span>
+                                                                <div
+                                                                    className="message-meta"
+                                                                    style={{
+                                                                        fontSize: 10,
+                                                                        color: "#999",
+                                                                        marginTop: 4,
+                                                                        textAlign:
+                                                                            "right",
+                                                                    }}
+                                                                >
+                                                                    {formatTime(
+                                                                        msg.timestamp
+                                                                    )}
                                                                     {msg.sender ===
                                                                         "You" && (
-                                                                        <span className="message-status">
+                                                                        <span
+                                                                            className="message-status"
+                                                                            style={{
+                                                                                marginLeft: 6,
+                                                                            }}
+                                                                        >
                                                                             {msg.status ===
                                                                                 "sent" && (
                                                                                 <CheckOutlined />
@@ -410,35 +428,25 @@ function ModalMessage({ isOpen, onClose }) {
                                         </div>
                                     )
                                 )}
-
-                                {showTypingResponse && (
-                                    <div className="typing-indicator">
-                                        <Avatar
-                                            src={selectedUser.avatar}
-                                            size="small"
-                                            className="typing-avatar"
-                                        />
-                                        <div className="typing-bubble">
-                                            <div className="typing-dots">
-                                                <span></span>
-                                                <span></span>
-                                                <span></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
                                 <div ref={messagesEndRef} />
                             </div>
 
-                            <div className="message-input-container">
+                            {/* Input */}
+                            <div
+                                className="message-input-container"
+                                style={{
+                                    display: "flex",
+                                    marginTop: 12,
+                                    gap: 8,
+                                }}
+                            >
                                 <Input
                                     value={newMessage}
-                                    onChange={handleInputChange}
+                                    onChange={(e) =>
+                                        setNewMessage(e.target.value)
+                                    }
                                     placeholder="Type a message..."
                                     onPressEnter={handleSend}
-                                    className="message-input"
-                                    autoFocus
                                 />
                                 <Button
                                     type="primary"
@@ -449,11 +457,13 @@ function ModalMessage({ isOpen, onClose }) {
                                 </Button>
                             </div>
                         </>
+                    ) : !hasOpened ? (
+                        <div className="flex items-center justify-center h-full text-gray-400">
+                            Select a group to start chatting
+                        </div>
                     ) : (
-                        <div className="empty-chat-message">
-                            <Title level={4}>
-                                Select a conversation to start chatting
-                            </Title>
+                        <div className="flex items-center justify-center h-full text-gray-400">
+                            No messages yet
                         </div>
                     )}
                 </div>
@@ -461,5 +471,3 @@ function ModalMessage({ isOpen, onClose }) {
         </Modal>
     );
 }
-
-export default ModalMessage;

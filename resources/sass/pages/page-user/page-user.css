@@ -1,0 +1,190 @@
+:root {
+  --color-primary: #0d5b10;
+  --color-secondary: #69b31e;
+  --color-tertiary: #ededed;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+  --color-highlight: #ebfca3;
+}
+
+#User .red-border-row {
+  border-bottom: 2px solid red !important;
+}
+#User .ant-layout .ant-layout-content .ant-card .ant-card-body .card-profile {
+  position: relative;
+  height: 250px;
+}
+#User .ant-layout .ant-layout-content .ant-card .ant-card-body .card-profile .profile-picture-wrapper {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  left: calc(50% - 100px);
+}
+#User .ant-layout .ant-layout-content .ant-card .ant-card-body .card-profile .profile-picture-wrapper img {
+  width: 200px;
+  height: 200px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+}
+#User .ant-layout .ant-layout-content .ant-card .ant-card-body .card-profile .profile-picture-wrapper .btn-upload {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50% !important;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content.ant-collapse-content-active {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+#PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box {
+  position: relative;
+  height: 250px;
+}
+@media (max-width: 375px) {
+  #PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box {
+    height: 172px;
+  }
+}
+@media (max-width: 575px) {
+  #PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box {
+    height: 175px;
+  }
+}
+#PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  left: calc(50% - 100px);
+}
+@media (max-width: 375px) {
+  #PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper {
+    width: 135px;
+    height: 135px;
+    left: calc(50% - 67px);
+  }
+}
+@media (max-width: 575px) {
+  #PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper {
+    width: 138px;
+    height: 138px;
+    left: calc(50% - 69px);
+  }
+}
+#PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper img {
+  width: 200px;
+  height: 200px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+}
+@media (max-width: 375px) {
+  #PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper img {
+    width: 135px;
+    height: 135px;
+  }
+}
+@media (max-width: 575px) {
+  #PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper img {
+    width: 138px;
+    height: 138px;
+  }
+}
+#PageUserForm .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper .btn-upload {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50% !important;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content.ant-collapse-content-active {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+#PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box {
+  position: relative;
+  height: 250px;
+}
+@media (max-width: 375px) {
+  #PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box {
+    height: 172px;
+  }
+}
+@media (max-width: 575px) {
+  #PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box {
+    height: 175px;
+  }
+}
+#PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  left: calc(50% - 100px);
+}
+@media (max-width: 375px) {
+  #PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper {
+    width: 135px;
+    height: 135px;
+    left: calc(50% - 67px);
+  }
+}
+@media (max-width: 575px) {
+  #PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper {
+    width: 138px;
+    height: 138px;
+    left: calc(50% - 69px);
+  }
+}
+#PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper img {
+  width: 200px;
+  height: 200px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+}
+@media (max-width: 375px) {
+  #PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper img {
+    width: 135px;
+    height: 135px;
+  }
+}
+@media (max-width: 575px) {
+  #PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper img {
+    width: 138px;
+    height: 138px;
+  }
+}
+#PageUserProfile .ant-collapse .ant-collapse-item.collapse-item-profile-picture .ant-collapse-content .ant-collapse-content-box .upload-profile-picture-wrapper .btn-upload {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50% !important;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}/*# sourceMappingURL=page-user.css.map */

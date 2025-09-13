@@ -4,7 +4,11 @@ import { Layout, Menu, Typography } from "antd";
 import { MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
 
 import { appName, appLogoFullWidth, role } from "../../providers/appConfig";
-import { adminSideMenu } from "./components/SideMenuList";
+import {
+    adminSideMenu,
+    DepartmentSideMenu,
+    PicoSideMenu,
+} from "./components/SideMenuList";
 
 export default function Sidemenu(props) {
     const { location, sideMenuCollapse, setSideMenuCollapse, width, role } =
@@ -21,6 +25,12 @@ export default function Sidemenu(props) {
 
     useEffect(() => {
         setMenuItems(adminSideMenu);
+        if (role === "Department") {
+            setMenuItems(DepartmentSideMenu);
+        }
+        if (role === "Pico") {
+            setMenuItems(PicoSideMenu);
+        }
 
         return () => {};
     }, []);
@@ -45,19 +55,6 @@ export default function Sidemenu(props) {
             setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
         }
     };
-
-    // const handleCheckPermission = (moduleCode) => {
-    //     let checkPermissions = dataPermissions.filter(
-    //         (f) =>
-    //             f.module_code === moduleCode &&
-    //             f.module_buttons.filter(
-    //                 (f2) =>
-    //                     f2.mod_button_code === "view_page" &&
-    //                     parseInt(f2.status) === 1
-    //             ).length > 0
-    //     );
-    //     return checkPermissions.length > 0 ? true : false;
-    // };
 
     const activeRoute = (routeName) => {
         const pathname = location.pathname;
@@ -200,7 +197,7 @@ export default function Sidemenu(props) {
                 <br />
                 <br />
                 <br />
-                {/* <div className="logo_wrapper">
+                <div className="logo_wrapper">
                     {!sideMenuCollapse && (
                         <img
                             src={appLogoFullWidth}
@@ -209,7 +206,7 @@ export default function Sidemenu(props) {
                             margin-top="81px"
                         />
                     )}
-                </div> */}
+                </div>
             </div>
 
             <Menu

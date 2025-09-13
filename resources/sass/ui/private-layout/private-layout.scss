@@ -1,25 +1,8 @@
 @use "../index" as *;
 
-// ✅ PLACE THIS OUTSIDE ANY NESTING
-/* GLOBAL SCROLLBAR STYLES */
-/* stylelint-disable selector-type-no-unknown */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--color-secondary);
-    border-radius: 8px;
-}
-/* stylelint-enable selector-type-no-unknown */
-
 .private-layout {
     background-color: #0d5b10;
+    background: #0d5b10;
     min-height: 100vh;
     position: relative;
 
@@ -57,7 +40,7 @@
             background-color: var(--color-tertiary) !important;
 
             > .ant-breadcrumb {
-                padding: 12px 20px 12px 20px;
+                padding: 12px 10px 12px 20px;
 
                 @include atMax(575) {
                     padding: 10px 10px 10px 10px;
@@ -125,11 +108,11 @@
 
             > .ant-card {
                 background-color: transparent;
-                border: 0px;
+                border-top: 1px solid var(--color-gray-600);
                 border-radius: 0px;
                 height: 100%;
 
-                > .ant-card-head {
+                .ant-card-head {
                     background-color: var(--color-primary) !important;
 
                     svg {
@@ -151,7 +134,7 @@
 
         > .ant-layout-footer {
             padding: 15px 20px;
-            border: 0px;
+            border-top: 1px solid var(--color-gray-600);
         }
     }
 }
@@ -210,13 +193,16 @@
             }
         }
     }
+}
 
-    .private-layout
-        > .ant-layout
-        > .ant-layout-header
-        .header-left-menu
-        .menu-left-icon.menu-left-icon-menu-collapse-on-close
-        svg {
-        color: var(--color-white);
-    }
+.privates-layout {
+    background-image: url("../img/csu_bg.png");
+
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+
+    margin: 0px;
+    padding: 0px;
+    min-height: 100vh;
 }

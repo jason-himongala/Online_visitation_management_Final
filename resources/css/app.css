@@ -95,10 +95,11 @@
 html,
 body {
     font-family: MontserratRegular !important;
-    /* background-image: url("../img/login_bg.png"); */
-    background-color: #0d5b10;
+    background-image: url("../img/csu_bg.png");
+
     background-repeat: no-repeat;
     background-size: cover;
+
     margin: 0px;
     padding: 0px;
     min-height: 100vh;
@@ -167,6 +168,17 @@ body {
     bottom: 0;
     animation: rotate-three 1s linear infinite;
     border-top: 3px solid #72141c;
+}
+.no-selected-bg .ant-menu-item,
+.no-selected-bg .ant-menu-submenu-title {
+    color: #fff !important;
+}
+/* Place this in your global CSS file (e.g., index.css or App.css) */
+.no-selected-bg .ant-menu-item-selected,
+.no-selected-bg .ant-menu-submenu-title-selected,
+.no-selected-bg .ant-menu-item:hover,
+.no-selected-bg .ant-menu-submenu-title:hover {
+    background-color: transparent !important;
 }
 
 @keyframes rotate-one {

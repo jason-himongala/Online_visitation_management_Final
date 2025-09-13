@@ -88,8 +88,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('email_template_multiple', [App\Http\Controllers\EmailTemplateController::class, 'email_template_multiple']);
     Route::apiResource('email_templates', App\Http\Controllers\EmailTemplateController::class);
     //END EmailTemplateController
-});
 
-Route::get('test_pass', function () {
-    echo Hash::make('Admin123!');
+
+    // DepartmentController
+    Route::apiResource('departments', App\Http\Controllers\DepartmentController::class);
+    // END DepartmentController
+
 });

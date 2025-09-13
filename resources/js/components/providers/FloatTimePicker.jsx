@@ -10,7 +10,7 @@ export default function FloatTimePicker(props) {
         placeholder,
         required,
         className,
-        format = "HH:mm:ss",
+        format = "h:mm a", // default to 12-hour with am/pm
         size = "large",
         ...rest
     } = props;
@@ -39,6 +39,7 @@ export default function FloatTimePicker(props) {
                 size={size}
                 placeholder={[""]}
                 format={format}
+                use12Hours
                 {...rest}
             />
 
@@ -51,7 +52,7 @@ export default function FloatTimePicker(props) {
 
 FloatTimePicker.propTypes = {
     id: PropTypes.string,
-    value: PropTypes.string,
+    value: PropTypes.any,
     label: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
     required: PropTypes.bool,

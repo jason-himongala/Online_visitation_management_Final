@@ -1,14 +1,16 @@
 import { Row, Col } from "antd";
-import PageDashBoardContext from "./components/PageDashBoardContext";
+import ListCard from "./components/ListCard";
 
 export default function PageDashboard() {
     return (
-        <PageDashBoardContext.Provider value={{}}>
-            <Row gutter={[20, 20]}>
-                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                    <h1>Dashboard</h1>
-                </Col>
-            </Row>
-        </PageDashBoardContext.Provider>
+        <Row gutter={[20, 20]}>
+            <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+                <div>This Month ...</div>
+                <ListCard />
+            </Col>
+
+            <Col xs={24} sm={24} md={24} lg={6} xl={6} xxl={6}></Col>
+            <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}></Col>
+        </Row>
     );
 }

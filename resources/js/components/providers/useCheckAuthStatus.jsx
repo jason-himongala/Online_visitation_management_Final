@@ -7,11 +7,15 @@ export default function useCheckAuthStatus() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem("token"); // Retrieve the token
+                const token = localStorage.getItem("token");
+                const visitor_token = localStorage.getItem("visitor_token");
+                const authToken = token || visitor_token;
 
                 await axios.get(apiUrl("api/check_auth_status"), {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: authToken
+                            ? `Bearer ${authToken}`
+                            : undefined,
                     },
                 });
             } catch (error) {

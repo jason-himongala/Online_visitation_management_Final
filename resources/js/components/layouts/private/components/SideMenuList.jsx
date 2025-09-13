@@ -18,6 +18,12 @@ import {
     faFileLines,
     faChartBar,
     faUsersCog,
+    faUserCircle,
+    faClipboardList,
+    faTachometerAlt,
+    faCheckCircle,
+    faTimesCircle,
+    faBook,
 } from "@fortawesome/pro-regular-svg-icons";
 
 export const adminHeaderMenuLeft = (
@@ -49,17 +55,111 @@ export const adminSideMenu = [
     {
         title: "Dashboard",
         path: "/dashboard",
-        icon: <FontAwesomeIcon icon={faHome} />,
+        icon: <FontAwesomeIcon icon={faTachometerAlt} />,
         moduleCode: "M-01",
     },
-
     {
-        title: "User",
-        path: "/users",
-        icon: <FontAwesomeIcon icon={faUsersCog} />,
+        title: "Profile",
+        path: "/profile",
+        icon: <FontAwesomeIcon icon={faUserCircle} />,
+        moduleCode: "M-02",
+    },
+    {
+        title: "All Requests",
+        path: "/all-requests",
+        icon: <FontAwesomeIcon icon={faClipboardList} />,
+        moduleCode: "M-03",
+    },
+    {
+        title: "Approved",
+        path: "/approved",
+        icon: <FontAwesomeIcon icon={faCheckCircle} />,
+        moduleCode: "M-04",
+    },
+    {
+        title: "Declined",
+        path: "/declined",
+        icon: <FontAwesomeIcon icon={faTimesCircle} />,
+        moduleCode: "M-05",
     },
 ];
 
-export const facultySideMenu = [];
+export const DepartmentSideMenu = [
+    // {
+    //     title: "Dashboard",
+    //     path: "/dashboard",
+    //     icon: <FontAwesomeIcon icon={faTachometerAlt} />,
+    //     moduleCode: "M-01",
+    // },
+    {
+        title: "Profile",
+        path: "/profile",
+        icon: <FontAwesomeIcon icon={faUserCircle} />,
+        moduleCode: "M-02",
+    },
+    {
+        title: "Pending Requests",
+        path: "/all-requests",
+        icon: <FontAwesomeIcon icon={faClipboardList} />,
+        moduleCode: "M-03",
+    },
+    {
+        title: "Approved",
+        path: "/approved",
+        icon: <FontAwesomeIcon icon={faCheckCircle} />,
+        moduleCode: "M-04",
+    },
+    {
+        title: "Declined",
+        path: "/declined",
+        icon: <FontAwesomeIcon icon={faTimesCircle} />,
+        moduleCode: "M-05",
+    },
+];
+
+export const PicoSideMenu = [
+    // {
+    //     title: "Dashboard",
+    //     path: "/dashboard",
+    //     icon: <FontAwesomeIcon icon={faTachometerAlt} />,
+    //     moduleCode: "M-01",
+    // },
+    {
+        title: "Profile",
+        path: "/profile",
+        icon: <FontAwesomeIcon icon={faUserCircle} />,
+        moduleCode: "M-02",
+    },
+    {
+        title: "Pending Requests",
+        path: "/all-requests",
+        icon: <FontAwesomeIcon icon={faClipboardList} />,
+        moduleCode: "M-03",
+    },
+    {
+        title: "Approved",
+        path: "/approved",
+        icon: <FontAwesomeIcon icon={faCheckCircle} />,
+        moduleCode: "M-04",
+    },
+    {
+        title: "Declined",
+        path: "/declined",
+        icon: <FontAwesomeIcon icon={faTimesCircle} />,
+        moduleCode: "M-05",
+    },
+    {
+        title: "Visitation Forms",
+        path: "/visitation-forms",
+        icon: <FontAwesomeIcon icon={faBook} />,
+        moduleCode: "M-05",
+    },
+    {
+        title: "Feedback Forms",
+        path: "/feedback-forms",
+        icon: <FontAwesomeIcon icon={faBookOpen} />,
+        moduleCode: "M-05",
+    },
+];
 
 export const studentSideMenu = [];

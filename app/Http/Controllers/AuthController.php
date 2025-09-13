@@ -36,6 +36,8 @@ class AuthController extends Controller
                         'message' => $login_data["message"],
                         'data' => $login_data["data"],
                         'token' => $login_data["token"],
+                        'visitor_token' => $login_data["visitor_token"] ?? null,
+
                     ];
                 } else {
                     $ret = [
@@ -49,6 +51,7 @@ class AuthController extends Controller
                     'message' => $login_data["message"],
                     'data' => $login_data["data"],
                     'token' => $login_data["token"],
+                    'visitor_token' => $login_data["visitor_token"] ?? null,
                 ];
             }
         } else {
@@ -68,6 +71,7 @@ class AuthController extends Controller
                             'message' => $login_data["message"],
                             'data' => $login_data["data"],
                             'token' => $login_data["token"],
+                            'visitor_token' => $login_data["visitor_token"] ?? null,
                         ];
                     } else {
                         $ret = [
@@ -81,6 +85,7 @@ class AuthController extends Controller
                         'message' => $login_data["message"],
                         'data' => $login_data["data"],
                         'token' => $login_data["token"],
+                        'visitor_token' => $login_data["visitor_token"] ?? null,
                     ];
                 }
             } else {

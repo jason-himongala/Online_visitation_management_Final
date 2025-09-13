@@ -5,11 +5,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGifts, faHome, faRefresh } from "@fortawesome/pro-regular-svg-icons";
 import { lineSpinner } from "ldrs";
 
-import { apiUrl, primaryColor, appName, role } from "../../providers/appConfig";
+import { primaryColor, appName, role } from "../../providers/appConfig";
 import ClearCache from "../../providers/ClearCache";
 import Sidemenu from "./Sidemenu";
-import Header from "./Header";
+import Header from "./Header"; // admin/staff header
 import Footer from "./Footer";
+import VisitorHeader from "../../views/Public/PageVisitorView/component/VisitorHeader";
 
 lineSpinner.register();
 
@@ -30,31 +31,37 @@ export default function Private(props) {
     const navigate = useNavigate();
 
     const [width, setWidth] = useState(window.innerWidth);
-
     const [sideMenuCollapse, setSideMenuCollapse] = useState(
         window.innerWidth <= 768 ? true : false
     );
 
     useEffect(() => {
         const section = document.querySelector(".private-layout");
-        section.scrollIntoView({ behavior: "smooth", block: "start" });
-
+        if (section) {
+            section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
         document.title = (moduleName ?? title).toUpperCase() + " | " + appName;
 
         function handleResize() {
             setWidth(window.innerWidth);
-
-            if (window.innerWidth === 768) {
-                setSideMenuCollapse(true);
-            }
-            if (window.innerWidth > 768) {
-                setSideMenuCollapse(false);
-            }
+            setSideMenuCollapse(window.innerWidth <= 768);
         }
         window.addEventListener("resize", handleResize);
-
         return () => window.removeEventListener("resize", handleResize);
     }, [title, moduleName]);
+
+    // if (role() === "Visitor" && location.pathname === "/") {
+    //     return <PageVisitorView />;
+    // }
+
+    if (role() === "Visitor") {
+        return (
+            <Layout>
+                <VisitorHeader />
+                <Layout.Content>{children}</Layout.Content>
+            </Layout>
+        );
+    }
 
     return (
         <ClearCache>
@@ -154,14 +161,13 @@ export default function Private(props) {
                                         ...(breadcrumb && breadcrumb.length > 0
                                             ? breadcrumb.map((item, index) => {
                                                   let colorRed = "";
-                                                  if (breadcrumb.length > 1) {
-                                                      if (
-                                                          breadcrumb.length ===
+                                                  if (
+                                                      breadcrumb.length > 1 &&
+                                                      breadcrumb.length ===
                                                           index + 1
-                                                      ) {
-                                                          colorRed =
-                                                              "breadcrumb-item-last";
-                                                      }
+                                                  ) {
+                                                      colorRed =
+                                                          "breadcrumb-item-last";
                                                   }
                                                   return {
                                                       title: item.name,
