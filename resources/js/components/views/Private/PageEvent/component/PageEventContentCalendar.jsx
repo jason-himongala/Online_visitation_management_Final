@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faChevronLeft,
@@ -15,18 +15,35 @@ import {
     Flex,
     Row,
     Typography,
+    Form,
+    Divider,
+    Table,
 } from "antd";
 
 import { GET } from "../../../../providers/useAxiosQuery";
+import { useTableScrollOnTop } from "../../../../providers/CustomTableFilter";
 import ModalFormEvent from "./ModalFormEvent";
-
-export const PageEventContextCalendar = createContext();
+import PageEventContextCalendar from "./PageEventContextCalendar";
+import FloatSelect from "../../../../providers/FloatSelect";
+import { useLocation } from "react-router-dom";
 
 export default function PageEventContentCalendar() {
     const [toggleModalFormEvent, setToggleModalFormEvent] = useState({
         open: false,
         data: null,
     });
+    const location = useLocation();
+
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => {
+            setWidth(window.innerWidth);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [activeView, setActiveView] = useState("calendar");
@@ -45,7 +62,6 @@ export default function PageEventContentCalendar() {
         setCurrentDate(dayjs());
     };
 
-    const [events, setEvents] = useState([]);
     const [tableFilter, setTableFilter] = useState({
         page: 1,
         page_size: 50,
@@ -53,87 +69,152 @@ export default function PageEventContentCalendar() {
         sort_field: "title",
         sort_order: "asc",
         isTrash: 0,
+        department_id: "",
     });
 
-    const { data: dataSchoolYear } = GET(
-        `api/school_year`,
-        "school_year_list",
-        () => {},
-        false
-    );
-
-    const { data: dataEventTypes, isLoading: isLoadingEventTypes } = GET(
-        `api/events`,
-        "event_types",
+    const { data: dataAppointmentSchedules } = GET(
+        `api/appointment_schedule`,
+        "appointment_schedule_list",
         () => {},
         false
     );
     const getEventData = (date, events) => {
         const dateStr = dayjs(date).format("YYYY-MM-DD");
         return events.filter((event) => {
-            return (
-                dayjs(event.datetime_start_format).format("YYYY-MM-DD") ===
-                dateStr
-            );
+            const matchDate =
+                dayjs(event.date).format("YYYY-MM-DD") === dateStr;
+            const matchDept =
+                !tableFilter.department_id ||
+                event.department_id === tableFilter.department_id;
+            return matchDate && matchDept;
         });
     };
 
     const dateCellRender = (value) => {
-        const eventData = getEventData(value, dataEventTypes?.data || []);
+        const eventData = getEventData(
+            value,
+            dataAppointmentSchedules?.data || []
+        );
         return (
-            <ul style={{ paddingLeft: 0, listStyle: "none" }}>
+            <ul
+                style={{
+                    paddingLeft: 0,
+                    listStyle: "none",
+                    textAlign: "center",
+                }}
+            >
                 {eventData.map((item, index) => (
-                    <li key={index}>
-                        <Badge status="success" text={item.title} />
+                    <li
+                        key={index}
+                        style={{ cursor: "pointer" }}
+                        onClick={() =>
+                            setToggleModalFormEvent({ open: true, data: item })
+                        }
+                    >
+                        <Typography.Text
+                            className="text-sm font-semibold"
+                            style={{
+                                color:
+                                    item.appointment_type === "Not Available"
+                                        ? "red"
+                                        : item.appointment_type === "Available"
+                                        ? "green"
+                                        : "inherit",
+                                display: "inline-block",
+                                textAlign: "center",
+                            }}
+                        >
+                            {item.appointment_type}
+                            <br />
+                            <Typography.Text className="text-xs">
+                                {item.available_time}
+                            </Typography.Text>
+                        </Typography.Text>
                     </li>
                 ))}
             </ul>
         );
     };
 
+    const { data: departments } = GET(
+        `api/departments`,
+        "department_list",
+        () => {},
+        false
+    );
+
+    const onChangeTableFilter = (key, value) => {
+        setTableFilter({
+            ...tableFilter,
+            [key]: value,
+        });
+    };
+
+    useTableScrollOnTop("tbl_appointment", location);
+
     return (
         <PageEventContextCalendar.Provider
             value={{
                 toggleModalFormEvent,
                 setToggleModalFormEvent,
-                dataSchoolYear,
             }}
         >
             <div className="page-event-content-calendar">
                 <Row gutter={[20, 20]} justify="center">
-                    <Col
-                        xs={24}
-                        sm={24}
-                        md={24}
-                        lg={24}
-                        xl={24}
-                        style={{
-                            display: "flex",
-                            justifyContent: "flex-start",
-                        }}
-                    >
-                        <Button
-                            type="primary"
-                            shape="round"
-                            icon={<FontAwesomeIcon icon={faPlus} />}
-                            onClick={() =>
-                                setToggleModalFormEvent({
-                                    open: true,
-                                    data: null,
-                                })
-                            }
+                    <Col span={24}>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "flex-start",
+                            }}
                         >
-                            Create Event
-                        </Button>
+                            <Button
+                                type="primary"
+                                shape="round"
+                                icon={<FontAwesomeIcon icon={faPlus} />}
+                                onClick={() =>
+                                    setToggleModalFormEvent({
+                                        open: true,
+                                        data: null,
+                                    })
+                                }
+                            >
+                                Create Appointment Schedule
+                            </Button>
+                        </div>
                     </Col>
 
-                    <Col xs={6} sm={6} md={6} lg={6} xl={6}>
-                        <Card title="Filter"></Card>
+                    {/* Left Side: Filter */}
+                    <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+                        <Card title="Filter">
+                            <Form layout="vertical">
+                                <Form.Item name="department_id">
+                                    <FloatSelect
+                                        className="w-full"
+                                        options={
+                                            departments?.data?.map((dept) => ({
+                                                label: dept.department_name,
+                                                value: dept.id,
+                                            })) || []
+                                        }
+                                        label="Department"
+                                        placeholder="Department"
+                                        allowClear
+                                        onChange={(value) =>
+                                            onChangeTableFilter(
+                                                "department_id",
+                                                value
+                                            )
+                                        }
+                                    />
+                                </Form.Item>
+                            </Form>
+                        </Card>
                     </Col>
 
-                    <Col xs={18} sm={18} md={18} lg={18} xl={18}>
-                        <Row gutter={20} className="w-full">
-                            <Col xs={24} sm={18} md={18} lg={24}>
+                    <Col xs={24} sm={24} md={16} lg={18} xl={18}>
+                        <Row gutter={[20, 20]}>
+                            <Col span={24}>
                                 <Flex
                                     justify="start"
                                     align="center"
@@ -164,24 +245,76 @@ export default function PageEventContentCalendar() {
                                     </Typography.Title>
                                 </Flex>
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                                <Card
-                                    style={{
-                                        boxShadow: "none",
-                                        height: "100vh",
-                                    }}
-                                >
+
+                            <Col span={24}>
+                                <Card>
                                     <Calendar
                                         value={currentDate}
                                         onChange={setCurrentDate}
                                         cellRender={dateCellRender}
+                                        className="responsive-calendar"
                                     />
                                 </Card>
                             </Col>
                         </Row>
                     </Col>
+
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                        <Table
+                            id="tbl_appointment"
+                            dataSource={(
+                                dataAppointmentSchedules?.data || []
+                            ).filter(
+                                (item) =>
+                                    !tableFilter.department_id ||
+                                    item.department_id ===
+                                        tableFilter.department_id
+                            )}
+                            pagination={false}
+                            rowKey="id"
+                            size="small"
+                            style={{ width: "100%" }}
+                        >
+                            <Table.Column
+                                title="Type"
+                                dataIndex="appointment_type"
+                                key="appointment_type"
+                                render={(text) => (
+                                    <Badge
+                                        color={
+                                            text === "Not Available"
+                                                ? "red"
+                                                : text === "Available"
+                                                ? "green"
+                                                : "blue"
+                                        }
+                                        text={text}
+                                    />
+                                )}
+                            />
+                            <Table.Column
+                                title="Date"
+                                dataIndex="date"
+                                key="date"
+                                render={(text) =>
+                                    dayjs(text).format("MMM DD, YYYY")
+                                }
+                            />
+                            <Table.Column
+                                title="Time"
+                                dataIndex="available_time"
+                                key="available_time"
+                            />
+                            <Table.Column
+                                title="Department"
+                                dataIndex="department_name"
+                                key="department_name"
+                            />
+                        </Table>{" "}
+                    </Col>
+
+                    <ModalFormEvent />
                 </Row>
-                <ModalFormEvent />
             </div>
         </PageEventContextCalendar.Provider>
     );

@@ -805,4 +805,67 @@ class UserController extends Controller
 
         return response()->json($ret, 200);
     }
+
+
+    public function initial_registration(Request $request)
+    {
+        $ret = [
+            "success" => false,
+            "message" => "Data not created",
+        ];
+
+        $dataUser  =  $request->validate([
+            'firstname' => 'required',
+            'lastname' => 'required',
+            'email' => [
+                'required',
+                Rule::unique('users')->ignore($request->id),
+            ],
+            'username' => [
+                'required',
+                Rule::unique('users')->ignore($request->id),
+            ],
+            'password' => 'required',
+            'confirm_password' => 'required|same:password',
+        ]);
+
+        $profileData =  $request->validate([
+            'firstname' => 'required',
+            'lastname' => 'required',
+        ]);
+
+        DB::transaction(function () use ($request, &$ret, $profileData, $dataUser) {
+            $VisitorUserRole = UserRole::where('role', 'Visitor')->first();
+
+            $dataUser['user_role_id'] = $VisitorUserRole->id;
+            $user = User::updateOrCreate(
+                ['id' => $request->id ?? null],
+                $dataUser
+            );
+
+            $profile = Profile::updateOrCreate(
+                ['id' => $request->id ?? null],
+                $profileData
+            );
+
+            if ($request->hasFile('profile_picture')) {
+                $this->create_attachment($profile, $request->file('profile_picture'), [
+                    "folder_name" => "profiles/profile-$profile->id/profile_picture",
+                    "file_description" => "Profile Picture",
+                ]);
+            }
+
+            // 🔑 Generate token
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            $ret = [
+                "success" => true,
+                "message" => "Data " . ($request->id ? "updated" : "saved") . " successfully",
+                "data" => $user, // or include profile data if needed
+                "token" => $token,
+            ];
+        });
+
+        return response()->json($ret);
+    }
 }

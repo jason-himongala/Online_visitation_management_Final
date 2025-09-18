@@ -9,19 +9,18 @@ import {
     Table,
     Popconfirm,
     Typography,
+    notification,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCheckCircle,
     faFile,
-    faPlus,
     faTimesCircle,
 } from "@fortawesome/pro-regular-svg-icons";
 
-import { GET } from "../../../providers/useAxiosQuery";
+import { GET, POST } from "../../../providers/useAxiosQuery";
 import {
     TableGlobalSearchAnimated,
-    TablePageSize,
     TablePagination,
     TableShowingEntriesV2,
 } from "../../../providers/CustomTableFilter";
@@ -31,6 +30,7 @@ import ModalFileReview from "./component/ModalFileReview";
 export default function PageAllRequest() {
     const navigate = useNavigate();
     const location = useLocation();
+
     const [openModalFileReview, setOpenModalFileReview] = useState({
         open: false,
         data: null,
@@ -44,59 +44,100 @@ export default function PageAllRequest() {
         search: "",
         sort_field: "created_at",
         sort_order: "desc",
-        status: "Active",
-        from: location.pathname,
-        isTrash: 0, // 0 = Active, 1 = Archived
+        status: location.pathname.includes("approved")
+            ? "Approved"
+            : location.pathname.includes("declined")
+            ? "Declined"
+            : location.pathname.includes("all-requests")
+            ? "Pending"
+            : "",
     });
 
-    // const { data: dataSource, refetch: refetchSource } = GET(
-    //     `api/users?${new URLSearchParams(tableFilter)}`,
-    //     ["users_active_list", "check_user_permission"]
-    // );
+    useEffect(() => {
+        setTableFilter({
+            page: 1,
+            page_size: 50,
+            search: "",
+            from: location.pathname,
+            status: location.pathname.includes("approved")
+                ? "Approved"
+                : location.pathname.includes("declined")
+                ? "Declined"
+                : location.pathname.includes("all-requests")
+                ? "Pending"
+                : "",
+        });
+    }, [location]);
 
-    const dataSource = {
-        data: {
-            total: 2,
-            data: [
-                {
-                    id: 1,
-                    visitors: "John Doe",
-                    fullname: "CCIS",
-                    gender: "2023-01-01 09:00 AM",
-                    purpose_of_visit: "Inquiry",
-                    file: "",
+    const { data: dataSource, refetch: refetchSource } = GET(
+        `api/visitation_information?${new URLSearchParams(tableFilter)}`,
+        ["visitation_information_submit"]
+    );
+
+    useEffect(() => {
+        refetchSource();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tableFilter]);
+
+    const { mutate: mutateVisitorInfo } = POST(`api/visitor_requests`, [
+        "visitation_information_submit",
+        "visitor_request_list",
+    ]);
+
+    const handleUpdateStatus = (ids, status) => {
+        const selectedRecords = dataSource?.data?.data.filter((item) =>
+            ids.includes(item.id)
+        );
+
+        let profile_id = selectedRecords.map((item) => item.profile_id);
+        let visitaion_information_id = selectedRecords.map((item) => item.id);
+
+        mutateVisitorInfo(
+            {
+                profile_id,
+                visitaion_information_id,
+                status,
+            },
+            {
+                onSuccess: (res) => {
+                    if (res.success) {
+                        notification.success({
+                            message: `${status} Successfully`,
+                        });
+                        setSelectedRowKeys([]);
+                        refetchSource();
+                    } else {
+                        notification.error({
+                            message: "Error",
+                            description: res.message,
+                        });
+                    }
                 },
-                {
-                    id: 2,
-                    visitors: "Jane Smith",
-                    fullname: "CCIS",
-                    gender: "2023-01-02 10:30 AM",
-                    purpose_of_visit: "Payment",
-                    file: "",
+                onError: () => {
+                    notification.error({
+                        message: "Error",
+                        description: "Something went wrong.",
+                    });
                 },
-            ],
-        },
+            }
+        );
     };
 
-    // useEffect(() => {
-    //     refetchSource();
-
-    //     return () => {};
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [tableFilter]);
-
     useTableScrollOnTop("tbl_user", location);
+
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
+    };
+
+    const isApprovedPage = location.pathname.includes("approved");
+    const isDeclinedPage = location.pathname.includes("declined");
+    const isAllRequestsPage = location.pathname.includes("all-requests");
 
     return (
         <Card>
             <Row gutter={[20, 20]} id="tbl_wrapper">
-                <Col xs={24} sm={24} md={24} lg={24}>
-                    <Typography.Title level={2} className="mb-0">
-                        All Requests
-                    </Typography.Title>
-                </Col>
-
-                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                <Col xs={24}>
                     <div className="tbl-top-filter">
                         <Flex justify="space-between" align="center">
                             <Flex gap={15}>
@@ -104,49 +145,39 @@ export default function PageAllRequest() {
                                     tableFilter={tableFilter}
                                     setTableFilter={setTableFilter}
                                 />
+
+                                {/* ✅ Bulk Actions */}
                                 {selectedRowKeys.length > 0 && (
-                                    <Popconfirm
-                                        title={
-                                            <>
-                                                Are you sure you want to
-                                                <br />
-                                                {tableFilter.status === "Active"
-                                                    ? "archive"
-                                                    : "restore"}{" "}
-                                                the selected{" "}
-                                                {selectedRowKeys.length > 1
-                                                    ? "Grade Levels"
-                                                    : "Grade Level"}
-                                                ?
-                                            </>
-                                        }
-                                        okText="Yes"
-                                        cancelText="No"
-                                        onConfirm={() => {
-                                            handleSelectedArchived();
-                                        }}
-                                        disabled={isLoadingArchiveGradeLevel}
-                                    >
-                                        <Button
-                                            name="btn_active_archive"
-                                            loading={isLoadingArchiveGradeLevel}
-                                            danger={
-                                                tableFilter.status === "Active"
-                                            }
-                                            type="primary"
-                                            className={
-                                                tableFilter.status ===
-                                                "Deactivated"
-                                                    ? "btn-success"
-                                                    : ""
-                                            }
-                                        >
-                                            {tableFilter.status === "Active"
-                                                ? "ARCHIVE"
-                                                : "RESTORE"}{" "}
-                                            SELECTED
-                                        </Button>
-                                    </Popconfirm>
+                                    <>
+                                        {(isAllRequestsPage ||
+                                            isDeclinedPage) && (
+                                            <Button
+                                                type="primary"
+                                                onClick={() =>
+                                                    handleUpdateStatus(
+                                                        selectedRowKeys,
+                                                        "approved"
+                                                    )
+                                                }
+                                            >
+                                                Approve
+                                            </Button>
+                                        )}
+                                        {(isAllRequestsPage ||
+                                            isApprovedPage) && (
+                                            <Button
+                                                danger
+                                                onClick={() =>
+                                                    handleUpdateStatus(
+                                                        selectedRowKeys,
+                                                        "declined"
+                                                    )
+                                                }
+                                            >
+                                                Decline
+                                            </Button>
+                                        )}
+                                    </>
                                 )}
                             </Flex>
 
@@ -165,114 +196,48 @@ export default function PageAllRequest() {
                     </div>
                 </Col>
 
-                <Col xs={24} sm={24} md={24}>
+                <Col xs={24}>
                     <Table
                         id="tbl_profiles"
-                        dataSource={dataSource.data.data}
-                        rowKey="id"
+                        dataSource={dataSource?.data?.data || []}
+                        rowKey={(record) => record.id}
                         pagination={false}
                         bordered
-                        // onChange={onChangeTable}
                         scroll={{ x: "max-content" }}
                         sticky
+                        rowSelection={rowSelection}
                     >
                         <Table.Column
                             title="Action"
                             key="action"
-                            dataIndex="action"
                             align="center"
-                            width={150}
-                            render={(_text, record) => {
-                                return (
-                                    <Flex
-                                        align="center"
-                                        justify="center"
-                                        gap={5}
-                                    >
-                                        <Button
-                                            type="link"
-                                            name="btn_edit"
-                                            // onClick={() => {
-                                            //     navigate(
-                                            //         `${location.pathname}/edit/${record.id}`
-                                            //     );
-                                            // }}
-                                            icon={
-                                                <FontAwesomeIcon
-                                                    icon={faCheckCircle}
-                                                    style={{ color: "#1677ff" }}
-                                                />
-                                            }
-                                        />
+                            width={50}
+                            render={(_, record) => (
+                                <Flex align="center" justify="center" gap={5}>
+                                    <Button
+                                        type="link"
+                                        onClick={() =>
+                                            setOpenModalFileReview({
+                                                open: true,
+                                                data: record.file,
+                                            })
+                                        }
+                                        icon={<FontAwesomeIcon icon={faFile} />}
+                                    />
+                                </Flex>
+                            )}
+                        />
 
-                                        <Popconfirm
-                                            title={`Are you sure to ${
-                                                !tableFilter.isTrash
-                                                    ? "approve"
-                                                    : "decline"
-                                            } this data?`}
-                                            // onConfirm={() => {
-                                            //     handleDeleteProfile(record);
-                                            // }}
-                                            onCancel={() => {
-                                                notification.error({
-                                                    message: "Action Cancelled",
-                                                    description: "",
-                                                });
-                                            }}
-                                            okText="Yes"
-                                            cancelText="No"
-                                        >
-                                            <Button
-                                                type="link"
-                                                name="btn_archive_active"
-                                                icon={
-                                                    <FontAwesomeIcon
-                                                        icon={faTimesCircle}
-                                                        style={{
-                                                            color: tableFilter.isTrash
-                                                                ? "#52c41a"
-                                                                : "#ff4d4f",
-                                                        }}
-                                                    />
-                                                }
-                                            />
-                                        </Popconfirm>
-                                        <Button
-                                            type="link"
-                                            name="btn_file"
-                                            onClick={() =>
-                                                setOpenModalFileReview({
-                                                    open: true,
-                                                    data: record.file,
-                                                })
-                                            }
-                                            icon={
-                                                <FontAwesomeIcon
-                                                    icon={faFile}
-                                                />
-                                            }
-                                        />
-                                    </Flex>
-                                );
-                            }}
-                        />
                         <Table.Column
-                            title="Visitors"
-                            key="visitors"
-                            dataIndex="visitors"
-                            width={180}
-                        />
-                        <Table.Column
-                            title="Office"
-                            key="fullname"
-                            dataIndex="fullname"
+                            title="Visitors Email"
+                            key="email"
+                            dataIndex="email"
                             width={180}
                         />
                         <Table.Column
                             title="Date&Time"
-                            key="gender"
-                            dataIndex="gender"
+                            key="available_time"
+                            dataIndex="available_time"
                             width={150}
                         />
                         <Table.Column
@@ -284,7 +249,7 @@ export default function PageAllRequest() {
                     </Table>
                 </Col>
 
-                <Col xs={24} sm={24} md={24} lg={24}>
+                <Col xs={24}>
                     <Flex
                         justify="space-between"
                         align="center"

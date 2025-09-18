@@ -1,4 +1,12 @@
+import { useLocation } from "react-router-dom";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faChevronLeft,
+    faChevronRight,
+    faList,
+} from "@fortawesome/pro-regular-svg-icons";
+import dayjs from "dayjs";
 import {
     Badge,
     Button,
@@ -12,16 +20,10 @@ import {
     Table,
     Typography,
 } from "antd";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faChevronLeft,
-    faChevronRight,
-    faList,
-} from "@fortawesome/pro-regular-svg-icons";
-import dayjs from "dayjs";
-import FloatSelect from "../../../../providers/FloatSelect";
+
+import { GET } from "../../../../providers/useAxiosQuery";
 import { useTableScrollOnTop } from "../../../../providers/CustomTableFilter";
-import { useLocation } from "react-router-dom";
+import FloatSelect from "../../../../providers/FloatSelect";
 import ModalVisitorInformationForm from "./ModalVisitorInformationForm";
 import ModalApplicationList from "./ModalApplicationList";
 
@@ -34,6 +36,16 @@ export default function PageVisitContent(props) {
     ] = useState({
         open: false,
         data: null,
+    });
+
+    const [tableFilter, setTableFilter] = useState({
+        page: 1,
+        page_size: 50,
+        search: "",
+        sort_field: "title",
+        sort_order: "asc",
+        isTrash: 0,
+        department_id: "",
     });
 
     const [toggleModalApplicationList, setToggleModalApplicationList] =
@@ -63,48 +75,101 @@ export default function PageVisitContent(props) {
         setCurrentDate(dayjs());
     };
 
-    const dataSource = [
-        {
-            key: "1",
-            date: "September 8, 2025",
-            date_formatted: "2025-09-08",
-            office: "CCIS",
-            status: "Active",
-            department_status: "AVAILABLE",
-        },
-        {
-            key: "2",
-            date: "September 1, 2025",
-            office: "CCIS",
-            date_formatted: "2025-09-01",
-            status: "Approved",
-            department_status: "NOT AVAILABLE",
-        },
-    ];
+    const { data: departments } = GET(
+        `api/departments`,
+        "department_list",
+        () => {},
+        false
+    );
 
-    useTableScrollOnTop("tbl_page_visitor", location);
+    // const dataSource = [
+    //     {
+    //         key: "1",
+    //         date: "September 8, 2025",
+    //         date_formatted: "2025-09-08",
+    //         office: "CCIS",
+    //         status: "Active",
+    //         department_status: "AVAILABLE",
+    //     },
+    //     {
+    //         key: "2",
+    //         date: "September 1, 2025",
+    //         office: "CCIS",
+    //         date_formatted: "2025-09-01",
+    //         status: "Approved",
+    //         department_status: "NOT AVAILABLE",
+    //     },
+    // ];
 
-    const getEventData = (date, dataSource) => {
+    const { data: dataAppointmentSchedules } = GET(
+        `api/appointment_schedule`,
+        "appointment_schedule_list",
+        () => {},
+        false
+    );
+
+    const getEventData = (date, events) => {
         const dateStr = dayjs(date).format("YYYY-MM-DD");
-        return dataSource.filter((event) => event.date_formatted === dateStr);
+        return events.filter((event) => {
+            const matchDate =
+                dayjs(event.date).format("YYYY-MM-DD") === dateStr;
+            const matchDept =
+                !tableFilter.department_id ||
+                event.department_id === tableFilter.department_id;
+            return matchDate && matchDept;
+        });
     };
 
     const dateCellRender = (value) => {
-        const eventData = getEventData(value, dataSource);
+        const eventData = getEventData(
+            value,
+            dataAppointmentSchedules?.data || []
+        );
         return (
-            <ul style={{ paddingLeft: 0, listStyle: "none" }}>
+            <ul
+                style={{
+                    paddingLeft: 0,
+                    listStyle: "none",
+                    textAlign: "center",
+                }}
+            >
                 {eventData.map((item, index) => (
-                    <li key={index} style={{ marginBottom: 4 }}>
+                    <li
+                        key={index}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                            if (item.appointment_type === "Not Available") {
+                                notification.error({
+                                    message: "Unavailable",
+                                    description:
+                                        "This appointment slot is not available.",
+                                });
+                                return;
+                            }
+                            setToggleModalVisitorInformationForm({
+                                open: true,
+                                data: item,
+                            });
+                        }}
+                    >
                         <Typography.Text
+                            className="text-sm font-semibold"
                             style={{
                                 color:
-                                    item.department_status === "AVAILABLE"
+                                    item.appointment_type === "Not Available"
+                                        ? "red"
+                                        : item.appointment_type === "Available"
                                         ? "green"
-                                        : "red",
-                                fontWeight: "bold",
+                                        : "inherit",
+                                display: "inline-block",
+                                textAlign: "center",
                             }}
                         >
-                            {item.department_status}
+                            {item.appointment_type}
+                            <br />
+                            <Typography.Text className="text-xs">
+                                {item.available_time}
+                            </Typography.Text>
                         </Typography.Text>
                     </li>
                 ))}
@@ -112,21 +177,13 @@ export default function PageVisitContent(props) {
         );
     };
 
-    const handleCalendarSelect = (date) => {
-        const dateStr = dayjs(date).format("YYYY-MM-DD");
-        const event = dataSource.find(
-            (item) => item.date_formatted === dateStr
-        );
-        if (event && event.department_status === "AVAILABLE") {
-            setToggleModalVisitorInformationForm({ open: true, data: event });
-        }
+    useTableScrollOnTop("tbl_page_visitor", location);
 
-        if (event && event.department_status === "NOT AVAILABLE") {
-            notification.error({
-                message: "This date is not available",
-                description: "Please select another date.",
-            });
-        }
+    const onChangeTableFilter = (key, value) => {
+        setTableFilter({
+            ...tableFilter,
+            [key]: value,
+        });
     };
 
     return (
@@ -138,16 +195,24 @@ export default function PageVisitContent(props) {
                             <FloatSelect
                                 placeholder="Select Office"
                                 label="Select Office"
-                                options={[
-                                    { label: "CCIS", value: "CCIS" },
-                                    { label: "EDUC", value: "EDUC" },
-                                ]}
+                                options={
+                                    departments?.data
+                                        ? departments.data.map((item) => ({
+                                              label: item.department_name,
+                                              value: item.id,
+                                          }))
+                                        : []
+                                }
+                                onChange={(value) =>
+                                    onChangeTableFilter("department_id", value)
+                                }
+                                allowClear
                             />
                         </Form.Item>
                     </Form>
                 </Card>
             </Col>
-            <Col xs={9} sm={9} md={9} lg={9} xl={9}>
+            <Col xs={7} sm={7} md={7} lg={7} xl={7}>
                 <Card>
                     <Row gutter={[24, 24]}>
                         <Col xs={24} sm={24} md={24} lg={24} xl={24}></Col>
@@ -172,9 +237,9 @@ export default function PageVisitContent(props) {
                                 </div>
                             </Col>
                             <Table
-                                dataSource={dataSource}
-                                bordered
-                                rowKey={(record) => record.key}
+                                // dataSource={dataSource}
+                                // bordered
+                                // rowKey={(record) => record.key}
                                 pagination={false}
                                 size="middle"
                             >
@@ -244,11 +309,52 @@ export default function PageVisitContent(props) {
                                 />
                             </Table>{" "}
                         </Col>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                            <Card
+                                id="tbl_page_visitor"
+                                style={{
+                                    height: 300,
+                                    overflowY: "auto",
+                                    backgroundColor: "#0d5b10",
+                                }}
+                            >
+                                <Typography.Title level={4}>
+                                    Filter
+                                </Typography.Title>
+                                <Table
+                                    dataSource={(
+                                        dataAppointmentSchedules?.data || []
+                                    ).filter(
+                                        (item) =>
+                                            !tableFilter.department_id ||
+                                            item.department_id ===
+                                                tableFilter.department_id
+                                    )}
+                                    bordered
+                                    rowKey={(record) => record.key}
+                                    pagination={false}
+                                    size="middle"
+                                >
+                                    <Table.Column
+                                        title="Date"
+                                        dataIndex="date"
+                                        key="date"
+                                        width={100}
+                                    />
+                                    <Table.Column
+                                        title="Office"
+                                        dataIndex="department_name"
+                                        key="department_name"
+                                        width={100}
+                                    />
+                                </Table>{" "}
+                            </Card>
+                        </Col>
                     </Row>
                 </Card>
             </Col>
 
-            <Col xs={15} sm={15} md={15} lg={15} xl={15}>
+            <Col xs={16} sm={16} md={16} lg={16} xl={16}>
                 <Card>
                     <Row gutter={20} className="w-full">
                         <Col xs={24} sm={18} md={18} lg={24}>
@@ -283,50 +389,14 @@ export default function PageVisitContent(props) {
                             </Flex>
                         </Col>
 
-                        <Col xs={16} sm={16} md={16} lg={16} xl={16}>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                             <Card>
                                 <Calendar
                                     value={currentDate}
                                     fullscreen
                                     onChange={setCurrentDate}
                                     cellRender={dateCellRender}
-                                    height={300}
-                                    onSelect={handleCalendarSelect}
                                 />
-                            </Card>
-                        </Col>
-                        <Col xs={8} sm={8} md={8} lg={8} xl={8}>
-                            <Card
-                                id="tbl_page_visitor"
-                                style={{
-                                    height: 300,
-                                    overflowY: "auto",
-                                    backgroundColor: "#0d5b10",
-                                }}
-                            >
-                                <Typography.Title level={4}>
-                                    Application List
-                                </Typography.Title>
-                                <Table
-                                    dataSource={dataSource}
-                                    bordered
-                                    rowKey={(record) => record.key}
-                                    pagination={false}
-                                    size="middle"
-                                >
-                                    <Table.Column
-                                        title="Date"
-                                        dataIndex="date"
-                                        key="date"
-                                        width={100}
-                                    />
-                                    <Table.Column
-                                        title="Office"
-                                        dataIndex="office"
-                                        key="office"
-                                        width={100}
-                                    />
-                                </Table>{" "}
                             </Card>
                         </Col>
                     </Row>

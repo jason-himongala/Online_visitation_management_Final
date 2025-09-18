@@ -15,23 +15,6 @@ export default function PageVisitorView() {
 
     const navigate = useNavigate();
 
-    const handleMenuClick = (e) => {
-        if (e.key === "home") return navigate("/");
-        if (e.key === "visit-request") return navigate("/visitor");
-        if (e.key === "my-status") return navigate("/my-status");
-        if (e.key === "visitation-form") return navigate("/visitation-form");
-        if (e.key === "feedback-form") return navigate("/feedback-form");
-        if (e.key === "contact") {
-            setToggleModalOpenGroupChat({
-                open: true,
-                data: null,
-            });
-            return;
-        }
-        if (e.key === "logout") {
-        }
-    };
-
     useEffect(() => {
         const section = document.querySelector(".private-layout");
         if (section) {

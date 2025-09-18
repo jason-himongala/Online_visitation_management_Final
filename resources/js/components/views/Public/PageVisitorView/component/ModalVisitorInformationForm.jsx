@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/pro-regular-svg-icons";
 import {
     Button,
     Card,
@@ -9,13 +11,14 @@ import {
     Row,
     Upload,
 } from "antd";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/pro-regular-svg-icons";
-import validateRules from "../../../../providers/validateRules";
-import imageFileToBase64 from "../../../../providers/imageFileToBase64";
+
+import { POST } from "../../../../providers/useAxiosQuery";
+import { UserId } from "../../../../providers/appConfig";
 import FloatInput from "../../../../providers/FloatInput";
 
 export default function ModalVisitorInformationForm(props) {
+    const userId = UserId();
+    // console.log("userId", userId);
     const {
         toggleModalVisitorInformationForm,
         setToggleModalVisitorInformationForm,
@@ -25,9 +28,80 @@ export default function ModalVisitorInformationForm(props) {
         imageFileToBase64Data: null,
         file: null,
     });
+
+    // console.log(
+    //     "toggleModalVisitorInformationForm",
+    //     toggleModalVisitorInformationForm
+    // );
+
+    const { mutate: mutateVisitorInfo, loading: isLoadingSubmit } = POST(
+        `api/visitation_information`,
+        "visitation_information_submit"
+    );
+
+    const handleSubmit = (values) => {
+        let purpose_of_visit = values.purpose_of_visit;
+        let profile_id = userId ? userId : null;
+
+        console.log("profile_id", profile_id);
+        let appointment_schedule_id =
+            toggleModalVisitorInformationForm.data &&
+            toggleModalVisitorInformationForm.data.id
+                ? toggleModalVisitorInformationForm.data.id
+                : null;
+        // console.log("onFinish", values);
+
+        let data = {
+            ...values,
+            appointment_schedule_id: appointment_schedule_id,
+            profile_id: profile_id,
+            purpose_of_visit,
+        };
+
+        mutateVisitorInfo(data, {
+            onSuccess: (res) => {
+                if (res.success) {
+                    notification.success({
+                        message: "Application Submitted",
+                        description: res.message,
+                    });
+
+                    setToggleModalVisitorInformationForm({
+                        open: false,
+                        data: null,
+                    });
+
+                    form.resetFields();
+                } else {
+                    notification.error({
+                        message: "Something went wrong",
+                        description: res.message,
+                    });
+                }
+            },
+            onError: (err) => {
+                notification.error({
+                    message: "Email Update",
+                    description: "Something went Wrong",
+                });
+            },
+        });
+    };
+
     return (
         <Modal
-            title="Visitor Information"
+            title={`Visitor Information -  ${
+                toggleModalVisitorInformationForm.data &&
+                toggleModalVisitorInformationForm.data.department_name
+                    ? toggleModalVisitorInformationForm.data.department_name +
+                      " "
+                    : ""
+            }${
+                toggleModalVisitorInformationForm.data &&
+                toggleModalVisitorInformationForm.data.available_time
+                    ? toggleModalVisitorInformationForm.data.available_time
+                    : ""
+            } `}
             closeIcon={<FontAwesomeIcon icon={faXmark} />}
             open={toggleModalVisitorInformationForm.open}
             onCancel={() => {
@@ -53,19 +127,21 @@ export default function ModalVisitorInformationForm(props) {
                 <Button
                     shape="round"
                     type="primary"
+                    loading={isLoadingSubmit}
                     className="ant-btn-primary"
-                    onClick={() => form.submit()}
+                    onClick={() => {
+                        form.submit();
+                    }}
                     key={2}
                 >
                     Submit Request
                 </Button>,
             ]}
         >
-            <Form>
-                <Row gutter={[20, 0]}>
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+            <Row gutter={[20, 0]}>
+                {/* <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Form.Item
-                            name="email"
+                            name="profile_id"
                             rules={[validateRules.required()]}
                         >
                             <FloatInput
@@ -74,7 +150,8 @@ export default function ModalVisitorInformationForm(props) {
                                 placeholder="Your Email Address"
                             />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
+                <Form layout="vertical" form={form} onFinish={handleSubmit}>
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Form.Item name="purpose_of_visit">
                             <FloatInput
@@ -84,76 +161,8 @@ export default function ModalVisitorInformationForm(props) {
                             />
                         </Form.Item>
                     </Col>
-
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
-                        <Form.Item
-                            name="pdf_file"
-                            valuePropName="fileList"
-                            getValueFromEvent={(e) => {
-                                if (Array.isArray(e)) {
-                                    return e;
-                                }
-                                return e?.fileList;
-                            }}
-                        >
-                            <Upload
-                                style={{ width: "100%" }}
-                                className="event-logo-upload"
-                                listType="text"
-                                accept="application/pdf"
-                                showUploadList={false}
-                                beforeUpload={async (file) => {
-                                    const isPDF =
-                                        file.type === "application/pdf";
-                                    const isLt2M = file.size / 1024 / 1024 < 2;
-                                    if (!isPDF) {
-                                        notification.error({
-                                            message: "Official Request Letter",
-                                            description:
-                                                "Only PDF files are allowed!",
-                                        });
-                                        return Upload.LIST_IGNORE;
-                                    }
-                                    if (!isLt2M) {
-                                        notification.error({
-                                            message: "Official Request Letter",
-                                            description:
-                                                "PDF must be smaller than 2MB!",
-                                        });
-                                        return Upload.LIST_IGNORE;
-                                    }
-                                    setImageUrlLogo({
-                                        imageFileToBase64Data: null,
-                                        file,
-                                    });
-                                    return false;
-                                }}
-                                maxCount={1}
-                            >
-                                <Card
-                                    hoverable
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                    }}
-                                >
-                                    <Button>Choose File</Button>
-                                    {imageUrlLogo.file && (
-                                        <span
-                                            style={{
-                                                marginLeft: 16,
-                                                color: "#1677ff",
-                                            }}
-                                        >
-                                            {imageUrlLogo.file.name}
-                                        </span>
-                                    )}
-                                </Card>
-                            </Upload>
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
+                </Form>
+            </Row>
         </Modal>
     );
 }

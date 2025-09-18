@@ -82,3 +82,8 @@ export const role = () => {
     const user = userData();
     return user ? user.role : null;
 };
+
+export const UserId = () => {
+    const user = userData();
+    return user ? user.id : null;
+};

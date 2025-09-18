@@ -77,6 +77,11 @@ class Profile extends Model
         return $this->morphMany(Attachment::class, 'attachmentable');
     }
 
+    public function visitation_informations()
+    {
+        return $this->hasMany(VisitaionInformation::class, 'profile_id');
+    }
+
     public function historicalData()
     {
         return $this->morphMany(HistoricalData::class, 'historyable');

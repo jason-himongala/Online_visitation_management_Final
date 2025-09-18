@@ -9,10 +9,13 @@ use App\Models\ProfileNativeLanguage;
 use App\Models\ProfileOtherCredencialPresented;
 use App\Models\ProfileSchoolAttended;
 use App\Models\User;
+use App\Models\UserRole;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+
 
 
 class ProfileController extends Controller
@@ -62,36 +65,56 @@ class ProfileController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function profiles_signup(Request $request)
     {
         $ret = [
             "success" => false,
             "message" => "Data not " . ($request->id ? "updated" : "saved")
         ];
 
+
+        $dataUser  =  $request->validate([
+            'email' => [
+                'required',
+                Rule::unique('users')->ignore($request->id),
+            ],
+            'username' => [
+                'required',
+                Rule::unique('users')->ignore($request->id),
+            ],
+            'password' => 'required',
+            'confirm_password' => 'required|same:password',
+        ]);
+
         $dataProfile = $request->validate([
-            "lrn" => 'nullable',
+
             "firstname" => 'required',
             "middlename" => 'nullable',
             "lastname" => 'required',
-            "name_ext" => 'nullable',
-            "age" => 'nullable',
-            "birthdate" => 'nullable|date',
-            "gender" => 'nullable',
+
         ]);
 
 
 
-
         try {
-            DB::transaction(function () use ($dataProfile, &$ret, $request) {
+            DB::transaction(function () use ($dataProfile, &$ret, $request, $dataUser) {
                 if ($request->id) {
                     $dataProfile['updated_by'] = auth()->id();
                 } else {
                     $dataProfile['created_by'] = auth()->id();
-                    $dataProfile['status'] = 'Validated';
                 }
 
+                $VisitorUserRole = UserRole::where('role', 'Visitor')->first();
+                $dataUser['status'] = 'Active';
+
+                $dataUser['user_role_id'] = $VisitorUserRole->id;
+                $user = User::updateOrCreate(
+                    ['id' => $request->id ?? null],
+                    $dataUser
+                );
+
+
+                $dataProfile['user_id'] = $user->id;
                 $profile = Profile::updateOrCreate(
                     ["id" => $request->id ?? null],
                     $dataProfile
@@ -129,7 +152,9 @@ class ProfileController extends Controller
     {
         $data = Profile::with([
             'user',
-            'attachments',
+            'attachments' => function ($query) {
+                $query->orderBy('id', 'desc');
+            },
         ])
             ->find($id);
 
@@ -227,49 +252,6 @@ class ProfileController extends Controller
                     "message" => "Profile photo updated successfully",
                 ];
             }
-        }
-
-        return response()->json($ret, 200);
-    }
-
-
-
-    public function profile_archive_restore(Request $request)
-    {
-        $ret = [
-            "success" => false,
-            "message" => "Data not " . ($request->isTrash ? "restore" : "archive"),
-        ];
-
-        $request->validate([
-            'id' => 'required',
-        ]);
-        //
-
-        if ($request->isTrash) {
-            // Restore the soft deleted records
-            Profile::where("id", $request->id)->restore();
-            // Update the 'updated_by' field
-            $data = [
-                "updated_by" => auth()->id(),
-            ];
-            Profile::where("id", $request->id)->update($data);
-
-            $ret = [
-                "success" => true,
-                "message" => "Data restored successfully"
-            ];
-        } else {
-            $data = [
-                "deleted_at" => now(),
-                "deleted_by" => auth()->id(),
-            ];
-            Profile::where("id", $request->id)->update($data);
-
-            $ret = [
-                "success" => true,
-                "message" => "Data archived successfully"
-            ];
         }
 
         return response()->json($ret, 200);

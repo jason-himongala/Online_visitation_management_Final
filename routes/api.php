@@ -25,6 +25,11 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::post('initial_registration', [App\Http\Controllers\UserController::class, "initial_registration"]);
+Route::post('profiles_signup', [App\Http\Controllers\ProfileController::class, 'profiles_signup']);
+Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, 'update_profile_photo']);
+
+
 
 
 Route::middleware('auth:api')->group(function () {
@@ -32,18 +37,6 @@ Route::middleware('auth:api')->group(function () {
 
     // UserController
     Route::post('existing_username', [App\Http\Controllers\UserController::class, "existing_username"]);
-
-    Route::post('multiple_archived_user', [App\Http\Controllers\UserController::class, "multiple_archived_user"]);
-    Route::post('user_deactivation', [App\Http\Controllers\UserController::class, "user_deactivation"]);
-    Route::post('user_toggle_status', [App\Http\Controllers\UserController::class, "user_toggle_status"]);
-    Route::post('user_photo_update', [App\Http\Controllers\UserController::class, "user_photo_update"]);
-    Route::get('user_profile_info', [App\Http\Controllers\UserController::class, "user_profile_info"]);
-    Route::post('user_profile_info_update', [App\Http\Controllers\UserController::class, "user_profile_info_update"]);
-    Route::post('user_update_role', [App\Http\Controllers\UserController::class, "user_update_role"]);
-    Route::post('user_deactivate', [App\Http\Controllers\UserController::class, "user_deactivate"]);
-    Route::post('users_update_email', [App\Http\Controllers\UserController::class, "users_update_email"]);
-    Route::post('users_update_password', [App\Http\Controllers\UserController::class, "users_update_password"]);
-    Route::post('users_info_update_password', [App\Http\Controllers\UserController::class, "users_info_update_password"]);
     Route::post('add_user', [App\Http\Controllers\UserController::class, "add_user"]);
     Route::apiResource('users', App\Http\Controllers\UserController::class);
     // END UserController
@@ -71,7 +64,6 @@ Route::middleware('auth:api')->group(function () {
 
 
     // ProfileController
-    Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, "update_profile_photo"]);
     Route::post('profile_archive_restore', [App\Http\Controllers\ProfileController::class, 'profile_archive_restore']);
     Route::apiResource('profiles',  App\Http\Controllers\ProfileController::class);
 
@@ -84,14 +76,28 @@ Route::middleware('auth:api')->group(function () {
     Route::post('user_role_archive', [App\Http\Controllers\UserRoleController::class, 'user_role_archive']);
     //End UserRoleController
 
-    //EmailTemplateController
-    Route::post('email_template_multiple', [App\Http\Controllers\EmailTemplateController::class, 'email_template_multiple']);
-    Route::apiResource('email_templates', App\Http\Controllers\EmailTemplateController::class);
-    //END EmailTemplateController
+    //AppointmentScheduleController
+    Route::apiResource('appointment_schedule', App\Http\Controllers\AppointmentScheduleController::class);
+    //End AppointmentScheduleController
 
 
     // DepartmentController
     Route::apiResource('departments', App\Http\Controllers\DepartmentController::class);
     // END DepartmentController
+
+    //VisitaionInformationController
+    Route::apiResource('visitation_information', App\Http\Controllers\VisitaionInformationController::class);
+    //End VisitaionInformationController
+
+
+    //VisitorRequestController
+    Route::apiResource('visitor_requests', App\Http\Controllers\VisitorRequestController::class);
+    //End VisitorRequestController
+
+
+
+    //ChatMemberController
+    Route::apiResource('chat_members', App\Http\Controllers\ChatMemberController::class);
+    //End ChatMemberController
 
 });

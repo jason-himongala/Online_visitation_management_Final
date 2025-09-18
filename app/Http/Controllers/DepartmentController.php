@@ -11,9 +11,8 @@ class DepartmentController extends Controller
     {
 
 
-
         $data = Department::select([
-            "departments.*",
+            "*",
 
         ])
             ->search([

@@ -52,7 +52,7 @@ export default function PageUser() {
                     <Button
                         type="primary"
                         icon={<FontAwesomeIcon icon={faPlus} />}
-                        onClick={() => navigate(`/users/add`)}
+                        onClick={() => navigate(`/profile/add`)}
                         name="btn_add"
                         shape="round"
                     >

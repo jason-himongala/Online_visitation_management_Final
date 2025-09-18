@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
-            $table->id();
-
-            $table->string('department_name')->nullable();
-
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('chats', function (Blueprint $table) {
+            $table->string('title_of_groupchat')->nullable()->after('id');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::table('chats', function (Blueprint $table) {
+            //
+        });
     }
 };

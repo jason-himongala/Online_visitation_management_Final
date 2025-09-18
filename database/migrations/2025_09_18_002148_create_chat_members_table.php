@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('chat_members', function (Blueprint $table) {
             $table->id();
 
-            $table->string('department_name')->nullable();
+            $table->bigInteger('chat_id')->nullable();
+
 
             $table->timestamps();
             $table->softDeletes();
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('chat_members');
     }
 };

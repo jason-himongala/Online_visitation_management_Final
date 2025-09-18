@@ -38,39 +38,46 @@ export default function PageApproved() {
         search: "",
         sort_field: "created_at",
         sort_order: "desc",
-        status: "Active",
-        from: location.pathname,
-        isTrash: 0, // 0 = Active, 1 = Archived
+        status: location.pathname.includes("approved")
+            ? "Approved"
+            : location.pathname.includes("declined")
+            ? "Declined"
+            : location.pathname.includes("all-requests")
+            ? "Pending"
+            : "",
+        // from: location.pathname,
     });
+    useEffect(() => {
+        setTableFilter({
+            page: 1,
+            page_size: 50,
+            search: "",
+            from: location.pathname,
+            status: location.pathname.includes("approved")
+                ? "Approved"
+                : location.pathname.includes("declined")
+                ? "Declined"
+                : location.pathname.includes("all-requests")
+                ? "Pending"
+                : "",
+        });
 
-    // const { data: dataSource, refetch: refetchSource } = GET(
-    //     `api/users?${new URLSearchParams(tableFilter)}`,
-    //     ["users_active_list", "check_user_permission"]
-    // );
+        return () => {};
+    }, [location]);
+    console.log("tableFilter", tableFilter);
+    console.log("location.pathname", location.pathname);
 
-    const dataSource = {
-        data: {
-            total: 2,
-            data: [
-                {
-                    id: 1,
-                    visitors: "Jericho Cabalan",
-                    fullname: "COFES",
-                    gender: "2023-01-01 09:00 AM",
-                    purpose_of_visit: "Inquiry",
-                    file: "document.pdf",
-                    status: "Approved",
-                },
-            ],
-        },
-    };
+    const { data: dataSource, refetch: refetchSource } = GET(
+        `api/visitation_information?${new URLSearchParams(tableFilter)}`,
+        ["visitation_information_submit", "visitation_information_submit"]
+    );
 
-    // useEffect(() => {
-    //     refetchSource();
+    useEffect(() => {
+        refetchSource();
 
-    //     return () => {};
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [tableFilter]);
+        return () => {};
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tableFilter]);
 
     useTableScrollOnTop("tbl_user", location);
 
@@ -165,7 +172,7 @@ export default function PageApproved() {
                 <Col xs={24} sm={24} md={24}>
                     <Table
                         id="tbl_profiles"
-                        dataSource={dataSource.data.data}
+                        dataSource={dataSource ? dataSource.data.data : []}
                         rowKey="id"
                         pagination={false}
                         bordered

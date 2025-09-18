@@ -1,9 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import {
-    faCalendar,
     faHome,
     faUserCircle,
-    faUserClock,
     faUsers,
 } from "@fortawesome/pro-regular-svg-icons";
 
@@ -20,18 +18,15 @@ import PageUser from "../views/Private/PageUser/PageUser";
 import PageUserForm from "../views/Private/PageUser/PageUserForm";
 import PageLogin from "../views/Public/PageLogin/PageLogin";
 import PageVisitorView from "../views/Public/PageVisitorView/PageVisitorView";
-import VisitorRoute from "./VisitorRoute";
 import PageAllRequest from "../views/Private/PageAllRequest/PageAllRequest";
 import PageApproved from "../views/Private/PageApproved/PageApproved";
 import PageDeclined from "../views/Private/PageDeclined/PageDeclined";
 import PageMyStatus from "../views/Public/PageVisitorView/PageMyStatus";
 import PageContact from "../views/Public/PageVisitorView/PageContact";
-import PageVisitionForm from "../views/Public/PageVisitorView/PageVisition";
 import PageVisition from "../views/Public/PageVisitorView/PageVisition";
 import PageFeedBack from "../views/Public/PageVisitorView/PageFeedBack";
-import PageVisitationContent from "../views/Public/PageVisitorView/component/PageVisitionContent";
-import PageDepartment from "../views/Private/PageDepartment/PageDepartment";
 import PageEvent from "../views/Private/PageEvent/PageEvent";
+import PageSignUp from "../views/Public/PageSignUp/PageSignUp";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -45,6 +40,26 @@ export default function RouteList() {
                         title="LOGIN"
                         pageId="PageLogin"
                         component={PageLogin}
+                    />
+                }
+            />
+            <Route
+                path="/login"
+                element={
+                    <PublicRoute
+                        title="LOGIN"
+                        pageId="PageLogin"
+                        component={PageLogin}
+                    />
+                }
+            />
+            <Route
+                path="/sign-up"
+                element={
+                    <PublicRoute
+                        title="SIGN UP"
+                        pageId="PageSignUp"
+                        component={PageSignUp}
                     />
                 }
             />
@@ -141,14 +156,14 @@ export default function RouteList() {
                 element={
                     <PrivateRoute
                         // moduleCode="M-02"
-                        moduleName="User"
-                        title="User"
+                        moduleName="Profile"
+                        title="Profile"
                         subtitle="VIEW / EDIT"
                         pageId="PageUser"
                         pageHeaderIcon={faUsers}
                         breadcrumb={[
                             {
-                                name: "User",
+                                name: "Profile",
                             },
                         ]}
                         component={PageUser}
@@ -156,7 +171,7 @@ export default function RouteList() {
                 }
             />
             <Route
-                path="/users/add"
+                path="/profile/add"
                 element={
                     <PrivateRoute
                         // moduleCode="M-02"
@@ -167,11 +182,11 @@ export default function RouteList() {
                         pageHeaderIcon={faUsers}
                         breadcrumb={[
                             {
-                                name: "User",
-                                link: "/users",
+                                name: "Profile",
+                                link: "/profile",
                             },
                             {
-                                name: "Add User",
+                                name: "Add Profile",
                             },
                         ]}
                         component={PageUserForm}
@@ -179,22 +194,22 @@ export default function RouteList() {
                 }
             />
             <Route
-                path="/users/edit/:id"
+                path="/profile/edit/:id"
                 element={
                     <PrivateRoute
                         // moduleCode="M-02"
-                        moduleName="User"
+                        moduleName="Profile"
                         title="PageUserForm"
                         subtitle="VIEW / EDIT"
                         pageId="PageUserForm"
                         pageHeaderIcon={faUsers}
                         breadcrumb={[
                             {
-                                name: "User",
-                                link: "/users",
+                                name: "Profile",
+                                link: "/profile",
                             },
                             {
-                                name: "Edit User",
+                                name: "Edit Profile",
                             },
                         ]}
                         component={PageUserForm}
@@ -203,11 +218,11 @@ export default function RouteList() {
             />
 
             <Route
-                path="/users/edit/:id"
+                path="/profile/edit/:id"
                 element={
                     <PrivateRoute
                         // moduleCode="M-02"
-                        moduleName="User"
+                        moduleName="Profile"
                         title="PageUserForm"
                         subtitle="VIEW / EDIT"
                         pageId="PageUserForm"
@@ -215,7 +230,7 @@ export default function RouteList() {
                         breadcrumb={[
                             {
                                 name: "User",
-                                link: "/users",
+                                link: "/profile",
                             },
                             {
                                 name: "Edit User",
@@ -267,7 +282,7 @@ export default function RouteList() {
                                 name: "View Approved",
                             },
                         ]}
-                        component={PageApproved}
+                        component={PageAllRequest}
                     />
                 }
             />
@@ -290,7 +305,7 @@ export default function RouteList() {
                                 name: "View Declined",
                             },
                         ]}
-                        component={PageDeclined}
+                        component={PageAllRequest}
                     />
                 }
             />

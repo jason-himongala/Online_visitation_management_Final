@@ -210,3 +210,12 @@ body {
         transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
     }
 }
+
+@media (max-width: 768px) {
+    .responsive-calendar .ant-picker-calendar {
+        font-size: 12px; /* smaller text */
+    }
+    .responsive-calendar .ant-picker-cell-inner {
+        padding: 4px; /* tighter spacing */
+    }
+}
