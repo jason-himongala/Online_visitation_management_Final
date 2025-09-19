@@ -12,7 +12,7 @@ import {
     Upload,
 } from "antd";
 
-import { POST } from "../../../../providers/useAxiosQuery";
+import { GET, POST } from "../../../../providers/useAxiosQuery";
 import { UserId } from "../../../../providers/appConfig";
 import FloatInput from "../../../../providers/FloatInput";
 
@@ -28,6 +28,9 @@ export default function ModalVisitorInformationForm(props) {
         imageFileToBase64Data: null,
         file: null,
     });
+
+    const { data: userData } = GET(`api/profiles/${userId}`, "profile_user");
+    console.log("userData", userData);
 
     // console.log(
     //     "toggleModalVisitorInformationForm",
@@ -87,6 +90,13 @@ export default function ModalVisitorInformationForm(props) {
             },
         });
     };
+    useEffect(() => {
+        if (userData) {
+            form.setFieldsValue({
+                email: userData?.data?.user?.email || "",
+            });
+        }
+    }, [userData, form]);
 
     return (
         <Modal
@@ -101,7 +111,12 @@ export default function ModalVisitorInformationForm(props) {
                 toggleModalVisitorInformationForm.data.available_time
                     ? toggleModalVisitorInformationForm.data.available_time
                     : ""
-            } `}
+            }
+            ${
+                userData?.data?.user?.email &&
+                ` - ${userData?.data?.user?.email}`
+            }
+             `}
             closeIcon={<FontAwesomeIcon icon={faXmark} />}
             open={toggleModalVisitorInformationForm.open}
             onCancel={() => {
@@ -138,20 +153,18 @@ export default function ModalVisitorInformationForm(props) {
                 </Button>,
             ]}
         >
-            <Row gutter={[20, 0]}>
-                {/* <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
-                        <Form.Item
-                            name="profile_id"
-                            rules={[validateRules.required()]}
-                        >
+            <Form layout="vertical" form={form} onFinish={handleSubmit}>
+                <Row gutter={[20, 0]}>
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+                        <Form.Item name="email">
                             <FloatInput
                                 label="Your Email Address"
                                 required
                                 placeholder="Your Email Address"
+                                disabled
                             />
                         </Form.Item>
-                    </Col> */}
-                <Form layout="vertical" form={form} onFinish={handleSubmit}>
+                    </Col>
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Form.Item name="purpose_of_visit">
                             <FloatInput
@@ -161,8 +174,8 @@ export default function ModalVisitorInformationForm(props) {
                             />
                         </Form.Item>
                     </Col>
-                </Form>
-            </Row>
+                </Row>
+            </Form>
         </Modal>
     );
 }
