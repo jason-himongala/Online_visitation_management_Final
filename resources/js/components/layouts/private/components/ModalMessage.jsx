@@ -245,7 +245,7 @@ export default function ModalMessage(props) {
         if (selectedGroup?.chat_id) {
             interval = setInterval(() => {
                 refetchChatMessages();
-            }, 3000); // poll every 3 seconds
+            }, 3000);
         }
         return () => clearInterval(interval);
     }, [selectedGroup?.chat_id]);
@@ -276,7 +276,6 @@ export default function ModalMessage(props) {
             closable
         >
             <div style={{ display: "flex" }}>
-                {/* Group list */}
                 <div style={{ width: 300, marginRight: 16 }}>
                     <Title level={4}>Groups</Title>
                     <Input
@@ -321,7 +320,6 @@ export default function ModalMessage(props) {
                     />
                 </div>
 
-                {/* Chat window */}
                 <div style={{ flex: 1 }}>
                     {selectedGroup ? (
                         <>
@@ -346,7 +344,6 @@ export default function ModalMessage(props) {
                                 </div>
                             </Title>
 
-                            {/* Messages */}
                             <div
                                 style={{
                                     maxHeight: 400,
@@ -520,7 +517,6 @@ export default function ModalMessage(props) {
                                 <div ref={messagesEndRef} />
                             </div>
 
-                            {/* Input */}
                             <div
                                 style={{
                                     display: "flex",

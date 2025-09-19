@@ -64,8 +64,8 @@ export default function PageApproved() {
 
         return () => {};
     }, [location]);
-    console.log("tableFilter", tableFilter);
-    console.log("location.pathname", location.pathname);
+    // console.log("tableFilter", tableFilter);
+    // console.log("location.pathname", location.pathname);
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/visitation_information?${new URLSearchParams(tableFilter)}`,

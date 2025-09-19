@@ -94,7 +94,10 @@ export default function PageAllRequest() {
                 onSuccess: (res) => {
                     if (res.success) {
                         notification.success({
-                            message: `${status} Successfully`,
+                            message: `Success ${
+                                status === "approved" ? "Approved" : "Declined"
+                            }`,
+                            description: res.message,
                         });
                         setSelectedRowKeys([]);
                         refetchSource();
@@ -138,7 +141,6 @@ export default function PageAllRequest() {
                                     setTableFilter={setTableFilter}
                                 />
 
-                                {/* ✅ Bulk Actions */}
                                 {selectedRowKeys.length > 0 && (
                                     <>
                                         {(isAllRequestsPage ||
