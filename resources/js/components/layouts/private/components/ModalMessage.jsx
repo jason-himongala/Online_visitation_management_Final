@@ -1,75 +1,85 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Modal, Input, Button, List, Avatar, Typography } from "antd";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { faArrowLeft } from "@fortawesome/pro-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     SendOutlined,
     CheckOutlined,
     CheckCircleOutlined,
 } from "@ant-design/icons";
-import { faArrowLeft } from "@fortawesome/pro-regular-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Modal, Input, Button, List, Avatar, Typography } from "antd";
+
+import { GET, POST } from "../../../providers/useAxiosQuery";
+import { UserId } from "../../../providers/appConfig";
 
 const { Title, Text } = Typography;
 
-// Example groups
-const groupsList = [
-    {
-        id: "mnhs",
-        name: "MNHS",
-        avatar: "https://via.placeholder.com/40",
-        members: [
-            {
-                id: 1,
-                name: "PICO",
-                avatar: "https://static.beebom.com/wp-content/uploads/2025/03/cha-hae-in-solo-leveling.jpg?w=1250&quality=75",
-                status: "online",
-            },
-            {
-                id: 2,
-                name: "Juan Dela Cruz",
-                avatar: "https://via.placeholder.com/40/f5222d/ffffff?text=J",
-                status: "offline",
-            },
-        ],
-    },
-    {
-        id: "science",
-        name: "Science Department",
-        avatar: "https://via.placeholder.com/40",
-        members: [
-            {
-                id: 3,
-                name: "Teacher A",
-                avatar: "https://via.placeholder.com/40/52c41a/ffffff?text=A",
-                status: "online",
-            },
-            {
-                id: 4,
-                name: "Teacher B",
-                avatar: "https://via.placeholder.com/40/722ed1/ffffff?text=B",
-                status: "away",
-            },
-        ],
-    },
-];
-
 export default function ModalMessage(props) {
+    const userId = UserId();
     const { setToggleModalOpenGroupChat, toggleModalOpenGroupChat } = props;
+
     const [selectedGroup, setSelectedGroup] = useState(null);
-    const [messages, setMessages] = useState({
-        mnhs: [
-            {
-                id: 1,
-                sender: "PICO",
-                text: "Nag kaon kana love?",
-                timestamp: Date.now(),
-                status: "seen",
-            },
-        ],
-    });
+    const [messages, setMessages] = useState({});
     const [newMessage, setNewMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [hasOpened, setHasOpened] = useState(false);
     const messagesEndRef = useRef(null);
+
+    const { data: dataChatMember } = GET(
+        `api/chat_members`,
+        "chat_members_list",
+        () => {},
+        false
+    );
+
+    const { data: dataChatMessages, refetch: refetchChatMessages } = GET(
+        selectedGroup
+            ? `api/conversations_chat?chat_id=${selectedGroup.chat_id}`
+            : null,
+        "post_visitor_chat_message" +
+            (selectedGroup ? selectedGroup.chat_id : "")
+    );
+
+    useEffect(() => {
+        if (selectedGroup) {
+            setMessages((prev) => ({
+                ...prev,
+                [selectedGroup.chat_id]: [],
+            }));
+        }
+    }, [selectedGroup]);
+
+    useEffect(() => {
+        if (selectedGroup && dataChatMessages?.data) {
+            const myProfileId = selectedGroup.members.find(
+                (m) => m.profile?.user_id === userId
+            )?.profile?.id;
+
+            const mappedMessages = dataChatMessages.data.map((msg) => {
+                const senderMember = selectedGroup.members.find(
+                    (m) => m.profile?.id === msg.profile_id
+                );
+                const isCurrentUser = msg.profile_id === myProfileId;
+                return {
+                    id: msg.id,
+                    text: msg.chat_message,
+                    sender: isCurrentUser
+                        ? "You"
+                        : senderMember?.name ||
+                          msg.sender?.username ||
+                          "Unknown",
+                    timestamp: msg.created_at
+                        ? new Date(msg.created_at).getTime()
+                        : Date.now(),
+                    status: msg.status || "sent",
+                };
+            });
+
+            setMessages((prev) => ({
+                ...prev,
+                [selectedGroup.chat_id]: mappedMessages,
+            }));
+        }
+    }, [dataChatMessages, selectedGroup, userId]);
 
     useEffect(() => {
         if (toggleModalOpenGroupChat.open) {
@@ -79,27 +89,62 @@ export default function ModalMessage(props) {
         }
     }, [toggleModalOpenGroupChat.open]);
 
-    const formatTime = (timestamp) => {
-        return new Date(timestamp).toLocaleTimeString([], {
+    const groupChats = useMemo(() => {
+        const groups = {};
+        dataChatMember?.data.forEach((item) => {
+            const chatId = item.chat_id;
+            if (!groups[chatId]) {
+                groups[chatId] = {
+                    chat_id: chatId,
+                    chat: item.chat,
+                    members: [],
+                };
+            }
+
+            const username = item.profile?.user?.username || "Unknown";
+            const avatar = item.profile?.attachments?.[0]?.file_path
+                ? "/" + item.profile.attachments[0].file_path
+                : null;
+
+            groups[chatId].members.push({
+                ...item,
+                user_id: item.profile?.user_id,
+                name: username,
+                avatar: avatar,
+            });
+        });
+        return Object.values(groups);
+    }, [dataChatMember]);
+
+    const filteredGroupChats = useMemo(() => {
+        return groupChats.filter((group) =>
+            group.members.some((m) => m.profile?.user_id === userId)
+        );
+    }, [groupChats, userId]);
+
+    const filteredGroups = filteredGroupChats.filter((g) =>
+        (g.chat?.title_of_groupchat || "Group Chat")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+    );
+
+    const formatTime = (timestamp) =>
+        new Date(timestamp).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
         });
-    };
 
     const formatDate = (timestamp) => {
         const today = new Date();
         const messageDate = new Date(timestamp);
-
         if (today.toDateString() === messageDate.toDateString()) {
             return "Today";
         }
-
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         if (yesterday.toDateString() === messageDate.toDateString()) {
             return "Yesterday";
         }
-
         return messageDate.toLocaleDateString([], {
             month: "short",
             day: "numeric",
@@ -110,8 +155,50 @@ export default function ModalMessage(props) {
         });
     };
 
-    const handleSend = () => {
+    const groupMessagesByDate = (msgs = []) => {
+        const grouped = {};
+        msgs.forEach((msg) => {
+            const date = formatDate(msg.timestamp);
+            if (!grouped[date]) grouped[date] = [];
+            grouped[date].push(msg);
+        });
+        return grouped;
+    };
+
+    const { mutate: mutateVisitorInfo, loading: isLoadingChat } = POST(
+        `api/conversations_chat`,
+        "post_visitor_chat_message"
+    );
+
+    const handleSend = async () => {
         if (newMessage.trim() === "" || !selectedGroup) return;
+
+        const currentMember = selectedGroup.members.find(
+            (m) => m.profile?.user_id === userId
+        );
+        const chat_id = selectedGroup.chat_id;
+        const profile_id = currentMember?.profile?.id;
+        const chat_member_id = currentMember?.id;
+
+        const payload = {
+            profile_id,
+            chat_member_id,
+            chat_id,
+            chat_message: newMessage,
+        };
+
+        mutateVisitorInfo(payload, {
+            onSuccess: () => {
+                refetchChatMessages();
+                setNewMessage("");
+
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({
+                        behavior: "smooth",
+                    });
+                }
+            },
+        });
 
         const timestamp = Date.now();
         const newMsg = {
@@ -124,43 +211,52 @@ export default function ModalMessage(props) {
 
         setMessages((prev) => ({
             ...prev,
-            [selectedGroup.id]: [...(prev[selectedGroup.id] || []), newMsg],
+            [selectedGroup.chat_id]: [
+                ...(prev[selectedGroup.chat_id] || []),
+                newMsg,
+            ],
         }));
 
         setNewMessage("");
     };
 
-    const groupMessagesByDate = (msgs = []) => {
-        const grouped = {};
-        msgs.forEach((msg) => {
-            const date = formatDate(msg.timestamp);
-            if (!grouped[date]) {
-                grouped[date] = [];
-            }
-            grouped[date].push(msg);
-        });
-        return grouped;
-    };
-
-    const filteredGroups = groupsList.filter((g) =>
-        g.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     const groupedMessages = selectedGroup
-        ? groupMessagesByDate(messages[selectedGroup.id] || [])
+        ? groupMessagesByDate(
+              [...(messages[selectedGroup.chat_id] || [])].sort(
+                  (a, b) => a.timestamp - b.timestamp
+              )
+          )
         : {};
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages, selectedGroup]);
+
+    useEffect(() => {
+        if (selectedGroup?.chat_id) {
+            refetchChatMessages();
+        }
+    }, [selectedGroup?.chat_id, refetchChatMessages]);
+
+    useEffect(() => {
+        let interval;
+        if (selectedGroup?.chat_id) {
+            interval = setInterval(() => {
+                refetchChatMessages();
+            }, 3000); // poll every 3 seconds
+        }
+        return () => clearInterval(interval);
+    }, [selectedGroup?.chat_id]);
 
     return (
         <Modal
             title="Group Chat"
             className="custom-blur-modal"
-            blur={true}
             open={toggleModalOpenGroupChat.open}
             onCancel={() => {
-                setToggleModalOpenGroupChat({
-                    open: false,
-                    data: null,
-                });
+                setToggleModalOpenGroupChat({ open: false, data: null });
                 setSelectedGroup(null);
             }}
             footer={[
@@ -169,27 +265,19 @@ export default function ModalMessage(props) {
                     type="default"
                     shape="round"
                     size="large"
-                    onClick={() => {
-                        setToggleModalOpenGroupChat({
-                            open: false,
-                            data: null,
-                        });
-                    }}
+                    onClick={() =>
+                        setToggleModalOpenGroupChat({ open: false, data: null })
+                    }
                 >
                     Close
                 </Button>,
             ]}
             width={1100}
-            closable={true}
+            closable
         >
-            <div
-                className="modal-message-container"
-                style={{ display: "flex" }}
-            >
-                <div
-                    className="group-list"
-                    style={{ width: "300px", marginRight: "16px" }}
-                >
+            <div style={{ display: "flex" }}>
+                {/* Group list */}
+                <div style={{ width: 300, marginRight: 16 }}>
                     <Title level={4}>Groups</Title>
                     <Input
                         placeholder="Search groups..."
@@ -202,25 +290,30 @@ export default function ModalMessage(props) {
                         dataSource={filteredGroups}
                         renderItem={(group) => (
                             <List.Item
-                                key={group.id}
-                                className={`group-item ${
-                                    selectedGroup?.id === group.id
+                                key={group.chat_id}
+                                className={
+                                    selectedGroup?.chat_id === group.chat_id
                                         ? "selected"
                                         : ""
-                                }`}
+                                }
                                 onClick={() => setSelectedGroup(group)}
                                 style={{
                                     cursor: "pointer",
                                     background:
-                                        selectedGroup?.id === group.id
+                                        selectedGroup?.chat_id === group.chat_id
                                             ? "#f0f5ff"
                                             : "transparent",
                                     borderRadius: 6,
                                 }}
                             >
                                 <List.Item.Meta
-                                    avatar={<Avatar src={group.avatar} />}
-                                    title={<span>{group.name}</span>}
+                                    avatar={<Avatar src={group.chat?.avatar} />}
+                                    title={
+                                        <span>
+                                            {group.chat?.title_of_groupchat ||
+                                                "Group Chat"}
+                                        </span>
+                                    }
                                     description={`${group.members.length} members`}
                                 />
                             </List.Item>
@@ -228,26 +321,25 @@ export default function ModalMessage(props) {
                     />
                 </div>
 
-                <div className="chat-window" style={{ flex: 1 }}>
+                {/* Chat window */}
+                <div style={{ flex: 1 }}>
                     {selectedGroup ? (
                         <>
                             <Title level={5} className="chat-header">
                                 <Button
                                     type="link"
-                                    shape="default"
                                     onClick={() => setSelectedGroup(null)}
                                     style={{ marginRight: 12 }}
                                     icon={
                                         <FontAwesomeIcon icon={faArrowLeft} />
                                     }
                                 />
-                                <Avatar src={selectedGroup.avatar} />
+                                <Avatar src={selectedGroup.chat?.avatar} />
                                 <b style={{ marginLeft: 8 }}>
-                                    {selectedGroup.name}
+                                    {selectedGroup.chat?.title_of_groupchat ||
+                                        "Group Chat"}
                                 </b>
-                                <div
-                                    style={{ fontSize: "12px", color: "#888" }}
-                                >
+                                <div style={{ fontSize: 12, color: "#888" }}>
                                     {selectedGroup.members
                                         .map((m) => m.name)
                                         .join(", ")}
@@ -256,43 +348,45 @@ export default function ModalMessage(props) {
 
                             {/* Messages */}
                             <div
-                                className="messages-container"
                                 style={{
-                                    maxHeight: "400px",
+                                    maxHeight: 400,
                                     overflowY: "auto",
                                 }}
                             >
+                                {(!messages[selectedGroup.chat_id] ||
+                                    messages[selectedGroup.chat_id].length ===
+                                        0) && (
+                                    <div className="empty-chat-message flex flex-col items-center justify-center py-10">
+                                        <div className="flex items-center -space-x-8">
+                                            {selectedGroup.members.map(
+                                                (member, idx) => (
+                                                    <Avatar
+                                                        key={member.id}
+                                                        size={
+                                                            idx === 1 ? 72 : 56
+                                                        }
+                                                        src={member.avatar}
+                                                        className={`border-2 border-white shadow-md${
+                                                            idx === 1
+                                                                ? " z-10"
+                                                                : ""
+                                                        }`}
+                                                    />
+                                                )
+                                            )}
+                                        </div>
+                                        <p className="mt-4 text-gray-700 text-sm font-medium text-center">
+                                            Group Chat Created{" "}
+                                            <span className="ml-1">
+                                                You can now contact each other.
+                                            </span>
+                                        </p>
+                                    </div>
+                                )}
                                 {Object.entries(groupedMessages).map(
                                     ([date, dateMessages]) => (
                                         <div key={date}>
-                                            <div className="empty-chat-message flex flex-col items-center justify-center py-10">
-                                                <div className="flex items-center -space-x-8">
-                                                    <Avatar
-                                                        size={56}
-                                                        src="https://wallpaper.forfun.com/fetch/62/629c409637a4efc5fc0dc0c3114fd435.jpeg"
-                                                        className="border-2 border-white shadow-md"
-                                                    />
-                                                    <Avatar
-                                                        size={72}
-                                                        src="https://static.beebom.com/wp-content/uploads/2025/03/cha-hae-in-solo-leveling.jpg?w=1250&quality=75"
-                                                        className="border-2 border-white shadow-md z-10"
-                                                    />
-                                                    <Avatar
-                                                        size={56}
-                                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdBCfmXFkG8CuyRB-_w6LqfTKJISRudOCdhw&s"
-                                                        className="border-2 border-white shadow-md"
-                                                    />
-                                                </div>
-                                                <p className="mt-4 text-gray-700 text-sm font-medium text-center">
-                                                    Group Chat Created{" "}
-                                                    <span className="ml-1">
-                                                        You can now contact each
-                                                        other.
-                                                    </span>
-                                                </p>
-                                            </div>
                                             <div
-                                                className="date-divider"
                                                 style={{
                                                     textAlign: "center",
                                                     margin: "12px 0",
@@ -306,11 +400,11 @@ export default function ModalMessage(props) {
                                                 dataSource={dateMessages}
                                                 renderItem={(msg) => (
                                                     <List.Item
-                                                        className={`message-item ${
+                                                        className={
                                                             msg.sender === "You"
                                                                 ? "sent"
                                                                 : "received"
-                                                        }`}
+                                                        }
                                                         style={{
                                                             display: "flex",
                                                             justifyContent:
@@ -321,7 +415,6 @@ export default function ModalMessage(props) {
                                                         }}
                                                     >
                                                         <div
-                                                            className="message-content"
                                                             style={{
                                                                 display: "flex",
                                                                 alignItems:
@@ -341,14 +434,12 @@ export default function ModalMessage(props) {
                                                                         )
                                                                             ?.avatar
                                                                     }
-                                                                    className="message-avatar"
                                                                     style={{
                                                                         marginRight: 8,
                                                                     }}
                                                                 />
                                                             )}
                                                             <div
-                                                                className="message-bubble"
                                                                 style={{
                                                                     background:
                                                                         msg.sender ===
@@ -377,11 +468,10 @@ export default function ModalMessage(props) {
                                                                         }
                                                                     </div>
                                                                 )}
-                                                                <div className="message-text">
+                                                                <div>
                                                                     {msg.text}
                                                                 </div>
                                                                 <div
-                                                                    className="message-meta"
                                                                     style={{
                                                                         fontSize: 10,
                                                                         color: "#999",
@@ -396,7 +486,6 @@ export default function ModalMessage(props) {
                                                                     {msg.sender ===
                                                                         "You" && (
                                                                         <span
-                                                                            className="message-status"
                                                                             style={{
                                                                                 marginLeft: 6,
                                                                             }}
@@ -433,7 +522,6 @@ export default function ModalMessage(props) {
 
                             {/* Input */}
                             <div
-                                className="message-input-container"
                                 style={{
                                     display: "flex",
                                     marginTop: 12,
@@ -452,6 +540,7 @@ export default function ModalMessage(props) {
                                     type="primary"
                                     icon={<SendOutlined />}
                                     onClick={handleSend}
+                                    loading={isLoadingChat}
                                 >
                                     Send
                                 </Button>

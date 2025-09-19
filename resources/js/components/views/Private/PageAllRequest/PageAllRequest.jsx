@@ -1,22 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-    Row,
-    Button,
-    Col,
-    Flex,
-    Card,
-    Table,
-    Popconfirm,
-    Typography,
-    notification,
-} from "antd";
+import { Row, Button, Col, Flex, Card, Table, notification } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faCheckCircle,
-    faFile,
-    faTimesCircle,
-} from "@fortawesome/pro-regular-svg-icons";
+import { faFile } from "@fortawesome/pro-regular-svg-icons";
 
 import { GET, POST } from "../../../providers/useAxiosQuery";
 import {
@@ -50,6 +36,8 @@ export default function PageAllRequest() {
             ? "Declined"
             : location.pathname.includes("all-requests")
             ? "Pending"
+            : location.pathname.includes("available-schedules")
+            ? "Pending"
             : "",
     });
 
@@ -65,7 +53,11 @@ export default function PageAllRequest() {
                 ? "Declined"
                 : location.pathname.includes("all-requests")
                 ? "Pending"
+                : location.pathname.includes("available-schedules")
+                ? "Pending"
                 : "",
+            sort_field: "created_at",
+            sort_order: "desc",
         });
     }, [location]);
 

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Card, Col, Flex, Layout, Menu, Row, Typography } from "antd";
+import { Card, Layout, Typography } from "antd";
 
 import ListOffficeCard from "./component/ListOffficeCard";
-
 import ModalGroupChatView from "./component/ModalGroupChatView";
 
 export default function PageVisitorView() {
@@ -43,52 +42,46 @@ export default function PageVisitorView() {
         <>
             <Layout className="privates-layout">
                 <Layout.Content>
+                    {/* Main Title */}
                     <Typography.Title
                         level={1}
-                        style={{
-                            color: "#fff",
-                            textAlign: "center",
-                            paddingTop: 100,
-                            textShadow: "2px 2px 4px #000",
-                            fontSize: width < 768 ? 24 : 48,
-                        }}
+                        className={`!text-white !text-center !pt-[100px] !drop-shadow-[2px_2px_4px_rgba(0,0,0,1)] ${
+                            width < 768 ? "!text-[24px]" : "!text-[48px]"
+                        }`}
                     >
                         Welcome to CSU Visitation System
                     </Typography.Title>
+
+                    {/* Subtitle */}
                     <Typography.Title
                         level={1}
-                        style={{
-                            color: "#fff",
-                            textAlign: "center",
-                            textShadow: "2px 2px 4px #000",
-                            fontSize: "25px",
-                        }}
+                        className="!text-white !text-center !text-[25px] !drop-shadow-[2px_2px_4px_rgba(0,0,0,1)]"
                     >
                         Request and manage your campus visits with ease
                     </Typography.Title>
-                    <div style={{ textAlign: "center", marginTop: "120px" }}>
+
+                    {/* CTA Button */}
+                    <div className="!text-center !mt-[120px]">
                         <button
                             onClick={() => navigate("/my-status")}
-                            className="bg-green-800! text-white! text-2xl! font-semibold! px-12! py-4! rounded-full! hover:bg-green-900! transition-colors! duration-300!"
+                            className="!bg-green-800 !text-white !text-2xl !font-semibold !px-12 !py-4 !rounded-full hover:!bg-green-900 !transition-colors !duration-300"
                         >
                             Get Started
                         </button>
                     </div>
                 </Layout.Content>
 
+                {/* Modal */}
                 <ModalGroupChatView
                     toggleModalOpenGroupChat={toggleModalOpenGroupChat}
                     setToggleModalOpenGroupChat={setToggleModalOpenGroupChat}
                 />
+
+                {/* Offices Section */}
                 <Card>
                     <Typography.Title
                         level={1}
-                        style={{
-                            color: "#0d5b10",
-                            textAlign: "center",
-
-                            fontSize: "25px",
-                        }}
+                        className="!text-[#0d5b10] !text-center !text-[25px]"
                     >
                         Offices
                     </Typography.Title>
@@ -96,6 +89,7 @@ export default function PageVisitorView() {
                 </Card>
             </Layout>
 
+            {/* Footer */}
             <Layout.Footer className="!text-center !bg-[#0d5b10] !text-white">
                 <Typography.Text className="!text-white">
                     © 2025 CSU Visitation System | Developed by Jason

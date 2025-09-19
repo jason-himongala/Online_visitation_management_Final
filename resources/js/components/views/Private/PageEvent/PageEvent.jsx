@@ -13,6 +13,7 @@ import {
 import Tabs from "../../../providers/Tabs";
 import PageEventContentCalendar from "./component/PageEventContentCalendar";
 import PageEventContentTable from "./component/PageEventContentTable";
+import PageAllRequest from "../PageAllRequest/PageAllRequest";
 
 export default function PageEvent() {
     const [activeTab, setActiveTab] = useState("0");
@@ -26,21 +27,9 @@ export default function PageEvent() {
         },
         {
             key: "1",
-            icon: <FontAwesomeIcon icon={faListRadio} />,
-            label: "List View",
-            children: <PageEventContentTable />,
-        },
-        {
-            key: "2",
-            icon: <FontAwesomeIcon icon={faCheck} />,
-            label: "Completed",
-            children: <PageEventContentTable />,
-        },
-        {
-            key: "3",
             icon: <FontAwesomeIcon icon={faUsers} />,
             label: "List of Pending Visitors",
-            children: <PageEventContentTable />,
+            children: <PageAllRequest />,
         },
     ];
 

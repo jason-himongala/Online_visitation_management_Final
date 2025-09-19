@@ -84,7 +84,7 @@ class VisitorRequestController extends Controller
                 }
 
                 $profileIdsRole3 = Profile::whereHas('user', function ($query) {
-                    $query->where('user_role_id', [2, 3]);
+                    $query->whereIn('user_role_id', [2, 3]);
                 })->pluck('id');
 
                 foreach ($profileIdsRole3 as $pid) {
