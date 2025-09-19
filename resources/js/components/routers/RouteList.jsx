@@ -27,6 +27,7 @@ import PageVisition from "../views/Public/PageVisitorView/PageVisition";
 import PageFeedBack from "../views/Public/PageVisitorView/PageFeedBack";
 import PageEvent from "../views/Private/PageEvent/PageEvent";
 import PageSignUp from "../views/Public/PageSignUp/PageSignUp";
+import PageLandingPage from "../views/Public/PageLandingPage/PageLandingPage";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -39,7 +40,7 @@ export default function RouteList() {
                     <PublicRoute
                         title="LOGIN"
                         pageId="PageLogin"
-                        component={PageLogin}
+                        component={PageLandingPage}
                     />
                 }
             />

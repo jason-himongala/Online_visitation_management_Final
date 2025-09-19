@@ -5,8 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
     <title>{{ env('APP_NAME') }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href={{ env('APP_LOGO') }} type="image/x-icon" />
+    {{-- <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" /> --}}
 
     <!-- Windows Phone -->
     <meta name="msapplication-navbutton-color" content="{{ env('PRIMARY_COLOR') }}" />
@@ -33,7 +36,7 @@
 
     <div id="root">
         <div class="splash-centered">
-            <img width="180" src="/images/logo.png" />
+            <img width="180" src="/images/ecard_logo.png" />
             <div class="splash-loader">
                 <div class="splash-inner one"></div>
                 <div class="splash-inner two"></div>

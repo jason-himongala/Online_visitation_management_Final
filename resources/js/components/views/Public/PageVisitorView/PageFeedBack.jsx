@@ -67,11 +67,9 @@ export default function PageFeedBack() {
             />
             <br />
 
-            <Layout.Footer
-                style={{ textAlign: "center", backgroundColor: "#0d5b10" }}
-            >
-                <Typography.Text type="secondary" style={{ color: "#fff" }}>
-                    © 2023 CSU Visitation System. All rights reserved.
+            <Layout.Footer className="!text-center !bg-[#0d5b10] !text-white">
+                <Typography.Text className="!text-white">
+                    © 2025 CSU Visitation System | Developed by Jason
                 </Typography.Text>
             </Layout.Footer>
         </Layout>

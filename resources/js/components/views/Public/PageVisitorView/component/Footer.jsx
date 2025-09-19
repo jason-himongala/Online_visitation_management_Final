@@ -1,5 +1,4 @@
 import { Layout } from "antd";
-import React from "react";
 
 export default function Footer() {
     return (
