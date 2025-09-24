@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import {
+    faBooks,
     faHome,
     faUserCircle,
     faUsers,
@@ -30,6 +31,7 @@ import PageLandingPage from "../views/Public/PageLandingPage/PageLandingPage";
 import PageVisitorRequest from "../views/Public/PageVisitorView/PageVisitorRequest";
 import PageVisitation from "../views/Private/PageVisitation/PageVisitation";
 import PageFeedBackForms from "../views/Private/PageFeedBack/PageFeedBackForms";
+import PagePermission from "../views/Private/PagePermission/PagePermission";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -400,6 +402,25 @@ export default function RouteList() {
                             },
                         ]}
                         component={PageFeedBackForms}
+                    />
+                }
+            />
+            <Route
+                path="/permissions"
+                element={
+                    <PrivateRoute
+                        moduleCode="M-13"
+                        moduleName="Page Permission"
+                        title="Permission"
+                        subtitle="EDIT"
+                        pageId="PagePermission"
+                        pageHeaderIcon={faBooks}
+                        breadcrumb={[
+                            {
+                                name: "Permission",
+                            },
+                        ]}
+                        component={PagePermission}
                     />
                 }
             />
