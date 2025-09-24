@@ -272,7 +272,7 @@ export default function ModalGroupChatView(props) {
                     Close
                 </Button>,
             ]}
-            width={1100}
+            width={1500}
             closable
         >
             <div style={{ display: "flex" }}>

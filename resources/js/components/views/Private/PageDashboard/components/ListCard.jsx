@@ -15,9 +15,11 @@ export default function ListCard({ dataCardList }) {
                 <Card variant="borderless">
                     <Statistic
                         title="Total Requests"
-                        // precision={1}
+                        value={Object.values(dataCardList?.data ?? {})
+                            .filter((val) => typeof val === "number")
+                            .reduce((acc, val) => acc + val, 0)}
                         valueStyle={{ color: "#4097ff" }}
-                        prefix={<FontAwesomeIcon icon={faClipboardList} />} // list icon
+                        prefix={<FontAwesomeIcon icon={faClipboardList} />}
                     />
                 </Card>
             </Col>
@@ -26,6 +28,7 @@ export default function ListCard({ dataCardList }) {
                 <Card variant="borderless">
                     <Statistic
                         title="Pending Requests"
+                        value={dataCardList?.data.pending ?? 0}
                         // precision={2}
                         valueStyle={{ color: "#cf1322" }}
                         prefix={<FontAwesomeIcon icon={faHourglassHalf} />}
@@ -36,7 +39,7 @@ export default function ListCard({ dataCardList }) {
                 <Card variant="borderless">
                     <Statistic
                         title="Approve Today"
-                        // precision={2}
+                        value={dataCardList?.data.approved_today ?? 0}
                         valueStyle={{ color: "#3f8600" }}
                         prefix={<FontAwesomeIcon icon={faCheckCircle} />}
                     />

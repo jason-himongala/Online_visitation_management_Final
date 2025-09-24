@@ -19,8 +19,7 @@ import PageUserForm from "../views/Private/PageUser/PageUserForm";
 import PageLogin from "../views/Public/PageLogin/PageLogin";
 import PageVisitorView from "../views/Public/PageVisitorView/PageVisitorView";
 import PageAllRequest from "../views/Private/PageAllRequest/PageAllRequest";
-import PageApproved from "../views/Private/PageApproved/PageApproved";
-import PageDeclined from "../views/Private/PageDeclined/PageDeclined";
+
 import PageMyStatus from "../views/Public/PageVisitorView/PageMyStatus";
 import PageContact from "../views/Public/PageVisitorView/PageContact";
 import PageVisition from "../views/Public/PageVisitorView/PageVisition";
@@ -28,6 +27,9 @@ import PageFeedBack from "../views/Public/PageVisitorView/PageFeedBack";
 import PageEvent from "../views/Private/PageEvent/PageEvent";
 import PageSignUp from "../views/Public/PageSignUp/PageSignUp";
 import PageLandingPage from "../views/Public/PageLandingPage/PageLandingPage";
+import PageVisitorRequest from "../views/Public/PageVisitorView/PageVisitorRequest";
+import PageVisitation from "../views/Private/PageVisitation/PageVisitation";
+import PageFeedBackForms from "../views/Private/PageFeedBack/PageFeedBackForms";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -85,6 +87,16 @@ export default function RouteList() {
                 }
             />
             <Route
+                path="/visit-request"
+                element={
+                    <PrivateRoute
+                        title="Visitor Request"
+                        pageId="PageVisitorRequest"
+                        component={PageVisitorRequest}
+                    />
+                }
+            />
+            <Route
                 path="/my-status/contact/group-chat"
                 element={
                     <PrivateRoute
@@ -105,7 +117,27 @@ export default function RouteList() {
                 }
             />
             <Route
+                path="/visitation-form/:status/:id"
+                element={
+                    <PrivateRoute
+                        title="Contact"
+                        pageId="PageContactContent"
+                        component={PageVisition}
+                    />
+                }
+            />
+            <Route
                 path="/feedback-form"
+                element={
+                    <PrivateRoute
+                        title="Contact"
+                        pageId="PageContactContent"
+                        component={PageFeedBack}
+                    />
+                }
+            />
+            <Route
+                path="/feedback-form/:status/:id"
                 element={
                     <PrivateRoute
                         title="Contact"
@@ -330,6 +362,44 @@ export default function RouteList() {
                             },
                         ]}
                         component={PageEvent}
+                    />
+                }
+            />
+            <Route
+                path="/visitation-forms"
+                element={
+                    <PrivateRoute
+                        // moduleCode="M-02"
+                        moduleName="Visitation Forms"
+                        title="PageVisitationForms"
+                        subtitle="VIEW / EDIT"
+                        pageId="PageVisitationForms"
+                        pageHeaderIcon={faUserCircle}
+                        breadcrumb={[
+                            {
+                                name: "View Visitation Forms",
+                            },
+                        ]}
+                        component={PageVisitation}
+                    />
+                }
+            />
+            <Route
+                path="/feedback-forms"
+                element={
+                    <PrivateRoute
+                        // moduleCode="M-02"
+                        moduleName="Visitation Forms"
+                        title="PageVisitationForms"
+                        subtitle="VIEW / EDIT"
+                        pageId="PageVisitationForms"
+                        pageHeaderIcon={faUserCircle}
+                        breadcrumb={[
+                            {
+                                name: "View Feedback Forms",
+                            },
+                        ]}
+                        component={PageFeedBackForms}
                     />
                 }
             />

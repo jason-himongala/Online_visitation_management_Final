@@ -54,6 +54,26 @@ export const adminHeaderDropDownMenuLeft = () => {
 export const adminSideMenu = [
     {
         title: "Dashboard",
+    },
+
+    {
+        title: "Profile",
+        path: "/profile",
+        icon: <FontAwesomeIcon icon={faUserCircle} />,
+        moduleCode: "M-02",
+    },
+
+    {
+        title: "Permissions",
+        path: "/permissions",
+        icon: <FontAwesomeIcon icon={faUsersCog} />,
+        moduleCode: "M-03",
+    },
+];
+
+export const OPSideMenu = [
+    {
+        title: "Dashboard",
         path: "/dashboard",
         icon: <FontAwesomeIcon icon={faTachometerAlt} />,
         moduleCode: "M-01",
@@ -131,12 +151,12 @@ export const PicoSideMenu = [
     //     icon: <FontAwesomeIcon icon={faTachometerAlt} />,
     //     moduleCode: "M-01",
     // },
-    {
-        title: "Profile",
-        path: "/profile",
-        icon: <FontAwesomeIcon icon={faUserCircle} />,
-        moduleCode: "M-02",
-    },
+    // {
+    //     title: "Profile",
+    //     path: "/profile",
+    //     icon: <FontAwesomeIcon icon={faUserCircle} />,
+    //     moduleCode: "M-02",
+    // },
     {
         title: "Pending Requests",
         path: "/all-requests",

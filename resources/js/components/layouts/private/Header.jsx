@@ -143,11 +143,15 @@ export default function Header(props) {
             </div>
 
             <div className="header-right-menu">
-                <FontAwesomeIcon
-                    className="menu-submenu-message"
-                    icon={faMessages}
-                    onClick={() => setToggleModalOpenGroupChat({ open: true })}
-                />
+                {role() !== "Super Admin" && (
+                    <FontAwesomeIcon
+                        className="menu-submenu-message"
+                        icon={faMessages}
+                        onClick={() =>
+                            setToggleModalOpenGroupChat({ open: true })
+                        }
+                    />
+                )}
 
                 <Dropdown
                     menu={{

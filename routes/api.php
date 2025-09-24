@@ -32,6 +32,10 @@ Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::cla
 
 
 
+
+
+
+
 Route::middleware('auth:api')->group(function () {
     Route::get('check_auth_status', [App\Http\Controllers\AuthController::class, "check_auth_status"]);
 
@@ -104,4 +108,23 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('conversations_chat', App\Http\Controllers\ConversationController::class);
     //End ConversationController
 
+
+    //VisitationFormController
+    Route::apiResource('visitation_forms', App\Http\Controllers\VisitationFormController::class);
+    //End VisitationFormController
+
+    //FeedbackController
+    Route::apiResource('feedback', App\Http\Controllers\FeedbackController::class);
+    //End FeedbackController
+
+    //ProfileDelegatesController
+    Route::apiResource('profile_delegates', App\Http\Controllers\ProfileDelegatesController::class);
+    Route::get('generate_visitation_certificates', [App\Http\Controllers\ProfileDelegatesController::class, 'generate_visitation_certificates']);
+    //End ProfileDelegatesController
+
+
+
+    //DashboardController
+    Route::get('dashboard_card_list', [App\Http\Controllers\DashboardController::class, 'dashboard_card_list']);
+    //End DashboardController
 });

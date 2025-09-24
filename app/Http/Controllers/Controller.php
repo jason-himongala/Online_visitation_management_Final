@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 abstract class Controller
 {
-    public $fullname = "TRIM(CONCAT_WS(' ', IF(lastname IS NOT NULL AND lastname != '', CONCAT(lastname, ','), ''), firstname, IF(middlename='', NULL, middlename), IF(name_ext='', NULL, name_ext)))";
+    public $fullname = "TRIM(CONCAT_WS(' ', IF(lastname IS NOT NULL AND lastname != '', CONCAT(lastname, ','), ''), firstname, IF(middlename='', NULL, middlename)))";
 
     public function addLeadingZero($number, $length)
     {

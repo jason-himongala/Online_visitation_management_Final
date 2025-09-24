@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card, Col, Layout, Typography } from "antd";
 import Header from "./component/VisitorHeader";
 
@@ -8,28 +8,12 @@ import PageFeedBackContent from "./component/PageFeedBackContent";
 
 export default function PageFeedBack() {
     const [width, setWidth] = useState(window.innerWidth);
+    const { id, status } = useParams();
+    console.log("statusssss ffeeds", status);
+
     const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({
         open: false,
     });
-
-    const navigate = useNavigate();
-
-    const handleMenuClick = (e) => {
-        if (e.key === "home") return navigate("/");
-        if (e.key === "visit-request") return navigate("/visitor");
-        if (e.key === "my-status") return navigate("/my-status");
-        if (e.key === "visitation-form") return navigate("/visitation-form");
-        if (e.key === "feedback-form") return navigate("/feedback-form");
-        if (e.key === "contact") {
-            setToggleModalOpenGroupChat({
-                open: true,
-                data: null,
-            });
-            return;
-        }
-        if (e.key === "logout") {
-        }
-    };
 
     useEffect(() => {
         const section = document.querySelector(".private-layout");
@@ -58,14 +42,8 @@ export default function PageFeedBack() {
         <Layout>
             <br />
             <div className="flex justify-center items-center">
-                <PageFeedBackContent width={width} />
+                <PageFeedBackContent width={width} status={status} id={id} />
             </div>
-
-            <ModalGroupChatView
-                toggleModalOpenGroupChat={toggleModalOpenGroupChat}
-                setToggleModalOpenGroupChat={setToggleModalOpenGroupChat}
-            />
-            <br />
 
             <Layout.Footer className="!text-center !bg-[#0d5b10] !text-white">
                 <Typography.Text className="!text-white">

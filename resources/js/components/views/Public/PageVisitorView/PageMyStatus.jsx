@@ -1,39 +1,51 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card, Layout, Typography } from "antd";
+import PageMyStatusContent from "./component/PageMyStatusContent";
 
-import Header from "./component/VisitorHeader";
-import PageVisitContent from "./component/PageVisitContent";
-import ModalGroupChatView from "./component/ModalGroupChatView";
-
-export default function PageMyStatus(props) {
-    const [width, setWidth] = useState(window.innerWidth);
+export default function PageMyStatus() {
     const navigate = useNavigate();
-    const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({
-        open: false,
-        data: null,
-    });
+    const [width, setWidth] = useState(window.innerWidth);
 
     return (
         <>
-            <Layout>
-                {/* <Header handleMenuClick={handleMenuClick} /> */}
+            <Layout style={{ minHeight: "100vh", background: "#e5e5e5" }}>
+                <Layout.Content style={{ padding: 24, width: "100%" }}>
+                    <Card
+                        variant="borderless"
+                        className="rounded-ss-none rounded-es-none rounded-se-lg rounded-ee-lg shadow-lg border-green-800"
+                        title={
+                            <>
+                                <div className="text-center text-lg font-bold!">
+                                    My Status
+                                </div>
+                                <div className="text-center text-xs">
+                                    Here are the latest updates for your visit
+                                    requests.
+                                </div>
+                            </>
+                        }
+                        headStyle={{
+                            backgroundColor: "#0d5b10",
+                            borderColor: "#0d5b10",
+                            color: "#fff",
+                        }}
+                        justify="center"
+                    >
+                        <PageMyStatusContent />
+                    </Card>
+                </Layout.Content>
 
-                <Card className="rounded-ss-none" variant="borderless">
-                    <PageVisitContent width={width} />
-                </Card>
-
-                <Layout.Footer className="!text-center !bg-[#0d5b10] !text-white">
-                    <Typography.Text className="!text-white">
-                        © 2025 CSU Visitation System | Developed by Jason
-                    </Typography.Text>
+                <Layout.Footer
+                    style={{
+                        textAlign: "center",
+                        background: "#0d5b10",
+                        color: "#fff",
+                    }}
+                >
+                    © 2025 CSU Visitation System | Developed by Jason
                 </Layout.Footer>
             </Layout>
-
-            <ModalGroupChatView
-                toggleModalOpenGroupChat={toggleModalOpenGroupChat}
-                setToggleModalOpenGroupChat={setToggleModalOpenGroupChat}
-            />
         </>
     );
 }

@@ -219,3 +219,13 @@ body {
         padding: 4px; /* tighter spacing */
     }
 }
+.custom-menu .ant-menu-item::after,
+.custom-menu .ant-menu-submenu::after {
+    border-bottom: none !important;
+}
+
+.custom-menu .ant-menu-item:hover::after,
+.custom-menu .ant-menu-item-active::after,
+.custom-menu .ant-menu-item-selected::after {
+    border-bottom: none !important;
+}

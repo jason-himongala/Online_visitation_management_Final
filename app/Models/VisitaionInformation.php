@@ -21,6 +21,10 @@ class VisitaionInformation extends Model
 
             $query->whereIn('visitaion_information.status', $status);
         }
+
+        if ($request->user_id) {
+            $query->where('profile.user_id', $request->user_id);
+        }
         return $query;
     }
 
@@ -37,8 +41,9 @@ class VisitaionInformation extends Model
     }
 
 
-    public function visitaion_information()
+
+    public function visitation_information()
     {
-        return $this->hasMany(VisitaionInformation::class, 'visitaion_information_id');
+        return $this->belongsTo(VisitaionInformation::class, 'visitation_information_id');
     }
 }

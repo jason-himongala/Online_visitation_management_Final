@@ -47,6 +47,14 @@ class UserRoleSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'id' => 5,
+                'type' => 'OP',
+                'role' => 'OP',
+                'created_by' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
 
 

@@ -8,6 +8,7 @@ import {
     adminSideMenu,
     DepartmentSideMenu,
     PicoSideMenu,
+    OPSideMenu,
 } from "./components/SideMenuList";
 
 export default function Sidemenu(props) {
@@ -30,6 +31,9 @@ export default function Sidemenu(props) {
         }
         if (role === "Pico") {
             setMenuItems(PicoSideMenu);
+        }
+        if (role === "OP") {
+            setMenuItems(OPSideMenu);
         }
 
         return () => {};

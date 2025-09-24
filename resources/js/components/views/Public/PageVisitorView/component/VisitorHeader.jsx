@@ -23,42 +23,68 @@ export default function VisitorHeader() {
         localStorage.removeItem("userdata");
         window.location.reload();
     };
-
     const MenuVisitor = [
         {
-            label: <Link to="/home">Home</Link>,
+            label: (
+                <Link to="/home" className="no-underline!">
+                    Home
+                </Link>
+            ),
             key: "/home",
         },
         {
-            label: <Link to="/visitation-form">Visitation Form</Link>,
+            label: (
+                <Link to="/visit-request" className="no-underline!">
+                    Visit Request
+                </Link>
+            ),
+            key: "/visit-request",
+        },
+        {
+            label: (
+                <Link to="/my-status" className="no-underline!">
+                    My Status
+                </Link>
+            ),
+            key: "/my-status",
+        },
+        {
+            label: (
+                <Link to="/visitation-form" className="no-underline!">
+                    Visitation Form
+                </Link>
+            ),
             key: "/visitation-form",
         },
-        { label: <Link to="/my-status">My Status</Link>, key: "/my-status" },
         {
-            label: <Link to="/feedback-form">Feedback Form</Link>,
+            label: (
+                <Link to="/feedback-form" className="no-underline!">
+                    Feedback Form
+                </Link>
+            ),
             key: "/feedback-form",
         },
         {
             label: (
-                <Button
-                    className="btn-main-primary"
+                <Link
                     type="link"
+                    className="contact-btn"
                     style={{ color: "#fff" }}
                     onClick={() =>
                         setToggleModalOpenGroupChat({ open: true, data: null })
                     }
                 >
                     Contact Us
-                </Button>
+                </Link>
             ),
             key: "/contact",
         },
-
         {
             label: (
                 <Button
                     onClick={handleLogout}
                     type="link"
+                    className="contact-btn"
                     style={{ color: "#fff" }}
                 >
                     Logout
@@ -74,7 +100,7 @@ export default function VisitorHeader() {
                 <Menu
                     theme="light"
                     mode="horizontal"
-                    className="no-selected-bg"
+                    className="no-selected-bg custom-menu"
                     style={{
                         background: "transparent",
                         minWidth: 0,

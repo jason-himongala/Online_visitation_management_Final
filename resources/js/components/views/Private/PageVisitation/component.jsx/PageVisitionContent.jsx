@@ -1,93 +1,108 @@
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrashAlt } from "@fortawesome/pro-regular-svg-icons";
-import { Card, Col, Row, Typography, Form, Button, notification } from "antd";
+import {
+    Card,
+    Col,
+    Row,
+    Typography,
+    Form,
+    Button,
+    notification,
+    Modal,
+} from "antd";
 
-import { POST } from "../../../../providers/useAxiosQuery";
+import { GET, POST } from "../../../../providers/useAxiosQuery";
 import { UserId } from "../../../../providers/appConfig";
 import dayjs from "dayjs";
 import FloatDatePicker from "../../../../providers/FloatDatePicker";
 import FloatTimePicker from "../../../../providers/FloatTimePicker";
 import notificationErrors from "../../../../providers/notificationErrors";
 import FloatInput from "../../../../providers/FloatInput";
+import { useEffect } from "react";
 
 export default function PageVisitationContent(props) {
+    const { toggleModalVisitationForm, setToggleModalVisitationForm } = props;
+    // console.log("toggleModalVisitationForm", toggleModalVisitationForm);
     const { status, id } = props;
     // console.log("statusssss", status);
 
-    const navigate = useNavigate();
     const [form] = Form.useForm();
 
-    const { mutate: mutateVisitorForm, loading: isLoadingChat } = POST(
-        `api/visitation_forms`,
-        "visitation_forms_submit"
-    );
-
-    const onFinish = (values) => {
-        console.log("values", values);
-
-        let data = new FormData();
-        let userId = UserId();
-        Object.keys(values).forEach((key) => {
-            let value = values[key];
-
-            data.append("user_id", userId);
-            data.append("visitation_information_id", id);
-            if (
-                key === "preferred_date_of_visit" ||
-                key === "alternate_date_of_visit"
-            ) {
-                value = value ? dayjs(value).format("YYYY-MM-DD") : "";
-            } else if (
-                key === "preferred_time_of_visit" ||
-                key === "alternate_time_of_visit"
-            ) {
-                value = value ? dayjs(value).format("HH:mm:ss") : "";
-            } else if (key === "profile_delegates") {
-                value = value ? JSON.stringify(value) : "";
-            }
-
-            data.append(key, value);
-        });
-
-        mutateVisitorForm(data, {
-            onSuccess: (res) => {
-                if (res.success) {
-                    notification.success({
-                        message: "Visitation Form",
-                        description: res.message,
-                    });
-
-                    navigate(-1);
-                } else {
-                    notification.error({
-                        message: "Visitation Form",
-                        description: res.message,
-                    });
-                }
-            },
-            onError: (err) => {
-                notificationErrors(err);
-            },
-        });
-    };
-
+    useEffect(() => {
+        if (toggleModalVisitationForm && toggleModalVisitationForm.data) {
+            form.setFieldsValue({
+                ...toggleModalVisitationForm.data,
+                preferred_date_of_visit: dayjs(
+                    toggleModalVisitationForm.data.preferred_date_of_visit
+                ),
+                preferred_time_of_visit: dayjs(
+                    toggleModalVisitationForm.data.preferred_time_of_visit,
+                    "HH:mm:ss"
+                ),
+                alternate_date_of_visit: dayjs(
+                    toggleModalVisitationForm.data.alternate_date_of_visit
+                ),
+                alternate_time_of_visit: dayjs(
+                    toggleModalVisitationForm.data.alternate_time_of_visit,
+                    "HH:mm:ss"
+                ),
+                purpose_of_visit:
+                    toggleModalVisitationForm.data.purpose_of_visit,
+                selected_faculty_centered_office_organization_to_visit:
+                    toggleModalVisitationForm.data
+                        .selected_faculty_centered_office_organization_to_visit,
+                manner_of_engagement:
+                    toggleModalVisitationForm.data.manner_of_engagement,
+                name_of_institution_agency:
+                    toggleModalVisitationForm.data.name_of_institution_agency,
+                topics_for_discussion:
+                    toggleModalVisitationForm.data.topics_for_discussion,
+                other_information_concern:
+                    toggleModalVisitationForm.data.other_information_concern,
+                profile_delegates: toggleModalVisitationForm.data
+                    .profile_delegate
+                    ? toggleModalVisitationForm.data.profile_delegate.map(
+                          (delegate) => ({
+                              firstname: delegate.firstname,
+                              lastname: delegate.lastname,
+                              middlename: delegate.middlename,
+                              position: delegate.position,
+                          })
+                      )
+                    : [],
+            });
+        }
+    }, [toggleModalVisitationForm]);
     return (
-        <Col xs={24} md={16} lg={12} xl={10} xxl={8} align="center">
-            <Card
-                className="rounded-ss-none rounded-es-none rounded-se-lg rounded-ee-lg shadow-lg border-green-800"
-                title={
-                    <div className="text-center text-lg font-bold!">
-                        CLIENT SATISFACTION MEASUREMENT
-                    </div>
-                }
-                headStyle={{
-                    backgroundColor: "#0d5b10",
-                    borderColor: "#0d5b10",
-                    color: "#fff",
-                }}
-                justify="center"
-            >
+        <Modal
+            title="VISITATION FORM DETAILS"
+            open={toggleModalVisitationForm.open}
+            onCancel={() => {
+                setToggleModalVisitationForm({
+                    open: false,
+                    data: null,
+                });
+            }}
+            footer={[
+                <Button
+                    className="btn-main-primary outlined"
+                    size="large"
+                    shape="round"
+                    key={1}
+                    onClick={() => {
+                        setToggleModalVisitationForm({
+                            open: false,
+                            data: null,
+                        });
+                        form.resetFields();
+                    }}
+                >
+                    CLOSE
+                </Button>,
+            ]}
+        >
+            <Col xs={24} md={24} lg={24} xl={24} xxl={24} align="center">
                 <Row gutter={[0, 0]}>
                     <Col xs={24} className="mt-2">
                         <Typography.Title
@@ -111,7 +126,7 @@ export default function PageVisitationContent(props) {
                     </Col>
                 </Row>
 
-                <Form form={form} layout="vertical" onFinish={onFinish}>
+                <Form form={form} layout="vertical">
                     <Row gutter={[12, 0]}>
                         <Col xs={24}>
                             <Typography.Title
@@ -354,49 +369,8 @@ export default function PageVisitationContent(props) {
                             </Form.Item>
                         </Col>
                     </Row>
-
-                    <Row justify="center">
-                        <Col>
-                            <Form.Item>
-                                {status?.toLowerCase() !== "approved" && (
-                                    <Typography.Text
-                                        type="danger"
-                                        style={{
-                                            display: "block",
-                                            marginBottom: 8,
-                                            color: "#ff4d4f",
-                                        }}
-                                    >
-                                        You can only submit when status is
-                                        approved.{" "}
-                                        <Button
-                                            type="link"
-                                            style={{ padding: 0 }}
-                                            onClick={() =>
-                                                navigate("/my-status")
-                                            }
-                                        >
-                                            My Status
-                                        </Button>
-                                    </Typography.Text>
-                                )}
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    size="large"
-                                    shape="round"
-                                    className="bg-green-700 border-green-800 hover:bg-green-800 hover:border-green-900 text-center font-bold"
-                                    disabled={
-                                        status?.toLowerCase() !== "approved"
-                                    }
-                                >
-                                    Submit
-                                </Button>
-                            </Form.Item>
-                        </Col>
-                    </Row>
                 </Form>
-            </Card>
-        </Col>
+            </Col>
+        </Modal>
     );
 }

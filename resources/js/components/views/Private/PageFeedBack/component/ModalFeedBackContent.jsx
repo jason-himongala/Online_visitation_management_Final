@@ -10,6 +10,7 @@ import {
     Checkbox,
     Table,
     notification,
+    Modal,
 } from "antd";
 
 import { GET, POST } from "../../../../providers/useAxiosQuery";
@@ -21,7 +22,8 @@ import FloatInput from "../../../../providers/FloatInput";
 import notificationErrors from "../../../../providers/notificationErrors";
 import ModalPreviewPdf from "../../../../providers/ModalPreviewPdf";
 
-export default function PageFeedbackContent(props) {
+export default function ModalFeedBackContent(props) {
+    const { toggleModalFeedBack, setToggleModalFeedBack } = props;
     const { status, id } = props;
     const [form] = Form.useForm();
     const location = window.location;
@@ -153,22 +155,45 @@ export default function PageFeedbackContent(props) {
         form.setFieldsValue({ [value]: value });
     };
 
+    useEffect(() => {
+        if (toggleModalFeedBack && toggleModalFeedBack.data) {
+            form.setFieldsValue({
+                ...toggleModalFeedBack.data,
+                date: dayjs(toggleModalFeedBack.data.date),
+            });
+        }
+    }, [toggleModalFeedBack]);
+
     return (
-        <Col xs={24} md={14} lg={14} xl={14} xxl={12}>
-            <Card
-                className="rounded-tl-none rounded-bl-none rounded-br-lg rounded-tr-lg shadow-lg border-green-800"
-                title={
-                    <div className="text-center text-lg font-bold text-white">
-                        CLIENT SATISFACTION MEASUREMENT SURVEY
-                    </div>
-                }
-                headStyle={{
-                    backgroundColor: "#0d5b10",
-                    borderColor: "#0d5b10",
-                    color: "#fff",
-                }}
-                bodyStyle={{ overflowY: "auto" }}
-            >
+        <Modal
+            title="VISITATION FORM DETAILS"
+            open={toggleModalFeedBack.open}
+            onCancel={() => {
+                setToggleModalFeedBack({
+                    open: false,
+                    data: null,
+                });
+            }}
+            width={900}
+            footer={[
+                <Button
+                    className="btn-main-primary outlined"
+                    size="large"
+                    shape="round"
+                    key={1}
+                    onClick={() => {
+                        setToggleModalFeedBack({
+                            open: false,
+                            data: null,
+                        });
+                        form.resetFields();
+                    }}
+                >
+                    CLOSE
+                </Button>,
+            ]}
+        >
+            <Col xs={24} md={24} lg={24} xl={24} xxl={24}>
                 <Form form={form} layout="vertical" onFinish={onFinish}>
                     <Row gutter={[12, 12]}>
                         <Col xs={24}>
@@ -588,83 +613,9 @@ export default function PageFeedbackContent(props) {
                                 <FloatInput placeholder="Email address" />
                             </Form.Item>
                         </Col>
-
-                        <Col xs={24} className="text-center">
-                            <Form.Item>
-                                {status?.toLowerCase() !== "approved" && (
-                                    <Typography.Text
-                                        type="danger"
-                                        className="block mb-2 text-red-600"
-                                    >
-                                        You can only submit when status is
-                                        approved.{" "}
-                                        <Button
-                                            type="link"
-                                            className="p-0"
-                                            onClick={() =>
-                                                navigate("/my-status")
-                                            }
-                                        >
-                                            My Status
-                                        </Button>
-                                    </Typography.Text>
-                                )}
-                                <Button
-                                    type="primary"
-                                    htmlType="submit"
-                                    size="large"
-                                    shape="round"
-                                    loading={isLoadingFeedback}
-                                    className="bg-green-700 border-green-800 hover:bg-green-800 hover:border-green-900 font-bold"
-                                    disabled={
-                                        status?.toLowerCase() !== "approved"
-                                    }
-                                >
-                                    Submit
-                                </Button>
-                            </Form.Item>
-                        </Col>
                     </Row>
                 </Form>
-                {/* 
-                {isSubmitted && dataDelegates?.data && ( */}
-                <Table
-                    dataSource={dataDelegates && dataDelegates.data}
-                    pagination={false}
-                    rowKey={(record) => record.id}
-                    className="mt-4"
-                >
-                    <Table.Column
-                        title="Delegates Name"
-                        dataIndex="fullname"
-                        key="fullname"
-                    />
-
-                    <Table.Column
-                        title="Certificate"
-                        key="action"
-                        render={(text, record) => (
-                            <Button
-                                type="link"
-                                onClick={() =>
-                                    setToggleModalPreviewPdf({
-                                        open: true,
-                                        url: `api/generate_visitation_certificates?id=${record.id}`,
-                                    })
-                                }
-                            >
-                                Download
-                            </Button>
-                        )}
-                    />
-                </Table>
-                {/* )} */}
-
-                <ModalPreviewPdf
-                    setToggleModalPreviewPdf={setToggleModalPreviewPdf}
-                    toggleModalPreviewPdf={toggleModalPreviewPdf}
-                />
-            </Card>
-        </Col>
+            </Col>
+        </Modal>
     );
 }
