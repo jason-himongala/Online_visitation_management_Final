@@ -127,14 +127,16 @@ export default function PageFeedbackContent(props) {
             onSuccess: (res) => {
                 if (res.success) {
                     notification.success({
-                        message: "Visitation Form",
-                        description: res.message,
+                        message: "Thank you for your feedback!",
+                        description:
+                            "You can now download your Certificate of Appearance below.",
                     });
                     setIsSubmitted(true);
                 } else {
                     notification.error({
-                        message: "Visitation Form",
-                        description: res.message,
+                        message: "Thank you for your feedback!",
+                        description:
+                            "You can now download your Certificate of Appearance below.",
                     });
                 }
             },
@@ -594,13 +596,13 @@ export default function PageFeedbackContent(props) {
                                 {status?.toLowerCase() !== "approved" && (
                                     <Typography.Text
                                         type="danger"
-                                        className="block mb-2 text-red-600"
+                                        className="block mb-2! text-red-600"
                                     >
                                         You can only submit when status is
-                                        approved.{" "}
+                                        approved.
                                         <Button
                                             type="link"
-                                            className="p-0"
+                                            className="p-0!"
                                             onClick={() =>
                                                 navigate("/my-status")
                                             }

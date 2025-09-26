@@ -229,3 +229,26 @@ body {
 .custom-menu .ant-menu-item-selected::after {
     border-bottom: none !important;
 }
+
+.scroll-track {
+    display: flex;
+    width: calc(250px * 12);
+    animation: scroll 30s linear infinite;
+}
+
+.scroll-track:hover {
+    animation-play-state: paused;
+}
+
+.scroll-item {
+    flex: 0 0 auto;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}

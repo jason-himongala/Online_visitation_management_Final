@@ -3,6 +3,7 @@ import { DownOutlined } from "@ant-design/icons";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { use, useState } from "react";
 import ModalGroupChatView from "./ModalGroupChatView";
+import { appLogo } from "../../../../providers/appConfig";
 
 export default function VisitorHeader() {
     const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({
@@ -66,29 +67,27 @@ export default function VisitorHeader() {
         },
         {
             label: (
-                <Link
-                    type="link"
+                <span
                     className="contact-btn"
-                    style={{ color: "#fff" }}
+                    style={{ color: "#fff", cursor: "pointer" }}
                     onClick={() =>
                         setToggleModalOpenGroupChat({ open: true, data: null })
                     }
                 >
                     Contact Us
-                </Link>
+                </span>
             ),
             key: "/contact",
         },
         {
             label: (
-                <Button
+                <span
                     onClick={handleLogout}
-                    type="link"
                     className="contact-btn"
-                    style={{ color: "#fff" }}
+                    style={{ color: "#fff", cursor: "pointer" }}
                 >
                     Logout
-                </Button>
+                </span>
             ),
             key: "/signout",
         },
@@ -96,7 +95,46 @@ export default function VisitorHeader() {
 
     return (
         <>
-            <Layout.Header style={{ background: "#0d5b10", height: "80px" }}>
+            <Layout.Header
+                style={{
+                    background: "#0d5b10",
+                    height: "80px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0 4px",
+                }}
+            >
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginLeft: "40px",
+                    }}
+                >
+                    <img
+                        src={appLogo}
+                        alt="CSU Logo"
+                        style={{ height: "80px", marginRight: "12px" }}
+                    />
+                    <Typography.Title
+                        level={3}
+                        style={{
+                            color: "#fff",
+                            margin: 0,
+                            fontSize: "18px",
+                            fontWeight: "bold",
+                            lineHeight: "1.2",
+                            textAlign: "center",
+                        }}
+                    >
+                        CSU
+                        <br />
+                        Visitation System
+                    </Typography.Title>
+                </div>
+
+                {/* Right side - Menu */}
                 <Menu
                     theme="light"
                     mode="horizontal"
@@ -104,7 +142,9 @@ export default function VisitorHeader() {
                     style={{
                         background: "transparent",
                         minWidth: 0,
+                        border: "none",
                         flex: 1,
+
                         justifyContent: "flex-end",
                     }}
                     items={MenuVisitor}

@@ -32,7 +32,7 @@ export default function PageLandingPage() {
                     <Flex align="center" gap={12}>
                         <Button
                             type="primary"
-                            onClick={() => navigate("/signup")}
+                            onClick={() => navigate("/sign-up")}
                         >
                             Signup
                         </Button>

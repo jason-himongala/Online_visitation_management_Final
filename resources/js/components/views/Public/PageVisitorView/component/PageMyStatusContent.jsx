@@ -94,6 +94,7 @@ export default function PageMyStatusContent() {
             <Modal
                 title="Details"
                 open={openModal}
+                width={600}
                 onCancel={() => setOpenModal(false)}
                 footer={null}
                 centered
@@ -101,18 +102,35 @@ export default function PageMyStatusContent() {
                 {selectedItem && (
                     <>
                         <Typography.Paragraph>
-                            <b>Visitor:</b> {selectedItem.email}
+                            <b>Visitor :</b> {selectedItem.email}
                         </Typography.Paragraph>
                         <Typography.Paragraph>
-                            <b>Date & Time:</b> {selectedItem.available_time}
+                            <b>Date & Time :</b> {selectedItem.available_time}
                         </Typography.Paragraph>
                         <Typography.Paragraph>
-                            <b>Purpose:</b> {selectedItem.purpose_of_visit}
+                            <b>Purpose :</b> {selectedItem.purpose_of_visit}
                         </Typography.Paragraph>
                         <Typography.Paragraph>
-                            <b>Status:</b>{" "}
-                            <span style={{ color: "#52c41a" }}>
-                                {selectedItem.status}
+                            <b>Status :</b>{" "}
+                            <span
+                                style={{
+                                    fontSize: 16,
+                                    color:
+                                        selectedItem.status?.toLowerCase() ===
+                                        "approved"
+                                            ? "#52c41a"
+                                            : selectedItem.status?.toLowerCase() ===
+                                              "pending"
+                                            ? "rgb(250, 173, 20)"
+                                            : "#ff4d4f",
+                                }}
+                            >
+                                {selectedItem.status
+                                    ? selectedItem.status
+                                          .charAt(0)
+                                          .toUpperCase() +
+                                      selectedItem.status.slice(1).toLowerCase()
+                                    : ""}
                             </span>
                         </Typography.Paragraph>
 
