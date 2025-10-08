@@ -255,6 +255,7 @@ export default function ModalGroupChatView(props) {
             title="Group Chat"
             className="custom-blur-modal"
             open={toggleModalOpenGroupChat.open}
+            scrollIntoView
             onCancel={() => {
                 setToggleModalOpenGroupChat({ open: false, data: null });
                 setSelectedGroup(null);
@@ -273,7 +274,10 @@ export default function ModalGroupChatView(props) {
                 </Button>,
             ]}
             width={1500}
-            closable
+            maskStyle={{
+                backdropFilter: "blur(1px)",
+                backgroundColor: "rgba(0,0,0,0.3)",
+            }}
         >
             <div style={{ display: "flex" }}>
                 <div style={{ width: 300, marginRight: 16 }}>

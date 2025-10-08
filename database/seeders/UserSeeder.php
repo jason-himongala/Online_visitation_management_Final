@@ -39,6 +39,25 @@ class UserSeeder extends Seeder
                     'created_at' => now(),
                 ]
             ],
+            [
+                'username' => 'pico',
+                'email' => 'pico@test.com',
+                'email_verified_at' => now(),
+                'password' => Hash::make('Pico123!'),
+                'user_role_id' => 3,
+                'status' => 'Active',
+                'remember_token' => Str::random(10),
+                'created_by' => 1,
+                'created_at' => now(),
+                'profile' => [
+                    'firstname' => 'Pico',
+                    'lastname' => 'CSU',
+                    'created_by' => 1,
+                    'created_at' => now(),
+                ]
+            ],
+
+
         ];
 
         foreach ($data as $key => $value) {

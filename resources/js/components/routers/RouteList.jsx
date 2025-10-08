@@ -187,18 +187,18 @@ export default function RouteList() {
                 }
             />
             <Route
-                path="/profile"
+                path="/user-profile"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
-                        moduleName="Profile"
-                        title="Profile"
+                        moduleCode="M-02"
+                        moduleName="User Profile"
+                        title="User Profile"
                         subtitle="VIEW / EDIT"
                         pageId="PageUser"
                         pageHeaderIcon={faUsers}
                         breadcrumb={[
                             {
-                                name: "Profile",
+                                name: "User",
                             },
                         ]}
                         component={PageUser}
@@ -206,10 +206,10 @@ export default function RouteList() {
                 }
             />
             <Route
-                path="/profile/add"
+                path="/user-profile/add"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="User"
                         title="PageUserForm"
                         subtitle="ADD"
@@ -229,11 +229,11 @@ export default function RouteList() {
                 }
             />
             <Route
-                path="/profile/edit/:id"
+                path="/user-profile/edit/:id"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
-                        moduleName="Profile"
+                        moduleCode="M-02"
+                        moduleName="User Profile"
                         title="PageUserForm"
                         subtitle="VIEW / EDIT"
                         pageId="PageUserForm"
@@ -241,10 +241,10 @@ export default function RouteList() {
                         breadcrumb={[
                             {
                                 name: "Profile",
-                                link: "/profile",
+                                link: "/user-profile",
                             },
                             {
-                                name: "Edit Profile",
+                                name: "Edit User Profile",
                             },
                         ]}
                         component={PageUserForm}
@@ -253,11 +253,11 @@ export default function RouteList() {
             />
 
             <Route
-                path="/profile/edit/:id"
+                path="/user-profile/edit/:id"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
-                        moduleName="Profile"
+                        moduleCode="M-02"
+                        moduleName="User Profile"
                         title="PageUserForm"
                         subtitle="VIEW / EDIT"
                         pageId="PageUserForm"
@@ -265,7 +265,7 @@ export default function RouteList() {
                         breadcrumb={[
                             {
                                 name: "User",
-                                link: "/profile",
+                                link: "/user-profile",
                             },
                             {
                                 name: "Edit User",
@@ -279,7 +279,7 @@ export default function RouteList() {
                 path="/all-requests"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="All Requests"
                         title="PageAllRequest"
                         subtitle="VIEW / EDIT"
@@ -302,7 +302,7 @@ export default function RouteList() {
                 path="/approved"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="Approved"
                         title="PageApproved"
                         subtitle="VIEW / EDIT"
@@ -325,7 +325,7 @@ export default function RouteList() {
                 path="/declined"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="Declined"
                         title="PageDeclined"
                         subtitle="VIEW / EDIT"
@@ -348,7 +348,7 @@ export default function RouteList() {
                 path="/available-schedules"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="Available Schedules"
                         title="PageAvailableSchedules"
                         subtitle="VIEW / EDIT"
@@ -371,7 +371,7 @@ export default function RouteList() {
                 path="/visitation-forms"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="Visitation Forms"
                         title="PageVisitationForms"
                         subtitle="VIEW / EDIT"
@@ -390,7 +390,7 @@ export default function RouteList() {
                 path="/feedback-forms"
                 element={
                     <PrivateRoute
-                        // moduleCode="M-02"
+                        moduleCode="M-02"
                         moduleName="Visitation Forms"
                         title="PageVisitationForms"
                         subtitle="VIEW / EDIT"

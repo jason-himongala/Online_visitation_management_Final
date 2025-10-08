@@ -15,7 +15,7 @@ class DepartmentSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['department_name' => 'College of Humanities and Social Sciences '],
+            ['department_name' => 'College of Humanities and Social Sciences'],
             ['department_name' => 'College of Agriculture and Agri-Industries'],
             ['department_name' => 'College of Forestry and Environmental Sciences'],
             ['department_name' => 'College of Mathematics and Natural Sciences'],
@@ -23,7 +23,6 @@ class DepartmentSeeder extends Seeder
             ['department_name' => 'College of Engineering and Geo-Sciences'],
             ['department_name' => 'College of Education'],
         ];
-
 
         Department::truncate();
         Department::insert($data);

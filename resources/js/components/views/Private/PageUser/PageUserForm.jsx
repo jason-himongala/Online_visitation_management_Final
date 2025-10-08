@@ -150,7 +150,7 @@ export default function PageUserForm() {
                     description: res.message,
                 });
                 if (res.success && !params.id) {
-                    navigate("/profile");
+                    navigate("/user-profile");
                 }
             },
             onError: notificationErrors,

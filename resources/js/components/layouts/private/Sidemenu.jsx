@@ -7,7 +7,6 @@ import { appName, appLogoFullWidth, role } from "../../providers/appConfig";
 import {
     adminSideMenu,
     DepartmentSideMenu,
-    PicoSideMenu,
     OPSideMenu,
 } from "./components/SideMenuList";
 
@@ -29,9 +28,7 @@ export default function Sidemenu(props) {
         if (role === "Department") {
             setMenuItems(DepartmentSideMenu);
         }
-        if (role === "Pico") {
-            setMenuItems(PicoSideMenu);
-        }
+
         if (role === "OP") {
             setMenuItems(OPSideMenu);
         }

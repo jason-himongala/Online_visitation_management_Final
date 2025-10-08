@@ -92,7 +92,7 @@ export default function PageMyStatusContent() {
             />
 
             <Modal
-                title="Details"
+                title="My Status"
                 open={openModal}
                 width={600}
                 onCancel={() => setOpenModal(false)}
