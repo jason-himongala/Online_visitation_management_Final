@@ -146,7 +146,7 @@ export default function PageUserForm() {
         mutateUser(data, {
             onSuccess: (res) => {
                 notification[res.success ? "success" : "error"]({
-                    message: "User",
+                    message: "User Profile",
                     description: res.message,
                 });
                 if (res.success && !params.id) {

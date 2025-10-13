@@ -15,23 +15,29 @@ class VisitaionInformationController extends Controller
      */
     public function index(Request $request)
     {
-
-
         $email = 'SELECT email FROM users WHERE id = (SELECT user_id FROM profiles WHERE id = visitaion_information.profile_id)';
         $available_time = 'SELECT available_time FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id';
-        // $department_name = 'SELECT department_name FROM departments WHERE id = (SELECT department_id FROM appointment_schedules WHERE id = visitaion_informations.appointment_schedule_id)';
-        $data = VisitaionInformation::with(['profile.user',])
+
+        $query = VisitaionInformation::query()
+            ->with(['profile'])
             ->select([
-                '*',
+                'visitaion_information.*',
                 DB::raw("($email) AS email"),
                 DB::raw("($available_time) AS available_time"),
             ])
+            ->leftJoin('profiles', 'profiles.id', '=', 'visitaion_information.profile_id'); // <-- Add this line
+
+        // Example: filter by user_id if provided
+        if ($request->has('user_id')) {
+            $query->where('profiles.user_id', $request->user_id);
+        }
+
+        $data = $query
             ->search([
                 'search' => $request->search,
                 'rawFields' => [
                     "($email)",
                     "($available_time)",
-                    // "($department_name)"
                 ]
             ])
             ->filter($request)

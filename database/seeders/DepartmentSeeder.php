@@ -15,13 +15,34 @@ class DepartmentSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['department_name' => 'College of Humanities and Social Sciences'],
-            ['department_name' => 'College of Agriculture and Agri-Industries'],
-            ['department_name' => 'College of Forestry and Environmental Sciences'],
-            ['department_name' => 'College of Mathematics and Natural Sciences'],
-            ['department_name' => 'College of Computing and Information Sciences'],
-            ['department_name' => 'College of Engineering and Geo-Sciences'],
-            ['department_name' => 'College of Education'],
+            [
+                'department_name' => 'College of Humanities and Social Sciences',
+                'created_at' => now(),
+            ],
+            [
+                'department_name' => 'College of Agriculture and Agri-Industries',
+                'created_at' => now(),
+            ],
+            [
+                'department_name' => 'College of Forestry and Environmental Sciences',
+                'created_at' => now(),
+            ],
+            [
+                'department_name' => 'College of Mathematics and Natural Sciences',
+                'created_at' => now(),
+            ],
+            [
+                'department_name' => 'College of Computing and Information Sciences',
+                'created_at' => now(),
+            ],
+            [
+                'department_name' => 'College of Engineering and Geo-Sciences',
+                'created_at' => now(),
+            ],
+            [
+                'department_name' => 'College of Education',
+                'created_at' => now(),
+            ],
         ];
 
         Department::truncate();

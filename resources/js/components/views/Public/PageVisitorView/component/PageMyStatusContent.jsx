@@ -4,19 +4,20 @@ import { Card, List, Button, Modal, Typography, Divider } from "antd";
 
 import { GET } from "../../../../providers/useAxiosQuery";
 import ModalGroupChatView from "./ModalGroupChatView";
-
+import { UserId } from "../../../../providers/appConfig";
 export default function PageMyStatusContent() {
-    const { data: dataSource } = GET(`api/visitation_information`, [
-        "visitation_information_submit",
-        "visitation_information_submit",
-    ]);
+    const userId = UserId();
+
+    const { data: dataSource } = GET(
+        `api/visitation_information?user_id=${userId}`,
+        ["visitation_information_submit", "visitation_information_submit"]
+    );
 
     const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({
         open: false,
         data: null,
     });
 
-    const { id } = useParams();
     const [openModal, setOpenModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 

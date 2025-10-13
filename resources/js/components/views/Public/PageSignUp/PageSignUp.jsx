@@ -20,6 +20,8 @@ import FloatInput from "../../../providers/FloatInput";
 import FloatInputPassword from "../../../providers/FloatInputPassword";
 import ModalUploadProfilePicture from "./components/ModalUploadProfilePicture";
 
+import { GoogleOutlined } from "@ant-design/icons";
+
 export default function PageSignUp() {
     const [
         toggleModalUploadProfilePicture,
@@ -77,6 +79,11 @@ export default function PageSignUp() {
         });
     };
 
+    const handleGoogleLogin = () => {
+        window.location.href =
+            "https://dd_visitation_management_system.test/auth/google/callback";
+    };
+
     return (
         <Layout.Content className="flex justify-center items-center h-full">
             <Row gutter={[20, 20]} className="w-full" justify="center">
@@ -89,18 +96,24 @@ export default function PageSignUp() {
                     </Typography.Title>
 
                     <Form layout="vertical" onFinish={onFinish} form={form}>
-                        <Form.Item
-                            name="firstname"
-                            rules={[validateRules.required()]}
-                        >
-                            <FloatInput label="First Name" />
-                        </Form.Item>
-                        <Form.Item
-                            name="lastname"
-                            rules={[validateRules.required()]}
-                        >
-                            <FloatInput label="Last Name" />
-                        </Form.Item>
+                        <Row gutter={[12, 12]}>
+                            <Col lg={12} sm={12} xs={12}>
+                                <Form.Item
+                                    name="firstname"
+                                    rules={[validateRules.required()]}
+                                >
+                                    <FloatInput label="First Name" />
+                                </Form.Item>
+                            </Col>
+                            <Col lg={12} sm={12} xs={12}>
+                                <Form.Item
+                                    name="lastname"
+                                    rules={[validateRules.required()]}
+                                >
+                                    <FloatInput label="Last Name" />
+                                </Form.Item>
+                            </Col>
+                        </Row>
                         <Form.Item
                             name="username"
                             rules={[validateRules.required()]}
@@ -179,6 +192,16 @@ export default function PageSignUp() {
                             />
                         </Col>
                         <br />
+                        {/* <Button
+                            icon={<GoogleOutlined />}
+                            type="default"
+                            shape="round"
+                            block
+                            className="mt-4"
+                            onClick={handleGoogleLogin}
+                        >
+                            Sign Up with Google
+                        </Button> */}
 
                         <Flex
                             align="center"

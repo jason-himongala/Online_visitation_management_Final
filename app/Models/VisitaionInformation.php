@@ -16,15 +16,15 @@ class VisitaionInformation extends Model
     public function scopeFilter($query, $request)
     {
 
+
+
         if ($request->status) {
             $status = explode(",", $request->status);
 
             $query->whereIn('visitaion_information.status', $status);
         }
 
-        if ($request->user_id) {
-            $query->where('profile.user_id', $request->user_id);
-        }
+    
         return $query;
     }
 
@@ -35,15 +35,19 @@ class VisitaionInformation extends Model
     }
 
 
+    public function visitation_information()
+    {
+        return $this->belongsTo(VisitaionInformation::class, 'visitation_information_id');
+    }
+
     public function profile()
     {
         return $this->belongsTo(Profile::class, 'profile_id');
     }
 
 
-
-    public function visitation_information()
+    public function user()
     {
-        return $this->belongsTo(VisitaionInformation::class, 'visitation_information_id');
+        return $this->hasOneThrough(User::class, Profile::class, 'id', 'id', 'profile_id', 'user_id');
     }
 }
