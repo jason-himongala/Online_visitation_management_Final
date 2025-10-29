@@ -64,6 +64,7 @@ class VisitorRequestController extends Controller
 
 
 
+
         try {
             DB::transaction(function () use ($dataValidated, $request) {
                 $chat = Chat::updateOrCreate(
@@ -99,6 +100,9 @@ class VisitorRequestController extends Controller
                     );
                 }
 
+
+
+
                 foreach ($dataValidated['profile_id'] as $index => $profileId) {
                     $visitationId = $dataValidated['visitaion_information_id'][$index] ?? null;
 
@@ -115,6 +119,23 @@ class VisitorRequestController extends Controller
                             ->update(['status' => $request->status ?? '']);
                     }
                 }
+
+
+                $userIds = Profile::whereIn('id', $dataValidated['profile_id'])
+                    ->pluck('user_id')
+                    ->toArray();
+
+                // foreach ($dataUserNitification['user_id'] as $index => $userIds) {
+                //     \App\Models\UserNotification::updateOrCreate(
+                //         [
+                //             "user_id"   => $userIds,
+                //         ],
+                //         [
+                //             "read" => $dataUserNitification['read'] ?? false,
+                //             "status" => $dataUserNitification['status'] ?? false,
+                //         ]
+                //     );
+                // }
             });
 
             return response()->json([

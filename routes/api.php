@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GoogleController;
 use App\Models\StudentGrade;
 use Illuminate\Container\Attributes\DB;
 use Illuminate\Http\Request;
@@ -38,6 +39,8 @@ Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::cla
 
 Route::middleware('auth:api')->group(function () {
     Route::get('check_auth_status', [App\Http\Controllers\AuthController::class, "check_auth_status"]);
+
+
 
     // UserController
     Route::post('existing_username', [App\Http\Controllers\UserController::class, "existing_username"]);
@@ -127,4 +130,13 @@ Route::middleware('auth:api')->group(function () {
     //DashboardController
     Route::get('dashboard_card_list', [App\Http\Controllers\DashboardController::class, 'dashboard_card_list']);
     //End DashboardController
+
+
+    //UserNotificationController
+    Route::apiResource('user_notifications', App\Http\Controllers\UserNotificationController::class);
+    //End UserNotificationController
+
+
+    Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
+    Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 });

@@ -24,7 +24,7 @@ class VisitaionInformation extends Model
             $query->whereIn('visitaion_information.status', $status);
         }
 
-    
+
         return $query;
     }
 
@@ -49,5 +49,11 @@ class VisitaionInformation extends Model
     public function user()
     {
         return $this->hasOneThrough(User::class, Profile::class, 'id', 'id', 'profile_id', 'user_id');
+    }
+
+
+    public function user_notification()
+    {
+        return $this->hasMany(UserNotification::class, 'visitaion_information_id');
     }
 }

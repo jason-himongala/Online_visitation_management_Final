@@ -74,6 +74,7 @@
 
                     img {
                         width: 150px;
+                        margin-left: -2pc;
 
                         @include atSMMax {
                             width: 90px;
@@ -101,42 +102,32 @@
 
                     &.ant-menu-item-selected,
                     &.ant-menu-item-active {
-                        background: var(
-                            --color-white
-                        ); //Dashboard, Employees, Ministries, Venue, Users, Permissions, Hover Color
+                        background: var(--color-white);
                     }
 
                     a {
-                        color: var(
-                            --color-white
-                        ); //Dashboard, Employees, Ministries, Venue, Users, Permissions, Default TextColor
+                        color: var(--color-white);
                         text-decoration: none;
                     }
 
                     a:hover,
                     &.ant-menu-item-selected a,
                     &.ant-menu-item-active a {
-                        color: var(
-                            --color-primary
-                        ) !important; //Dashboard, Employees, Ministries, Venue, Users, Permissions, Hover TextColor
+                        color: var(--color-primary) !important;
                         text-decoration: none;
                     }
 
                     .ant-menu-item-icon {
-                        color: var(
-                            --color-white
-                        ); //Dashboard, Employees, Ministries, Venue, Users, Permissions, IconColor
+                        color: var(--color-white);
                         font-size: 18px;
                         width: 20px;
                     }
                 }
 
-                // When hovered
                 .ant-menu-item:hover .ant-menu-item-icon {
                     color: var(--color-primary) !important;
                 }
 
-                // When selected
                 .ant-menu-item.ant-menu-item-selected .ant-menu-item-icon {
                     color: var(--color-primary) !important;
                 }
@@ -181,7 +172,7 @@
 
                     // &.ant-menu-submenu-selected,
                     // &.ant-menu-submenu-active  {
-                    //     background: var(--color-green-400); //Sacraments, Accounting, Report, Settings, Hover Color
+                    //     background: var(--color-green-400);
                     // }
 
                     // a {
@@ -225,6 +216,10 @@
                                 }
                             }
                         }
+                    }
+
+                    .ant-menu .ant-menu-root .ant-menu-inline .ant-menu-light {
+                        margin-top: -2pc;
                     }
                 }
             }

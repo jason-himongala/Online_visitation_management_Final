@@ -1,9 +1,8 @@
-import { Button, Layout, Menu, Typography } from "antd";
-import { DownOutlined } from "@ant-design/icons";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { use, useState } from "react";
-import ModalGroupChatView from "./ModalGroupChatView";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Button, Layout, Menu, Typography } from "antd";
 import { appLogo } from "../../../../providers/appConfig";
+import ModalGroupChatView from "./ModalGroupChatView";
 
 export default function VisitorHeader() {
     const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({
@@ -103,6 +102,12 @@ export default function VisitorHeader() {
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "0 4px",
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 1000,
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
                 }}
             >
                 <div

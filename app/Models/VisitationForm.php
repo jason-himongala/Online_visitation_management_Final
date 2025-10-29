@@ -34,4 +34,10 @@ class VisitationForm extends Model
     {
         return $this->belongsTo(VisitaionInformation::class, 'visitation_information_id');
     }
+
+
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class, 'profile_id');
+    }
 }

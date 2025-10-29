@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\Profile;
+use App\Models\User;
+use App\Models\UserNotification;
 use App\Models\VisitaionInformation;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use phpseclib3\File\ASN1\Maps\UserNotice;
 
 class VisitaionInformationController extends Controller
 {
@@ -19,15 +23,14 @@ class VisitaionInformationController extends Controller
         $available_time = 'SELECT available_time FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id';
 
         $query = VisitaionInformation::query()
-            ->with(['profile'])
+            ->with(['profile', 'appointment_schedule', 'profile.user'])
             ->select([
                 'visitaion_information.*',
                 DB::raw("($email) AS email"),
                 DB::raw("($available_time) AS available_time"),
             ])
-            ->leftJoin('profiles', 'profiles.id', '=', 'visitaion_information.profile_id'); // <-- Add this line
+            ->leftJoin('profiles', 'profiles.id', '=', 'visitaion_information.profile_id');
 
-        // Example: filter by user_id if provided
         if ($request->has('user_id')) {
             $query->where('profiles.user_id', $request->user_id);
         }
@@ -71,6 +74,8 @@ class VisitaionInformationController extends Controller
 
 
 
+
+
         $dataValidated = $request->validate([
             // 'department_id' => 'required|exists:departments,id',
             'profile_id' => 'required|exists:profiles,id',
@@ -78,16 +83,35 @@ class VisitaionInformationController extends Controller
             'purpose_of_visit' => 'required|string|max:255',
 
         ]);
+        $dataUserNotifications = $request->validate([
+            'visitation_information_id' => 'nullable|exists:visitation_information,id',
+            'user_id' => 'nullable|exists:users,id',
+            'read' => 'boolean',
+            'status' => 'boolean',
+
+        ]);
 
 
 
         try {
-            DB::transaction(function () use ($dataValidated,  &$ret, $request) {
+            DB::transaction(function () use ($dataValidated,  &$ret, $request, $dataUserNotifications) {
 
-                VisitaionInformation::updateOrCreate(
+                $idVisitaionInformation = VisitaionInformation::updateOrCreate(
                     ["id" => $request->id ?? null],
                     $dataValidated
                 );
+
+                $id = $idVisitaionInformation->id;
+
+                UserNotification::create([
+                    "user_id" => 1,
+                    "visitation_information_id" => $id,
+                    "read" => $dataUserNotifications['read'] ?? false,
+                    "status" => $dataUserNotifications['status'] ?? true,
+                ]);
+
+
+
 
 
 

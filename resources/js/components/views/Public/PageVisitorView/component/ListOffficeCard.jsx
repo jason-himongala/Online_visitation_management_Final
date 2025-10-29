@@ -20,27 +20,26 @@ export default function ListOfficeCard() {
     }, []);
 
     return (
-        <div
-            style={{ overflow: "hidden", width: "100%", background: "#f5f5f5" }}
-        >
+        <div style={{ overflow: "hidden", width: "100%" }}>
             <div className="scroll-track">
                 {scrollingList.map((item, idx) => (
                     <div key={idx} className="scroll-item scroll-item-1">
                         <Card
-                            variant="borderless"
+                            bordered={false}
                             style={{
-                                backgroundColor: "#0d5b10",
+                                backgroundColor: "transparent",
+                                boxShadow: "none",
                                 width: 250,
                                 margin: "0 10px",
                             }}
                         >
-                            <div style={{ marginBottom: 12 }}>
+                            <div>
                                 <img
                                     src={apiUrl(`images/${item.logo}`)}
                                     style={{
-                                        height: 80,
+                                        height: "180px",
                                         objectFit: "contain",
-                                        maxWidth: 200,
+                                        maxWidth: "200px",
                                         margin: "0 auto",
                                         display: "block",
                                     }}
@@ -57,7 +56,7 @@ export default function ListOfficeCard() {
                                 marginTop: 8,
                             }}
                         >
-                            {item.name}
+                            {/* {item.name} */}
                         </div>
                     </div>
                 ))}

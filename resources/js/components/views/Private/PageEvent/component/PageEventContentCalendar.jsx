@@ -184,32 +184,83 @@ export default function PageEventContentCalendar() {
                         </div>
                     </Col>
 
-                    {/* Left Side: Filter */}
                     <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Card title="Filter">
-                            <Form layout="vertical">
-                                <Form.Item name="department_id">
-                                    <FloatSelect
-                                        className="w-full"
-                                        options={
-                                            departments?.data?.map((dept) => ({
-                                                label: dept.department_name,
-                                                value: dept.id,
-                                            })) || []
-                                        }
-                                        label="Department"
-                                        placeholder="Department"
-                                        allowClear
-                                        onChange={(value) =>
-                                            onChangeTableFilter(
-                                                "department_id",
-                                                value
-                                            )
-                                        }
-                                    />
-                                </Form.Item>
-                            </Form>
-                        </Card>
+                        <Form layout="vertical">
+                            <Form.Item name="department_id">
+                                <FloatSelect
+                                    className="w-full"
+                                    options={
+                                        departments?.data?.map((dept) => ({
+                                            label: dept.department_name,
+                                            value: dept.id,
+                                        })) || []
+                                    }
+                                    label="Department"
+                                    placeholder="Department"
+                                    allowClear
+                                    onChange={(value) =>
+                                        onChangeTableFilter(
+                                            "department_id",
+                                            value
+                                        )
+                                    }
+                                />
+                            </Form.Item>
+                        </Form>
+
+                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                            <Table
+                                id="tbl_appointment"
+                                dataSource={(
+                                    dataAppointmentSchedules?.data || []
+                                ).filter(
+                                    (item) =>
+                                        !tableFilter.department_id ||
+                                        item.department_id ===
+                                            tableFilter.department_id
+                                )}
+                                pagination={false}
+                                rowKey="id"
+                                size="small"
+                                style={{ width: "100%" }}
+                            >
+                                <Table.Column
+                                    title="Type"
+                                    dataIndex="appointment_type"
+                                    key="appointment_type"
+                                    render={(text) => (
+                                        <Badge
+                                            color={
+                                                text === "Not Available"
+                                                    ? "red"
+                                                    : text === "Available"
+                                                    ? "green"
+                                                    : "blue"
+                                            }
+                                            text={text}
+                                        />
+                                    )}
+                                />
+                                <Table.Column
+                                    title="Date"
+                                    dataIndex="date"
+                                    key="date"
+                                    render={(text) =>
+                                        dayjs(text).format("MMM DD, YYYY")
+                                    }
+                                />
+                                <Table.Column
+                                    title="Time"
+                                    dataIndex="available_time"
+                                    key="available_time"
+                                />
+                                <Table.Column
+                                    title="Department"
+                                    dataIndex="department_name"
+                                    key="department_name"
+                                />
+                            </Table>{" "}
+                        </Col>
                     </Col>
 
                     <Col xs={24} sm={24} md={16} lg={18} xl={18}>
@@ -257,60 +308,6 @@ export default function PageEventContentCalendar() {
                                 </Card>
                             </Col>
                         </Row>
-                    </Col>
-
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                        <Table
-                            id="tbl_appointment"
-                            dataSource={(
-                                dataAppointmentSchedules?.data || []
-                            ).filter(
-                                (item) =>
-                                    !tableFilter.department_id ||
-                                    item.department_id ===
-                                        tableFilter.department_id
-                            )}
-                            pagination={false}
-                            rowKey="id"
-                            size="small"
-                            style={{ width: "100%" }}
-                        >
-                            <Table.Column
-                                title="Type"
-                                dataIndex="appointment_type"
-                                key="appointment_type"
-                                render={(text) => (
-                                    <Badge
-                                        color={
-                                            text === "Not Available"
-                                                ? "red"
-                                                : text === "Available"
-                                                ? "green"
-                                                : "blue"
-                                        }
-                                        text={text}
-                                    />
-                                )}
-                            />
-                            <Table.Column
-                                title="Date"
-                                dataIndex="date"
-                                key="date"
-                                render={(text) =>
-                                    dayjs(text).format("MMM DD, YYYY")
-                                }
-                            />
-                            <Table.Column
-                                title="Time"
-                                dataIndex="available_time"
-                                key="available_time"
-                            />
-                            <Table.Column
-                                title="Department"
-                                dataIndex="department_name"
-                                key="department_name"
-                            />
-                        </Table>{" "}
                     </Col>
 
                     <ModalFormEvent />

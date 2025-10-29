@@ -98,7 +98,6 @@ export default function PageMyStatusContent() {
                 width={600}
                 onCancel={() => setOpenModal(false)}
                 footer={null}
-                centered
             >
                 {selectedItem && (
                     <>

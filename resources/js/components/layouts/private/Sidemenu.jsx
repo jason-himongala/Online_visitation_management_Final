@@ -211,7 +211,7 @@ export default function Sidemenu(props) {
             </div>
 
             <Menu
-                style={{ marginBottom: "50px" }}
+                style={{ marginTop: "-2pc" }}
                 theme="light"
                 mode="inline"
                 openKeys={openKeys}

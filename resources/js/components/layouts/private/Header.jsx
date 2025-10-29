@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
-import { Dropdown, Image, Layout, Typography } from "antd";
+import { Badge, Dropdown, Image, Layout, Typography } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faPowerOff } from "@fortawesome/pro-light-svg-icons";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
@@ -18,6 +18,7 @@ import {
     userData,
 } from "../../providers/appConfig";
 import ModalMessage from "./components/ModalMessage";
+import { GET, POST } from "../../providers/useAxiosQuery";
 
 export default function Header(props) {
     const { width, sideMenuCollapse, setSideMenuCollapse } = props;
@@ -27,6 +28,20 @@ export default function Header(props) {
     });
 
     const [profilePicture, setProfilePicture] = useState(defaultProfile);
+
+    const { data: dataUserNotifications, refetch: refetchSource } = GET(
+        `api/user_notifications`,
+        ["user_notifications_list", "visitation_information_submit"]
+    );
+
+    useEffect(() => {
+        refetchSource();
+    }, []);
+
+    const { mutate: mutateVisitorInfo } = POST(
+        `api/user_notifications`,
+        "visitation_information_submit"
+    );
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -54,21 +69,81 @@ export default function Header(props) {
     };
 
     const menuNotification = () => {
+        const notifications = Array.isArray(dataUserNotifications)
+            ? dataUserNotifications
+            : dataUserNotifications?.data || [];
+
+        const dataUserNotificationsFiltered = notifications.filter(
+            (item) => item.read === 0 && item.status === 1
+        );
+
+        const handleMarkAsRead = (notification) => {
+            mutateVisitorInfo(
+                {
+                    id: notification.id,
+                    read: 1,
+                },
+                {
+                    onSuccess: () => {
+                        notification.read = 1;
+                        refetchSource();
+                    },
+                }
+            );
+        };
+
         const items = [
             {
                 label: "Notifications",
                 key: "0",
+                className: "notification-header",
             },
-
-            {
-                type: "divider",
-            },
-
-            {
-                label: "No notification",
-                key: "1",
-            },
+            { type: "divider" },
         ];
+
+        if (dataUserNotificationsFiltered.length > 0) {
+            dataUserNotificationsFiltered.forEach((notification, index) => {
+                items.push({
+                    key: `notification-${notification.id || index}`,
+                    label: (
+                        <div
+                            className="notification-wrapper"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleMarkAsRead(notification)}
+                        >
+                            <Typography.Text className="notification-title">
+                                Notification #{notification.id}
+                            </Typography.Text>
+                            <br />
+                            <Typography.Text
+                                className="notification-time"
+                                type="secondary"
+                            >
+                                {notification.created_at}
+                            </Typography.Text>
+                        </div>
+                    ),
+                });
+            });
+
+            items.push(
+                { type: "divider" },
+                {
+                    key: "view-all",
+                    label: (
+                        <Typography.Link>
+                            View All Notifications
+                        </Typography.Link>
+                    ),
+                }
+            );
+        } else {
+            items.push({
+                label: "No notifications",
+                key: "no-notifications",
+                disabled: true,
+            });
+        }
 
         return items;
     };
@@ -100,12 +175,12 @@ export default function Header(props) {
                         </div>
                     </div>
                 ),
-            }, // remember to pass the key prop
+            },
             {
                 key: "/edit-profile",
                 icon: <FontAwesomeIcon icon={faEdit} />,
                 label: <Link to="/edit-profile">Edit Account Profile</Link>,
-            }, // which is required
+            },
         ];
 
         items.push({
@@ -153,7 +228,7 @@ export default function Header(props) {
                     />
                 )}
 
-                <Dropdown
+                {/* <Dropdown
                     menu={{
                         items: menuNotification(),
                     }}
@@ -161,11 +236,29 @@ export default function Header(props) {
                     overlayClassName="menu-submenu-notification-popup"
                     trigger={["click"]}
                 >
-                    <FontAwesomeIcon
-                        className="menu-submenu-notification"
-                        icon={faBell}
-                    />
-                </Dropdown>
+                    <Badge
+                        count={
+                            dataUserNotifications
+                                ? (Array.isArray(dataUserNotifications)
+                                      ? dataUserNotifications
+                                      : dataUserNotifications.data || []
+                                  ).filter(
+                                      (item) =>
+                                          item.read === 0 && item.status === 1
+                                  ).length
+                                : 0
+                        }
+                        size="small"
+                        color="red"
+                        offset={[0, 5]}
+                        showZero={false}
+                    >
+                        <FontAwesomeIcon
+                            className="menu-submenu-notification"
+                            icon={faBell}
+                        />
+                    </Badge>
+                </Dropdown> */}
 
                 <Dropdown
                     menu={{

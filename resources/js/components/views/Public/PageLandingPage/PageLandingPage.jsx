@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { Button, Col, Flex, Layout, Typography, Row } from "antd";
 
 import { appLogo } from "../../../providers/appConfig";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/pro-light-svg-icons";
 
 export default function PageLandingPage() {
     const navigate = useNavigate();
@@ -78,7 +80,7 @@ export default function PageLandingPage() {
                         <img
                             src="/images/csu_bg.png"
                             alt="CSU Building"
-                            className="!w-full !rounded-lg !shadow-lg"
+                            className="w-full! !rounded-lg !shadow-lg object-cover"
                         />
                     </Col>
                 </Row>
