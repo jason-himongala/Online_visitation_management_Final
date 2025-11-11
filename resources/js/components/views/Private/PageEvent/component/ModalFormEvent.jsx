@@ -11,7 +11,8 @@ import FloatDatePicker from "../../../../providers/FloatDatePicker";
 import notificationErrors from "../../../../providers/notificationErrors";
 import PageEventContextCalendar from "./PageEventContextCalendar";
 
-export default function ModalFormEvent() {
+export default function ModalFormEvent({ currentUser }) {
+    console.log("currentUser in modal", currentUser);
     const { toggleModalFormEvent, setToggleModalFormEvent } = useContext(
         PageEventContextCalendar
     );
@@ -127,7 +128,13 @@ export default function ModalFormEvent() {
                 </Button>,
             ]}
         >
-            <Form form={form} onFinish={onFinish}>
+            <Form
+                form={form}
+                onFinish={onFinish}
+                initialValues={{
+                    department_id: currentUser?.department_id || null,
+                }}
+            >
                 <Row gutter={[20, 0]}>
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Form.Item
@@ -138,6 +145,7 @@ export default function ModalFormEvent() {
                                 label="Department"
                                 placeholder="Department"
                                 required
+                                disabled={Boolean(currentUser?.department_id)}
                                 options={
                                     departments?.data
                                         ? departments.data.map((item) => ({

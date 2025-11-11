@@ -84,11 +84,11 @@ export default function PageEventContentCalendar() {
         sort_field: "title",
         sort_order: "asc",
         isTrash: 0,
-        department_id: currentUser?.department_id || "",
+        department_id: null,
     });
 
     const { data: dataAppointmentSchedules } = GET(
-        `api/appointment_schedule?department_id=${tableFilter.department_id}`,
+        `api/appointment_schedule`,
         "appointment_schedule_list",
         () => {},
         false
@@ -166,6 +166,17 @@ export default function PageEventContentCalendar() {
     };
 
     useTableScrollOnTop("tbl_appointment", location);
+    useEffect(() => {
+        if (
+            currentUser?.department_id &&
+            tableFilter.department_id !== currentUser.department_id
+        ) {
+            setTableFilter((prev) => ({
+                ...prev,
+                department_id: currentUser.department_id,
+            }));
+        }
+    }, [currentUser?.department_id]);
 
     return (
         <PageEventContextCalendar.Provider
@@ -200,40 +211,13 @@ export default function PageEventContentCalendar() {
                     </Col>
 
                     <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Form layout="vertical">
-                            <Form.Item name="department_id">
-                                <FloatSelect
-                                    className="w-full"
-                                    options={
-                                        departments?.data
-                                            ?.filter((dept) => {
-                                                if (
-                                                    currentUser?.department_id
-                                                ) {
-                                                    return (
-                                                        dept.id ==
-                                                        currentUser.department_id
-                                                    );
-                                                }
-                                                return true;
-                                            })
-                                            ?.map((dept) => ({
-                                                label: dept.department_name,
-                                                value: dept.id,
-                                            })) || []
-                                    }
-                                    label="Department"
-                                    placeholder="Department"
-                                    allowClear
-                                    onChange={(value) =>
-                                        onChangeTableFilter(
-                                            "department_id",
-                                            value
-                                        )
-                                    }
-                                />
-                            </Form.Item>
-                        </Form>
+                        <Form
+                            layout="vertical"
+                            initialValues={{
+                                department_id:
+                                    currentUser?.department_id || null,
+                            }}
+                        ></Form>
 
                         <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                             <Table
@@ -242,9 +226,9 @@ export default function PageEventContentCalendar() {
                                     dataAppointmentSchedules?.data || []
                                 ).filter(
                                     (item) =>
-                                        !tableFilter.department_id ||
+                                        !currentUser?.department_id ||
                                         item.department_id ===
-                                            tableFilter.department_id
+                                            currentUser.department_id
                                 )}
                                 pagination={false}
                                 rowKey="id"
@@ -337,7 +321,7 @@ export default function PageEventContentCalendar() {
                         </Row>
                     </Col>
 
-                    <ModalFormEvent />
+                    <ModalFormEvent currentUser={currentUser} />
                 </Row>
             </div>
         </PageEventContextCalendar.Provider>
