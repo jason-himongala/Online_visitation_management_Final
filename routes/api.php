@@ -34,9 +34,6 @@ Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::cla
 
 
 
-
-
-
 Route::middleware('auth:api')->group(function () {
     Route::get('check_auth_status', [App\Http\Controllers\AuthController::class, "check_auth_status"]);
 
@@ -69,7 +66,6 @@ Route::middleware('auth:api')->group(function () {
     // END EmailTemplateController
 
 
-
     // ProfileController
     Route::post('profile_archive_restore', [App\Http\Controllers\ProfileController::class, 'profile_archive_restore']);
     Route::apiResource('profiles',  App\Http\Controllers\ProfileController::class);
@@ -100,8 +96,6 @@ Route::middleware('auth:api')->group(function () {
     //VisitorRequestController
     Route::apiResource('visitor_requests', App\Http\Controllers\VisitorRequestController::class);
     //End VisitorRequestController
-
-
 
     //ChatMemberController
     Route::apiResource('chat_members', App\Http\Controllers\ChatMemberController::class);

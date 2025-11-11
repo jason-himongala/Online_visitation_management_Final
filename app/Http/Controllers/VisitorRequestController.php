@@ -61,12 +61,17 @@ class VisitorRequestController extends Controller
         ]);
 
 
-
+        $dataUserNitification = $request->validate([
+            'user_id' => 'required|array',
+            'user_id.*' => 'exists:users,id',
+            'read' => 'boolean',
+            'status' => 'string',
+        ]);
 
 
 
         try {
-            DB::transaction(function () use ($dataValidated, $request) {
+            DB::transaction(function () use ($dataValidated, $request, $dataUserNitification) {
                 $chat = Chat::updateOrCreate(
                     ["id" => $request->id ?? null],
                     ["title_of_groupchat" => $request->title_of_groupchat ?? 'Group Chat']
@@ -125,17 +130,17 @@ class VisitorRequestController extends Controller
                     ->pluck('user_id')
                     ->toArray();
 
-                // foreach ($dataUserNitification['user_id'] as $index => $userIds) {
-                //     \App\Models\UserNotification::updateOrCreate(
-                //         [
-                //             "user_id"   => $userIds,
-                //         ],
-                //         [
-                //             "read" => $dataUserNitification['read'] ?? false,
-                //             "status" => $dataUserNitification['status'] ?? false,
-                //         ]
-                //     );
-                // }
+                foreach ($dataUserNitification['user_id'] as $index => $userIds) {
+                    \App\Models\UserNotification::updateOrCreate(
+                        [
+                            "user_id"   => $userIds,
+                        ],
+                        [
+                            "read" => $dataUserNitification['read'] ?? false,
+                            "status" => $dataUserNitification['status'] ?? false,
+                        ]
+                    );
+                }
             });
 
             return response()->json([

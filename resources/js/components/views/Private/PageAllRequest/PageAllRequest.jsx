@@ -12,10 +12,12 @@ import {
 } from "../../../providers/CustomTableFilter";
 import useTableScrollOnTop from "../../../providers/useTableScrollOnTop";
 import ModalFileReview from "./component/ModalFileReview";
+import { role } from "../../../providers/appConfig";
 
 export default function PageAllRequest() {
     const navigate = useNavigate();
     const location = useLocation();
+    const userRole = role();
 
     const [openModalFileReview, setOpenModalFileReview] = useState({
         open: false,
@@ -141,38 +143,39 @@ export default function PageAllRequest() {
                                     setTableFilter={setTableFilter}
                                 />
 
-                                {selectedRowKeys.length > 0 && (
-                                    <>
-                                        {(isAllRequestsPage ||
-                                            isDeclinedPage) && (
-                                            <Button
-                                                type="primary"
-                                                onClick={() =>
-                                                    handleUpdateStatus(
-                                                        selectedRowKeys,
-                                                        "approved"
-                                                    )
-                                                }
-                                            >
-                                                Approve
-                                            </Button>
-                                        )}
-                                        {(isAllRequestsPage ||
-                                            isApprovedPage) && (
-                                            <Button
-                                                danger
-                                                onClick={() =>
-                                                    handleUpdateStatus(
-                                                        selectedRowKeys,
-                                                        "declined"
-                                                    )
-                                                }
-                                            >
-                                                Decline
-                                            </Button>
-                                        )}
-                                    </>
-                                )}
+                                {userRole === "OP" &&
+                                    selectedRowKeys.length > 0 && (
+                                        <>
+                                            {(isAllRequestsPage ||
+                                                isDeclinedPage) && (
+                                                <Button
+                                                    type="primary"
+                                                    onClick={() =>
+                                                        handleUpdateStatus(
+                                                            selectedRowKeys,
+                                                            "approved"
+                                                        )
+                                                    }
+                                                >
+                                                    Approve
+                                                </Button>
+                                            )}
+                                            {(isAllRequestsPage ||
+                                                isApprovedPage) && (
+                                                <Button
+                                                    danger
+                                                    onClick={() =>
+                                                        handleUpdateStatus(
+                                                            selectedRowKeys,
+                                                            "declined"
+                                                        )
+                                                    }
+                                                >
+                                                    Decline
+                                                </Button>
+                                            )}
+                                        </>
+                                    )}
                             </Flex>
 
                             <Flex gap={10}>
@@ -199,28 +202,38 @@ export default function PageAllRequest() {
                         bordered
                         scroll={{ x: "max-content" }}
                         sticky
-                        rowSelection={rowSelection}
+                        rowSelection={userRole === "OP" ? rowSelection : null}
                     >
-                        <Table.Column
-                            title="Action"
-                            key="action"
-                            align="center"
-                            width={50}
-                            render={(_, record) => (
-                                <Flex align="center" justify="center" gap={5}>
-                                    <Button
-                                        type="link"
-                                        onClick={() =>
-                                            setOpenModalFileReview({
-                                                open: true,
-                                                data: record.file,
-                                            })
-                                        }
-                                        icon={<FontAwesomeIcon icon={faFile} />}
-                                    />
-                                </Flex>
-                            )}
-                        />
+                        {userRole === "OP" && (
+                            <Table.Column
+                                title="Action"
+                                key="action"
+                                align="center"
+                                width={50}
+                                render={(_, record) => (
+                                    <Flex
+                                        align="center"
+                                        justify="center"
+                                        gap={5}
+                                    >
+                                        <Button
+                                            type="link"
+                                            onClick={() =>
+                                                setOpenModalFileReview({
+                                                    open: true,
+                                                    data: record.file,
+                                                })
+                                            }
+                                            icon={
+                                                <FontAwesomeIcon
+                                                    icon={faFile}
+                                                />
+                                            }
+                                        />
+                                    </Flex>
+                                )}
+                            />
+                        )}
 
                         <Table.Column
                             title="Visitors Email"

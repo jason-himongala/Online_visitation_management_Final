@@ -50,6 +50,13 @@ export default function PageUserForm() {
         fileName: null,
     });
 
+    const { data: dataDepartment } = GET(
+        `api/departments`,
+        "departments_list",
+        () => {},
+        false
+    );
+
     // Fetch user data
     GET(
         `api/users/${params.id}`,
@@ -59,12 +66,11 @@ export default function PageUserForm() {
                 let data = res.data;
 
                 let user_role_id = data.user_role_id;
+                let department_id = data.department_id;
                 let username = data.username;
                 let email = data.email;
                 let firstname = data.profile?.firstname;
                 let lastname = data.profile?.lastname;
-
-                let gender = data.profile?.gender;
 
                 if (
                     data.profile &&
@@ -92,7 +98,7 @@ export default function PageUserForm() {
                     email,
                     firstname,
                     lastname,
-                    gender,
+                    department_id,
                 });
 
                 setUserData({
@@ -101,7 +107,7 @@ export default function PageUserForm() {
                     email,
                     firstname,
                     lastname,
-                    gender,
+                    department_id,
                 });
             }
         }
@@ -134,6 +140,7 @@ export default function PageUserForm() {
         data.append("firstname", values.firstname);
         data.append("lastname", values.lastname);
         data.append("gender", values.gender);
+        data.append("department_id", values.department_id || "");
 
         if (!params.id && toggleModalUploadProfilePicture.file) {
             data.append(
@@ -251,10 +258,69 @@ export default function PageUserForm() {
                                                                     "user_role_id",
                                                                     e
                                                                 );
+                                                                form.setFieldValue(
+                                                                    "department_id",
+                                                                    undefined
+                                                                );
                                                             }}
                                                         />
                                                     </Form.Item>
                                                 </Col>
+
+                                                <Col lg={12}>
+                                                    <Form.Item
+                                                        shouldUpdate={(
+                                                            prev,
+                                                            cur
+                                                        ) =>
+                                                            prev.user_role_id !==
+                                                            cur.user_role_id
+                                                        }
+                                                    >
+                                                        {({ getFieldValue }) =>
+                                                            getFieldValue(
+                                                                "user_role_id"
+                                                            ) === 2 && (
+                                                                <Form.Item
+                                                                    name="department_id"
+                                                                    rules={[
+                                                                        validateRules.required(),
+                                                                    ]}
+                                                                >
+                                                                    <FloatSelect
+                                                                        label="Department"
+                                                                        placeholder="Department"
+                                                                        options={
+                                                                            dataDepartment?.data
+                                                                                ? dataDepartment.data.map(
+                                                                                      (
+                                                                                          item
+                                                                                      ) => ({
+                                                                                          value: item.id,
+                                                                                          label: item.department_name,
+                                                                                      })
+                                                                                  )
+                                                                                : []
+                                                                        }
+                                                                        disabled={
+                                                                            formDisabled
+                                                                        }
+                                                                        required
+                                                                        onChange={(
+                                                                            e
+                                                                        ) => {
+                                                                            handleDebounce(
+                                                                                "department_id",
+                                                                                e
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </Form.Item>
+                                                            )
+                                                        }
+                                                    </Form.Item>
+                                                </Col>
+
                                                 <Col lg={12}>
                                                     <Form.Item
                                                         name="username"
@@ -430,48 +496,6 @@ export default function PageUserForm() {
                                                             onChange={(e) => {
                                                                 handleDebounce(
                                                                     "middlename",
-                                                                    e
-                                                                );
-                                                            }}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col lg={12}>
-                                                    <Form.Item name="name_ext">
-                                                        <FloatInput
-                                                            label="Name Ext"
-                                                            placeholder="Name Ext"
-                                                            disabled={
-                                                                formDisabled
-                                                            }
-                                                            onChange={(e) => {
-                                                                handleDebounce(
-                                                                    "name_ext",
-                                                                    e
-                                                                );
-                                                            }}
-                                                        />
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col lg={12}>
-                                                    <Form.Item
-                                                        name="gender"
-                                                        rules={[
-                                                            validateRules.required(),
-                                                        ]}
-                                                    >
-                                                        <FloatSelect
-                                                            label="Gender"
-                                                            placeholder="Gender"
-                                                            options={
-                                                                optionGender
-                                                            }
-                                                            disabled={
-                                                                formDisabled
-                                                            }
-                                                            onChange={(e) => {
-                                                                handleDebounce(
-                                                                    "gender",
                                                                     e
                                                                 );
                                                             }}

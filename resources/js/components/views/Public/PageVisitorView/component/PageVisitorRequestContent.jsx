@@ -76,31 +76,12 @@ export default function PageVisitorRequestContent(props) {
         setCurrentDate(dayjs());
     };
 
-    const { data: departments } = GET(
-        `api/departments`,
+    const { data: Usersdepartments } = GET(
+        `api/users`,
         "department_list",
         () => {},
         false
     );
-
-    // const dataSource = [
-    //     {
-    //         key: "1",
-    //         date: "September 8, 2025",
-    //         date_formatted: "2025-09-08",
-    //         office: "CCIS",
-    //         status: "Active",
-    //         department_status: "AVAILABLE",
-    //     },
-    //     {
-    //         key: "2",
-    //         date: "September 1, 2025",
-    //         office: "CCIS",
-    //         date_formatted: "2025-09-01",
-    //         status: "Approved",
-    //         department_status: "NOT AVAILABLE",
-    //     },
-    // ];
 
     const { data: dataAppointmentSchedules } = GET(
         `api/appointment_schedule`,
@@ -189,6 +170,8 @@ export default function PageVisitorRequestContent(props) {
 
     return (
         <Row gutter={[25, 40]}>
+            <Col xs={24} sm={24} md={24} lg={24} xl={24}></Col>
+            <Col xs={24} sm={24} md={24} lg={24} xl={24}></Col>
             <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                 <Card>
                     <Form>
@@ -197,11 +180,19 @@ export default function PageVisitorRequestContent(props) {
                                 placeholder="Select Office"
                                 label="Select Office"
                                 options={
-                                    departments?.data
-                                        ? departments.data.map((item) => ({
-                                              label: item.department_name,
-                                              value: item.id,
-                                          }))
+                                    Usersdepartments?.data
+                                        ? Usersdepartments.data
+                                              .filter(
+                                                  (item) =>
+                                                      item.department_name !==
+                                                          null &&
+                                                      item.department_id !==
+                                                          null
+                                              )
+                                              .map((item) => ({
+                                                  label: item.department_name,
+                                                  value: item.department_id,
+                                              }))
                                         : []
                                 }
                                 onChange={(value) =>
@@ -238,9 +229,16 @@ export default function PageVisitorRequestContent(props) {
                                 </div>
                             </Col>
                             <Table
-                                // dataSource={dataSource}
-                                // bordered
-                                // rowKey={(record) => record.key}
+                                dataSource={(
+                                    dataAppointmentSchedules?.data || []
+                                ).filter(
+                                    (item) =>
+                                        !tableFilter.department_id ||
+                                        item.department_id ===
+                                            tableFilter.department_id
+                                )}
+                                bordered
+                                rowKey={(record) => record.key}
                                 pagination={false}
                                 size="middle"
                             >
@@ -252,110 +250,17 @@ export default function PageVisitorRequestContent(props) {
                                 />
                                 <Table.Column
                                     title="Office"
-                                    dataIndex="office"
-                                    key="office"
+                                    dataIndex="department_name"
+                                    key="department_name"
                                     width={100}
-                                />
-                                <Table.Column
-                                    title="Details"
-                                    dataIndex="details"
-                                    key="details"
-                                    width={0}
-                                    render={(text) => (
-                                        <span>
-                                            <Typography.Text
-                                                ellipsis
-                                                style={{ flex: 1 }}
-                                            >
-                                                {text}
-                                            </Typography.Text>
-                                            <Button
-                                                type="link"
-                                                size="small"
-                                                icon={
-                                                    <FontAwesomeIcon
-                                                        icon={faList}
-                                                    />
-                                                }
-                                                onClick={() => {
-                                                    setToggleModalApplicationList(
-                                                        {
-                                                            open: true,
-                                                            data: text,
-                                                        }
-                                                    );
-                                                }}
-                                            />
-                                        </span>
-                                    )}
-                                />
-                                <Table.Column
-                                    title="Status"
-                                    dataIndex="status"
-                                    key="status"
-                                    width={100}
-                                    render={(text) => (
-                                        <Typography.Text
-                                            style={{
-                                                color:
-                                                    text === "Active"
-                                                        ? "green"
-                                                        : "red",
-                                                fontWeight: "bold",
-                                            }}
-                                        >
-                                            {text}
-                                        </Typography.Text>
-                                    )}
                                 />
                             </Table>{" "}
-                        </Col>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                            <Card
-                                id="tbl_page_visitor"
-                                style={{
-                                    height: 300,
-                                    overflowY: "auto",
-                                    backgroundColor: "#0d5b10",
-                                }}
-                            >
-                                <Typography.Title level={4}>
-                                    Filter
-                                </Typography.Title>
-                                <Table
-                                    dataSource={(
-                                        dataAppointmentSchedules?.data || []
-                                    ).filter(
-                                        (item) =>
-                                            !tableFilter.department_id ||
-                                            item.department_id ===
-                                                tableFilter.department_id
-                                    )}
-                                    bordered
-                                    rowKey={(record) => record.key}
-                                    pagination={false}
-                                    size="middle"
-                                >
-                                    <Table.Column
-                                        title="Date"
-                                        dataIndex="date"
-                                        key="date"
-                                        width={100}
-                                    />
-                                    <Table.Column
-                                        title="Office"
-                                        dataIndex="department_name"
-                                        key="department_name"
-                                        width={100}
-                                    />
-                                </Table>{" "}
-                            </Card>
                         </Col>
                     </Row>
                 </Card>
             </Col>
 
-            <Col xs={16} sm={16} md={16} lg={16} xl={16}>
+            <Col xs={17} sm={17} md={17} lg={17} xl={17}>
                 <Card>
                     <Row gutter={20} className="w-full">
                         <Col xs={24} sm={18} md={18} lg={24}>

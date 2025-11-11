@@ -29,7 +29,7 @@ class UserNotificationController extends Controller
 
                 ]
             ])
-            ->with(['visitaion_information.appointment_schedule'])
+            ->with(['visitaion_information.appointment_schedule', 'visitaion_information.profile', 'visitaion_information.appointment_schedule.department',])
             ->filter($request)
             ->sortable($request)
             ->pagination($request);

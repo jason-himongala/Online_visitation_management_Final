@@ -26,6 +26,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $type = "(SELECT `type` FROM user_roles WHERE user_roles.id = users.user_role_id)";
+        $department_name = "(SELECT `department_name` FROM departments WHERE departments.id = users.department_id)";
         $role = "(SELECT `role` FROM user_roles WHERE user_roles.id = users.user_role_id)";
         $fullname = "(SELECT " . $this->fullname . " FROM profiles WHERE profiles.user_id=users.id ORDER BY profiles.id LIMIT 1)";
         $created_at_formatted = "DATE_FORMAT(created_at, '%m-%d-%Y')";
@@ -36,6 +37,7 @@ class UserController extends Controller
             DB::raw(value: "$role role"),
             DB::raw("$fullname fullname"),
             DB::raw("$created_at_formatted created_at_formatted"),
+            DB::raw("$department_name department_name"),
         ])
             ->search([
                 'search' => $request->search,
@@ -43,7 +45,8 @@ class UserController extends Controller
                     $fullname,
                     $type,
                     $role,
-                    $created_at_formatted
+                    $created_at_formatted,
+                    $department_name
                 ]
             ])
             ->filter($request)
@@ -95,6 +98,7 @@ class UserController extends Controller
 
         $data = [
             "user_role_id" => $request->user_role_id,
+            "department_id" => $request->department_id,
             "username" => $request->username,
             "email" => $request->email,
             "password" => $request->password ? Hash::make($request->password) : User::find($request->id)->password,
@@ -121,7 +125,6 @@ class UserController extends Controller
                 [
                     "firstname" => $request->firstname,
                     "lastname" => $request->lastname,
-                    "gender" => $request->gender,
                 ]
             );
 

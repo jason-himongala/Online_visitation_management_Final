@@ -3,13 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrashAlt } from "@fortawesome/pro-regular-svg-icons";
 import { Card, Col, Row, Typography, Form, Button, notification } from "antd";
 
-import { POST } from "../../../../providers/useAxiosQuery";
+import { GET, POST } from "../../../../providers/useAxiosQuery";
 import { UserId } from "../../../../providers/appConfig";
 import dayjs from "dayjs";
 import FloatDatePicker from "../../../../providers/FloatDatePicker";
 import FloatTimePicker from "../../../../providers/FloatTimePicker";
 import notificationErrors from "../../../../providers/notificationErrors";
 import FloatInput from "../../../../providers/FloatInput";
+import FloatSelect from "../../../../providers/FloatSelect";
 
 export default function PageVisitationContent(props) {
     const { status, id } = props;
@@ -17,7 +18,12 @@ export default function PageVisitationContent(props) {
 
     const navigate = useNavigate();
     const [form] = Form.useForm();
-
+    const { data: departments } = GET(
+        `api/departments`,
+        "department_list",
+        () => {},
+        false
+    );
     const { mutate: mutateVisitorForm, loading: isLoadingChat } = POST(
         `api/visitation_forms`,
         "visitation_forms_submit"
@@ -165,16 +171,27 @@ export default function PageVisitationContent(props) {
                             </Form.Item>
                         </Col>
 
-                        <Col xs={24}>
+                        <Col xs={24} lg={24} sm={24} md={24} xl={24}>
                             <Form.Item
                                 label="Selected Faculty Centered Office/Organization to Visit"
                                 name="selected_faculty_centered_office_organization_to_visit"
+                                style={{ textAlign: "left" }}
                             >
-                                <FloatInput placeholder="Selected Faculty Centered Office Organization to Visit" />
+                                <FloatSelect
+                                    layout="vertical"
+                                    placeholder="Selected Faculty Centered Office Organization to Visit"
+                                    allowClear
+                                    options={
+                                        departments?.data?.map((dept) => ({
+                                            label: dept.department_name,
+                                            value: dept.id,
+                                        })) || []
+                                    }
+                                />
                             </Form.Item>
                         </Col>
 
-                        <Col xs={24}>
+                        <Col xs={24} lg={24} sm={24} md={24} xl={24}>
                             <Form.Item
                                 label="Manner of Engagement (in-person or virtual)"
                                 name="manner_of_engagement"

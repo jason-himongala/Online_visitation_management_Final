@@ -11,6 +11,7 @@ import {
     faMessageMinus,
 } from "@fortawesome/pro-solid-svg-icons";
 
+import { GET, POST } from "../../providers/useAxiosQuery";
 import {
     apiUrl,
     defaultProfile,
@@ -18,7 +19,6 @@ import {
     userData,
 } from "../../providers/appConfig";
 import ModalMessage from "./components/ModalMessage";
-import { GET, POST } from "../../providers/useAxiosQuery";
 
 export default function Header(props) {
     const { width, sideMenuCollapse, setSideMenuCollapse } = props;
@@ -73,9 +73,40 @@ export default function Header(props) {
             ? dataUserNotifications
             : dataUserNotifications?.data || [];
 
-        const dataUserNotificationsFiltered = notifications.filter(
+        let dataUserNotificationsFiltered = notifications.filter(
             (item) => item.read === 0 && item.status === 1
         );
+
+        const userRole = role();
+        if (userRole === "OP") {
+            dataUserNotificationsFiltered =
+                dataUserNotificationsFiltered.filter(
+                    (item) =>
+                        item.visitaion_information?.status?.toLowerCase() ===
+                            "pending" ||
+                        item.visitaion_information?.status.toLowerCase() ===
+                            "pending"
+                );
+        } else if (userRole === "Pico" || userRole === "Department") {
+            dataUserNotificationsFiltered =
+                dataUserNotificationsFiltered.filter((item) => {
+                    const visitationStatus = item.visitaion_information?.status;
+                    const itemStatus = item.status;
+
+                    let status = "";
+
+                    if (
+                        visitationStatus &&
+                        typeof visitationStatus === "string"
+                    ) {
+                        status = visitationStatus.toLowerCase();
+                    } else if (itemStatus && typeof itemStatus === "string") {
+                        status = itemStatus.toLowerCase();
+                    }
+
+                    return status === "approved" || status === "declined";
+                });
+        }
 
         const handleMarkAsRead = (notification) => {
             mutateVisitorInfo(
@@ -103,6 +134,8 @@ export default function Header(props) {
 
         if (dataUserNotificationsFiltered.length > 0) {
             dataUserNotificationsFiltered.forEach((notification, index) => {
+                console.log("notification", notification);
+                console.log("index", index);
                 items.push({
                     key: `notification-${notification.id || index}`,
                     label: (
@@ -112,20 +145,68 @@ export default function Header(props) {
                             onClick={() => handleMarkAsRead(notification)}
                         >
                             <Typography.Text className="notification-title">
-                                Notification #{notification.id}
+                                {`${
+                                    notification.visitaion_information?.profile
+                                        ?.firstname ||
+                                    notification.profile?.firstname ||
+                                    ""
+                                } is scheduled to visit the ${
+                                    notification.visitaion_information
+                                        ?.appointment_schedule?.department
+                                        ?.department_name || "Off"
+                                } at ${
+                                    notification.visitaion_information
+                                        ?.appointment_schedule
+                                        ?.available_time ||
+                                    notification.appointment_schedule
+                                        ?.available_time ||
+                                    ""
+                                }`}
                             </Typography.Text>
                             <br />
                             <Typography.Text
                                 className="notification-time"
                                 type="secondary"
+                                style={{
+                                    color:
+                                        notification.visitaion_information
+                                            ?.status &&
+                                        typeof notification
+                                            .visitaion_information.status ===
+                                            "string" &&
+                                        notification.visitaion_information.status.toLowerCase() ===
+                                            "pending"
+                                            ? "#faad14"
+                                            : notification.visitaion_information
+                                                  ?.status &&
+                                              typeof notification
+                                                  .visitaion_information
+                                                  .status === "string" &&
+                                              notification.visitaion_information.status.toLowerCase() ===
+                                                  "approved"
+                                            ? "#52c41a"
+                                            : notification.visitaion_information
+                                                  ?.status &&
+                                              typeof notification
+                                                  .visitaion_information
+                                                  .status === "string" &&
+                                              notification.visitaion_information.status.toLowerCase() ===
+                                                  "declined"
+                                            ? "#ff4d4f"
+                                            : undefined,
+                                }}
                             >
-                                {notification.created_at}
+                                {notification.visitaion_information?.status &&
+                                typeof notification.visitaion_information
+                                    .status === "string"
+                                    ? notification.visitaion_information.status.toUpperCase()
+                                    : notification.visitaion_information
+                                          ?.status}
                             </Typography.Text>
                         </div>
                     ),
                 });
             });
-
             items.push(
                 { type: "divider" },
                 {
@@ -228,7 +309,7 @@ export default function Header(props) {
                     />
                 )}
 
-                {/* <Dropdown
+                <Dropdown
                     menu={{
                         items: menuNotification(),
                     }}
@@ -239,13 +320,83 @@ export default function Header(props) {
                     <Badge
                         count={
                             dataUserNotifications
-                                ? (Array.isArray(dataUserNotifications)
-                                      ? dataUserNotifications
-                                      : dataUserNotifications.data || []
-                                  ).filter(
-                                      (item) =>
-                                          item.read === 0 && item.status === 1
-                                  ).length
+                                ? (() => {
+                                      const notifications = Array.isArray(
+                                          dataUserNotifications
+                                      )
+                                          ? dataUserNotifications
+                                          : dataUserNotifications.data || [];
+
+                                      let filteredNotifications =
+                                          notifications.filter(
+                                              (item) =>
+                                                  item.read === 0 &&
+                                                  item.status === 1
+                                          );
+
+                                      const userRole = role();
+                                      if (userRole === "OP") {
+                                          filteredNotifications =
+                                              filteredNotifications.filter(
+                                                  (item) =>
+                                                      (item
+                                                          .visitaion_information
+                                                          ?.status &&
+                                                          typeof item
+                                                              .visitaion_information
+                                                              .status ===
+                                                              "string" &&
+                                                          item.visitaion_information.status.toLowerCase() ===
+                                                              "pending") ||
+                                                      (item.status &&
+                                                          typeof item.status ===
+                                                              "string" &&
+                                                          item.status.toLowerCase() ===
+                                                              "pending")
+                                              );
+                                      } else if (
+                                          userRole === "Pico" ||
+                                          userRole === "Department"
+                                      ) {
+                                          filteredNotifications =
+                                              filteredNotifications.filter(
+                                                  (item) => {
+                                                      const visitationStatus =
+                                                          item
+                                                              .visitaion_information
+                                                              ?.status;
+                                                      const itemStatus =
+                                                          item.status;
+
+                                                      let status = "";
+
+                                                      if (
+                                                          visitationStatus &&
+                                                          typeof visitationStatus ===
+                                                              "string"
+                                                      ) {
+                                                          status =
+                                                              visitationStatus.toLowerCase();
+                                                      } else if (
+                                                          itemStatus &&
+                                                          typeof itemStatus ===
+                                                              "string"
+                                                      ) {
+                                                          status =
+                                                              itemStatus.toLowerCase();
+                                                      }
+
+                                                      return (
+                                                          status ===
+                                                              "approved" ||
+                                                          status === "declined"
+                                                      );
+                                                  }
+                                              );
+                                      }
+
+                                      return filteredNotifications.length;
+                                  })()
                                 : 0
                         }
                         size="small"
@@ -258,7 +409,7 @@ export default function Header(props) {
                             icon={faBell}
                         />
                     </Badge>
-                </Dropdown> */}
+                </Dropdown>
 
                 <Dropdown
                     menu={{

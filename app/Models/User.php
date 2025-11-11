@@ -26,6 +26,7 @@ class User extends Authenticatable
         'username',
         'password',
         'user_role_id',
+        'department_id',
         'status',
         'role', // <-- add this line to allow mass assignment
         'one_time_update_info',
@@ -112,5 +113,11 @@ class User extends Authenticatable
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'attachmentable');
+    }
+
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 }
