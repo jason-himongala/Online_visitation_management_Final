@@ -86,8 +86,12 @@ class User extends Authenticatable
             $query = $query->whereIn("user_role_id", $user_role_ids);
         }
 
+
         if ($request->status) {
             $query->where("status", $request->status);
+        }
+        if ($request->id) {
+            $query->where("id", $request->id);
         }
 
         if ($request->role_types) {

@@ -17,7 +17,9 @@ class AppointmentSchedule extends Model
     public function scopeFilter($query, $request)
     {
 
-
+        if ($request->department_id) {
+            $query->where('department_id', $request->department_id);
+        }
         return $query;
     }
 

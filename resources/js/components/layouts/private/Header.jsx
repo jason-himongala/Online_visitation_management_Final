@@ -104,7 +104,11 @@ export default function Header(props) {
                         status = itemStatus.toLowerCase();
                     }
 
-                    return status === "approved" || status === "declined";
+                    return (
+                        status === "approved" ||
+                        status === "declined" ||
+                        status === "pending"
+                    );
                 });
         }
 

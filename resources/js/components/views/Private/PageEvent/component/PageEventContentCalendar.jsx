@@ -26,8 +26,23 @@ import ModalFormEvent from "./ModalFormEvent";
 import PageEventContextCalendar from "./PageEventContextCalendar";
 import FloatSelect from "../../../../providers/FloatSelect";
 import { useLocation } from "react-router-dom";
+import { role, UserId } from "../../../../providers/appConfig";
 
 export default function PageEventContentCalendar() {
+    const UserIds = UserId("");
+
+    const { data: dataUser } = GET(
+        `api/users?id=${UserIds}`,
+        "user_detail",
+        () => {},
+        false
+    );
+    const currentUser =
+        dataUser?.data?.[0] ||
+        dataUser?.data?.find((user) => user.id == UserIds);
+    console.log("Current User:", currentUser);
+    console.log("User Department ID:", currentUser?.department_id);
+
     const [toggleModalFormEvent, setToggleModalFormEvent] = useState({
         open: false,
         data: null,
@@ -69,11 +84,11 @@ export default function PageEventContentCalendar() {
         sort_field: "title",
         sort_order: "asc",
         isTrash: 0,
-        department_id: "",
+        department_id: currentUser?.department_id || "",
     });
 
     const { data: dataAppointmentSchedules } = GET(
-        `api/appointment_schedule`,
+        `api/appointment_schedule?department_id=${tableFilter.department_id}`,
         "appointment_schedule_list",
         () => {},
         false
@@ -190,10 +205,22 @@ export default function PageEventContentCalendar() {
                                 <FloatSelect
                                     className="w-full"
                                     options={
-                                        departments?.data?.map((dept) => ({
-                                            label: dept.department_name,
-                                            value: dept.id,
-                                        })) || []
+                                        departments?.data
+                                            ?.filter((dept) => {
+                                                if (
+                                                    currentUser?.department_id
+                                                ) {
+                                                    return (
+                                                        dept.id ==
+                                                        currentUser.department_id
+                                                    );
+                                                }
+                                                return true;
+                                            })
+                                            ?.map((dept) => ({
+                                                label: dept.department_name,
+                                                value: dept.id,
+                                            })) || []
                                     }
                                     label="Department"
                                     placeholder="Department"
