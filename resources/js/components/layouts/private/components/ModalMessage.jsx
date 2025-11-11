@@ -5,17 +5,25 @@ import {
     SendOutlined,
     CheckOutlined,
     CheckCircleOutlined,
+    EditOutlined,
 } from "@ant-design/icons";
 import { Modal, Input, Button, List, Avatar, Typography } from "antd";
 
 import { GET, POST } from "../../../providers/useAxiosQuery";
-import { UserId } from "../../../providers/appConfig";
+import { role, UserId } from "../../../providers/appConfig";
+import ModalChatRename from "./modalChatRename";
 
 const { Title, Text } = Typography;
 
 export default function ModalMessage(props) {
     const userId = UserId();
+    const userRole = role();
     const { setToggleModalOpenGroupChat, toggleModalOpenGroupChat } = props;
+
+    const [toggleModalChatRename, setToggleModalChatRename] = useState({
+        open: false,
+        data: null,
+    });
 
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [messages, setMessages] = useState({});
@@ -26,9 +34,14 @@ export default function ModalMessage(props) {
 
     const { data: dataChatMember } = GET(
         `api/chat_members`,
-        "chat_members_list",
+        "chat_member_list_rename",
         () => {},
         false
+    );
+
+    const { mutate: mutateVisitorInfo, loading: isLoadingChat } = POST(
+        `api/conversations_chat`,
+        "post_visitor_chat_message"
     );
 
     const { data: dataChatMessages, refetch: refetchChatMessages } = GET(
@@ -38,7 +51,6 @@ export default function ModalMessage(props) {
         "post_visitor_chat_message" +
             (selectedGroup ? selectedGroup.chat_id : "")
     );
-
     useEffect(() => {
         if (selectedGroup) {
             setMessages((prev) => ({
@@ -165,11 +177,6 @@ export default function ModalMessage(props) {
         return grouped;
     };
 
-    const { mutate: mutateVisitorInfo, loading: isLoadingChat } = POST(
-        `api/conversations_chat`,
-        "post_visitor_chat_message"
-    );
-
     const handleSend = async () => {
         if (newMessage.trim() === "" || !selectedGroup) return;
 
@@ -227,13 +234,6 @@ export default function ModalMessage(props) {
               )
           )
         : {};
-
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages, selectedGroup]);
-
     useEffect(() => {
         if (selectedGroup?.chat_id) {
             refetchChatMessages();
@@ -242,6 +242,7 @@ export default function ModalMessage(props) {
 
     useEffect(() => {
         let interval;
+
         if (selectedGroup?.chat_id) {
             interval = setInterval(() => {
                 refetchChatMessages();
@@ -324,23 +325,73 @@ export default function ModalMessage(props) {
                     {selectedGroup ? (
                         <>
                             <Title level={5} className="chat-header">
-                                <Button
-                                    type="link"
-                                    onClick={() => setSelectedGroup(null)}
-                                    style={{ marginRight: 12 }}
-                                    icon={
-                                        <FontAwesomeIcon icon={faArrowLeft} />
-                                    }
-                                />
-                                <Avatar src={selectedGroup.chat?.avatar} />
-                                <b style={{ marginLeft: 8 }}>
-                                    {selectedGroup.chat?.title_of_groupchat ||
-                                        "Group Chat"}
-                                </b>
-                                <div style={{ fontSize: 12, color: "#888" }}>
-                                    {selectedGroup.members
-                                        .map((m) => m.name)
-                                        .join(", ")}
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        width: "100%",
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                        }}
+                                    >
+                                        <Button
+                                            type="link"
+                                            onClick={() =>
+                                                setSelectedGroup(null)
+                                            }
+                                            style={{ marginRight: 12 }}
+                                            icon={
+                                                <FontAwesomeIcon
+                                                    icon={faArrowLeft}
+                                                />
+                                            }
+                                        />
+                                        <Avatar
+                                            src={selectedGroup.chat?.avatar}
+                                        />
+                                        <div style={{ marginLeft: 8 }}>
+                                            <b>
+                                                {selectedGroup.chat
+                                                    ?.title_of_groupchat ||
+                                                    "Group Chat"}
+                                            </b>
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: "#888",
+                                                }}
+                                            >
+                                                {selectedGroup.members
+                                                    .map((m) => m.name)
+                                                    .join(", ")}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<EditOutlined />}
+                                        onClick={() => {
+                                            setToggleModalChatRename({
+                                                open: true,
+                                                data: {
+                                                    id: selectedGroup.chat_id,
+                                                    title_of_groupchat:
+                                                        selectedGroup.chat
+                                                            ?.title_of_groupchat,
+                                                },
+                                            });
+                                        }}
+                                        style={{
+                                            opacity: 0.7,
+                                            fontSize: "16px",
+                                        }}
+                                    />
                                 </div>
                             </Title>
 
@@ -553,6 +604,12 @@ export default function ModalMessage(props) {
                     )}
                 </div>
             </div>
+
+            <ModalChatRename
+                toggleModalChatRename={toggleModalChatRename}
+                setToggleModalChatRename={setToggleModalChatRename}
+                selectedGroup={selectedGroup}
+            />
         </Modal>
     );
 }

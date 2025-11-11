@@ -303,7 +303,7 @@ export default function Header(props) {
             </div>
 
             <div className="header-right-menu">
-                {role() !== "Super Admin" && (
+                {role() !== "OP" && (
                     <FontAwesomeIcon
                         className="menu-submenu-message"
                         icon={faMessages}

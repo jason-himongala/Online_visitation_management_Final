@@ -12,4 +12,11 @@ class Chat extends Model
 
 
     protected $guarded = [];
+
+
+    public function scopeFilter($query, $request)
+    {
+
+        return $query;
+    }
 }

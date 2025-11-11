@@ -101,6 +101,10 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('chat_members', App\Http\Controllers\ChatMemberController::class);
     //End ChatMemberController
 
+    //ChatMemberController
+    Route::apiResource('chat', App\Http\Controllers\ChatController::class);
+    //End ChatMemberController
+
     //ConversationController
     Route::apiResource('conversations_chat', App\Http\Controllers\ConversationController::class);
     //End ConversationController

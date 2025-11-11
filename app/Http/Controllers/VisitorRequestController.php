@@ -62,8 +62,6 @@ class VisitorRequestController extends Controller
 
 
         $dataUserNitification = $request->validate([
-            'user_id' => 'required|array',
-            'user_id.*' => 'exists:users,id',
             'read' => 'boolean',
             'status' => 'string',
         ]);
@@ -130,15 +128,15 @@ class VisitorRequestController extends Controller
                     ->pluck('user_id')
                     ->toArray();
 
-                foreach ($dataUserNitification['user_id'] as $index => $userIds) {
+                foreach ($userIds as $userId) {
                     \App\Models\UserNotification::updateOrCreate(
                         [
-                            "user_id"   => $userIds,
+                            "user_id" => $userId,
                         ],
-                        [
-                            "read" => $dataUserNitification['read'] ?? false,
-                            "status" => $dataUserNitification['status'] ?? false,
-                        ]
+                        // [
+                        //     "read" => $dataUserNitification['read'] ?? false,
+                        //     "status" => $dataUserNitification['status'] ?? false,
+                        // ]
                     );
                 }
             });
