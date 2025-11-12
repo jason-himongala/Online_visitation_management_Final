@@ -80,7 +80,8 @@ export default function ModalFormEvent({ currentUser }) {
                 toggleModalFormEvent.data;
 
             form.setFieldsValue({
-                department_id: department_id || null,
+                department_id:
+                    currentUser?.department_id || department_id || null,
                 appointment_type: appointment_type || null,
                 available_time: available_time || null,
                 date: date ? dayjs(date) : dayjs(date),
@@ -128,15 +129,9 @@ export default function ModalFormEvent({ currentUser }) {
                 </Button>,
             ]}
         >
-            <Form
-                form={form}
-                onFinish={onFinish}
-                initialValues={{
-                    department_id: currentUser?.department_id || null,
-                }}
-            >
+            <Form form={form} onFinish={onFinish}>
                 <Row gutter={[20, 0]}>
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+                    {/* <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Form.Item
                             name="department_id"
                             rules={[validateRules.required()]}
@@ -156,7 +151,7 @@ export default function ModalFormEvent({ currentUser }) {
                                 }
                             />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Form.Item
                             name="appointment_type"
