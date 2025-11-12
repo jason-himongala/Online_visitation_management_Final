@@ -241,16 +241,24 @@ export default function PageAllRequest() {
                             dataIndex="email"
                             width={180}
                         />
+
                         <Table.Column
                             title="Date&Time"
                             key="available_time"
                             dataIndex="available_time"
                             width={150}
                         />
+
                         <Table.Column
                             title="Purpose of Visit"
                             key="purpose_of_visit"
                             dataIndex="purpose_of_visit"
+                            width={150}
+                        />
+                        <Table.Column
+                            title="Status"
+                            key="status"
+                            dataIndex="status"
                             width={150}
                         />
                     </Table>

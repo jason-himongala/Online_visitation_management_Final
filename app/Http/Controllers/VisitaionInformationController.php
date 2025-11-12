@@ -20,8 +20,8 @@ class VisitaionInformationController extends Controller
     public function index(Request $request)
     {
         $email = 'SELECT email FROM users WHERE id = (SELECT user_id FROM profiles WHERE id = visitaion_information.profile_id)';
-        $available_time = 'SELECT available_time FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id';
-
+        $available_time = "(SELECT available_time FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id)";
+        
         $query = VisitaionInformation::query()
             ->with(['profile', 'appointment_schedule', 'profile.user'])
             ->select([
@@ -71,11 +71,6 @@ class VisitaionInformationController extends Controller
             "success" => true,
             "message" => "Visitaion Information created successfully."
         ];
-
-
-
-
-
         $dataValidated = $request->validate([
             // 'department_id' => 'required|exists:departments,id',
             'profile_id' => 'required|exists:profiles,id',

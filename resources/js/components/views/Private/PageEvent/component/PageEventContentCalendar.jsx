@@ -30,6 +30,7 @@ import { role, UserId } from "../../../../providers/appConfig";
 
 export default function PageEventContentCalendar() {
     const UserIds = UserId("");
+    const userRole = role("");
 
     const { data: dataUser } = GET(
         `api/users?id=${UserIds}`,
@@ -37,9 +38,11 @@ export default function PageEventContentCalendar() {
         () => {},
         false
     );
+
     const currentUser =
         dataUser?.data?.[0] ||
         dataUser?.data?.find((user) => user.id == UserIds);
+
     console.log("Current User:", currentUser);
     console.log("User Department ID:", currentUser?.department_id);
 
@@ -93,6 +96,7 @@ export default function PageEventContentCalendar() {
         () => {},
         false
     );
+
     const getEventData = (date, events) => {
         const dateStr = dayjs(date).format("YYYY-MM-DD");
         return events.filter((event) => {
@@ -166,6 +170,7 @@ export default function PageEventContentCalendar() {
     };
 
     useTableScrollOnTop("tbl_appointment", location);
+
     useEffect(() => {
         if (
             currentUser?.department_id &&
@@ -178,6 +183,17 @@ export default function PageEventContentCalendar() {
         }
     }, [currentUser?.department_id]);
 
+    // ✅ FIX: create form instance and set value after user is fetched
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (currentUser?.department_id) {
+            form.setFieldsValue({
+                department_id: currentUser.department_id,
+            });
+        }
+    }, [currentUser, form]);
+
     return (
         <PageEventContextCalendar.Provider
             value={{
@@ -187,37 +203,74 @@ export default function PageEventContentCalendar() {
         >
             <div className="page-event-content-calendar">
                 <Row gutter={[20, 20]} justify="center">
-                    <Col span={24}>
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "flex-start",
-                            }}
-                        >
-                            <Button
-                                type="primary"
-                                shape="round"
-                                icon={<FontAwesomeIcon icon={faPlus} />}
-                                onClick={() =>
-                                    setToggleModalFormEvent({
-                                        open: true,
-                                        data: null,
-                                    })
-                                }
+                    {userRole && userRole !== "Pico" && (
+                        <Col span={24}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                }}
                             >
-                                Create Appointment Schedule
-                            </Button>
-                        </div>
-                    </Col>
+                                <Button
+                                    type="primary"
+                                    shape="round"
+                                    icon={<FontAwesomeIcon icon={faPlus} />}
+                                    onClick={() =>
+                                        setToggleModalFormEvent({
+                                            open: true,
+                                            data: null,
+                                        })
+                                    }
+                                >
+                                    Create Appointment Schedule
+                                </Button>
+                            </div>
+                        </Col>
+                    )}
 
                     <Col xs={24} sm={24} md={8} lg={6} xl={6}>
                         <Form
+                            form={form}
                             layout="vertical"
                             initialValues={{
                                 department_id:
                                     currentUser?.department_id || null,
                             }}
-                        ></Form>
+                        >
+                            <Form.Item name="department_id">
+                                <FloatSelect
+                                    className="w-full"
+                                    options={
+                                        departments?.data
+                                            ?.filter((dept) => {
+                                                if (
+                                                    currentUser?.department_id
+                                                ) {
+                                                    return (
+                                                        dept.id ==
+                                                        currentUser.department_id
+                                                    );
+                                                }
+                                                return true;
+                                            })
+                                            ?.map((dept) => ({
+                                                label: dept.department_name,
+                                                value: dept.id,
+                                            })) || []
+                                    }
+                                    label="Department"
+                                    placeholder="Department"
+                                    allowClear={false && userRole === "Pico"}
+                                    disabled={userRole !== "Pico"}
+                                    onChange={(value) =>
+                                        onChangeTableFilter(
+                                            "department_id",
+                                            value
+                                        )
+                                    }
+                                />
+                            </Form.Item>
+                        </Form>
 
                         <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                             <Table
@@ -270,7 +323,7 @@ export default function PageEventContentCalendar() {
                                     dataIndex="department_name"
                                     key="department_name"
                                 />
-                            </Table>{" "}
+                            </Table>
                         </Col>
                     </Col>
 

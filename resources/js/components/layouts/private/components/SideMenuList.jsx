@@ -49,6 +49,12 @@ export const adminSideMenu = [
         icon: <FontAwesomeIcon icon={faBookOpen} />,
     },
 
+    {
+        title: "Available Schedules",
+        path: "/available-schedules",
+        icon: <FontAwesomeIcon icon={faBook} />,
+    },
+
     // {
     //     title: "Permissions",
     //     path: "/permissions",

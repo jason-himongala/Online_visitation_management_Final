@@ -1,4 +1,4 @@
-import { use, useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Button, Col, Form, Modal, notification, Row } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/pro-regular-svg-icons";
@@ -12,7 +12,6 @@ import notificationErrors from "../../../../providers/notificationErrors";
 import PageEventContextCalendar from "./PageEventContextCalendar";
 
 export default function ModalFormEvent({ currentUser }) {
-    console.log("currentUser in modal", currentUser);
     const { toggleModalFormEvent, setToggleModalFormEvent } = useContext(
         PageEventContextCalendar
     );
@@ -26,25 +25,19 @@ export default function ModalFormEvent({ currentUser }) {
         false
     );
 
-    console.log("departments", departments);
-
     const { mutate: mutateAppointmentSc, isLoading: isLoadingEvent } = POST(
         `api/appointment_schedule`,
         "appointment_schedule_list"
     );
 
     const onFinish = (values) => {
-        let data = new FormData();
+        const data = new FormData();
 
         Object.keys(values).forEach((key) => {
             let value = values[key];
-
             if (key === "date") {
-                value = values[key]
-                    ? dayjs(values[key]).format("YYYY-MM-DD")
-                    : "";
+                value = value ? dayjs(value).format("YYYY-MM-DD") : "";
             }
-
             data.append(key, value);
         });
 
@@ -55,9 +48,7 @@ export default function ModalFormEvent({ currentUser }) {
                         message: "Appointment Schedule",
                         description: res.message,
                     });
-
                     setToggleModalFormEvent({ open: false, data: null });
-
                     form.resetFields();
                 } else {
                     notification.error({
@@ -73,24 +64,37 @@ export default function ModalFormEvent({ currentUser }) {
     };
 
     useEffect(() => {
-        let date = dayjs().format("YYYY-MM-DD");
+        if (toggleModalFormEvent.open) {
+            const currentDate = dayjs();
 
-        if (toggleModalFormEvent.data) {
-            const { department_id, appointment_type, available_time, date } =
-                toggleModalFormEvent.data;
+            if (toggleModalFormEvent.data) {
+                // Edit Mode
+                const {
+                    department_id,
+                    appointment_type,
+                    available_time,
+                    date,
+                } = toggleModalFormEvent.data;
 
-            form.setFieldsValue({
-                department_id:
-                    currentUser?.department_id || department_id || null,
-                appointment_type: appointment_type || null,
-                available_time: available_time || null,
-                date: date ? dayjs(date) : dayjs(date),
-            });
+                form.setFieldsValue({
+                    department_id:
+                        department_id || currentUser?.department_id || null,
+                    appointment_type: appointment_type || null,
+                    available_time: available_time || null,
+                    date: date ? dayjs(date) : currentDate,
+                });
+            } else {
+                form.setFieldsValue({
+                    department_id: currentUser?.department_id || null,
+                    date: currentDate,
+                    appointment_type: null,
+                    available_time: null,
+                });
+            }
         } else {
-            form.setFieldsValue({ date: dayjs(date) });
             form.resetFields();
         }
-    }, [toggleModalFormEvent.data]);
+    }, [toggleModalFormEvent.open, toggleModalFormEvent.data]);
 
     return (
         <Modal
@@ -98,20 +102,16 @@ export default function ModalFormEvent({ currentUser }) {
             closeIcon={<FontAwesomeIcon icon={faXmark} />}
             open={toggleModalFormEvent.open}
             onCancel={() => {
-                setToggleModalFormEvent({
-                    open: false,
-                    data: null,
-                });
+                form.resetFields();
+                setToggleModalFormEvent({ open: false, data: null });
             }}
             forceRender
             footer={[
                 <Button
                     shape="round"
                     onClick={() => {
-                        setToggleModalFormEvent({
-                            open: false,
-                            data: null,
-                        });
+                        form.resetFields();
+                        setToggleModalFormEvent({ open: false, data: null });
                     }}
                     key={1}
                 >
@@ -129,9 +129,15 @@ export default function ModalFormEvent({ currentUser }) {
                 </Button>,
             ]}
         >
-            <Form form={form} onFinish={onFinish}>
+            <Form
+                form={form}
+                onFinish={onFinish}
+                initialValues={{
+                    department_id: currentUser?.department_id || null,
+                }}
+            >
                 <Row gutter={[20, 0]}>
-                    {/* <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+                    <Col xs={24}>
                         <Form.Item
                             name="department_id"
                             rules={[validateRules.required()]}
@@ -151,8 +157,9 @@ export default function ModalFormEvent({ currentUser }) {
                                 }
                             />
                         </Form.Item>
-                    </Col> */}
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+                    </Col>
+
+                    <Col xs={24}>
                         <Form.Item
                             name="appointment_type"
                             rules={[validateRules.required()]}
@@ -161,10 +168,7 @@ export default function ModalFormEvent({ currentUser }) {
                                 label="Available Type"
                                 required
                                 options={[
-                                    {
-                                        label: "Available",
-                                        value: "Available",
-                                    },
+                                    { label: "Available", value: "Available" },
                                     {
                                         label: "Not Available",
                                         value: "Not Available",
@@ -173,7 +177,8 @@ export default function ModalFormEvent({ currentUser }) {
                             />
                         </Form.Item>
                     </Col>
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+
+                    <Col xs={24}>
                         <Form.Item
                             name="available_time"
                             rules={[validateRules.required()]}
@@ -187,16 +192,19 @@ export default function ModalFormEvent({ currentUser }) {
                                         value: "AM (Around 6:00 - 11:59am)",
                                     },
                                     {
-                                        label: "PM (Around 6:00 - 11:59pm)",
-                                        value: "PM (Around 6:00 - 11:59pm)",
+                                        label: "PM (Around 12:00 - 11:59pm)",
+                                        value: "PM (Around 12:00 - 11:59pm)",
                                     },
                                 ]}
                             />
                         </Form.Item>
                     </Col>
 
-                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
-                        <Form.Item name="date">
+                    <Col xs={24}>
+                        <Form.Item
+                            name="date"
+                            rules={[validateRules.required()]}
+                        >
                             <FloatDatePicker label="Start Date" />
                         </Form.Item>
                     </Col>
