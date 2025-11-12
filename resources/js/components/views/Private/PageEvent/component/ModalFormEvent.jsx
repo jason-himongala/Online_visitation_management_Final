@@ -10,8 +10,10 @@ import validateRules from "../../../../providers/validateRules";
 import FloatDatePicker from "../../../../providers/FloatDatePicker";
 import notificationErrors from "../../../../providers/notificationErrors";
 import PageEventContextCalendar from "./PageEventContextCalendar";
+import { role } from "../../../../providers/appConfig";
 
 export default function ModalFormEvent({ currentUser }) {
+    const UserRolle = role();
     const { toggleModalFormEvent, setToggleModalFormEvent } = useContext(
         PageEventContextCalendar
     );
@@ -68,7 +70,6 @@ export default function ModalFormEvent({ currentUser }) {
             const currentDate = dayjs();
 
             if (toggleModalFormEvent.data) {
-                // Edit Mode
                 const {
                     department_id,
                     appointment_type,
@@ -107,26 +108,35 @@ export default function ModalFormEvent({ currentUser }) {
             }}
             forceRender
             footer={[
-                <Button
-                    shape="round"
-                    onClick={() => {
-                        form.resetFields();
-                        setToggleModalFormEvent({ open: false, data: null });
-                    }}
-                    key={1}
-                >
-                    CANCEL
-                </Button>,
-                <Button
-                    shape="round"
-                    type="primary"
-                    className="ant-btn-primary"
-                    onClick={() => form.submit()}
-                    key={2}
-                    loading={isLoadingEvent}
-                >
-                    SUBMIT
-                </Button>,
+                <>
+                    <Button
+                        shape="round"
+                        onClick={() => {
+                            form.resetFields();
+                            setToggleModalFormEvent({
+                                open: false,
+                                data: null,
+                            });
+                        }}
+                        key={1}
+                    >
+                        CANCEL
+                    </Button>
+                    ,
+                    {UserRolle !== "Pico" ? (
+                        <Button
+                            shape="round"
+                            type="primary"
+                            className="ant-btn-primary"
+                            onClick={() => form.submit()}
+                            key={2}
+                            loading={isLoadingEvent}
+                            disabled={isLoadingEvent}
+                        >
+                            SUBMIT
+                        </Button>
+                    ) : null}
+                </>,
             ]}
         >
             <Form

@@ -260,7 +260,7 @@ export default function PageEventContentCalendar() {
                                     }
                                     label="Department"
                                     placeholder="Department"
-                                    allowClear={false && userRole === "Pico"}
+                                    allowClear={false}
                                     disabled={userRole !== "Pico"}
                                     onChange={(value) =>
                                         onChangeTableFilter(
