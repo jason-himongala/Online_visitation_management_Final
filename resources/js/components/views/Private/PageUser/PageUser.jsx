@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Row, Button, Col, Flex, Card } from "antd";
+import { Row, Button, Col, Flex, Card, Popconfirm } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/pro-regular-svg-icons";
 
@@ -28,7 +28,6 @@ export default function PageUser() {
         sort_order: "desc",
         status: "Active",
         from: location.pathname,
-        isTrash: 0, // 0 = Active, 1 = Archived
     });
 
     const { data: dataSource, refetch: refetchSource } = GET(
@@ -38,8 +37,6 @@ export default function PageUser() {
 
     useEffect(() => {
         refetchSource();
-
-        return () => {};
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tableFilter]);
 
@@ -48,7 +45,7 @@ export default function PageUser() {
     return (
         <Card>
             <Row gutter={[20, 20]} id="tbl_wrapper">
-                <Col xs={24} sm={24} md={24} lg={24}>
+                <Col xs={24}>
                     <Button
                         type="primary"
                         icon={<FontAwesomeIcon icon={faPlus} />}
@@ -60,7 +57,7 @@ export default function PageUser() {
                     </Button>
                 </Col>
 
-                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                <Col xs={24}>
                     <Flex
                         className="tbl-top-filter"
                         justify="space-between"
@@ -70,15 +67,18 @@ export default function PageUser() {
                             <Button
                                 className="btn-active-archived"
                                 type={
-                                    tableFilter.isTrash === 0 ? "primary" : ""
+                                    tableFilter.status === "Active"
+                                        ? "primary"
+                                        : ""
                                 }
                                 shape="round"
-                                onClick={() => {
-                                    setTableFilter((ps) => ({
-                                        ...ps,
-                                        isTrash: 0,
-                                    }));
-                                }}
+                                onClick={() =>
+                                    setTableFilter((prev) => ({
+                                        ...prev,
+                                        status: "Active",
+                                        page: 1,
+                                    }))
+                                }
                             >
                                 Active
                             </Button>
@@ -86,17 +86,20 @@ export default function PageUser() {
                             <Button
                                 className="btn-active-archived"
                                 type={
-                                    tableFilter.isTrash === 1 ? "primary" : ""
+                                    tableFilter.status === "Deactivated"
+                                        ? "primary"
+                                        : ""
                                 }
                                 shape="round"
-                                onClick={() => {
-                                    setTableFilter((ps) => ({
-                                        ...ps,
-                                        isTrash: 1,
-                                    }));
-                                }}
+                                onClick={() =>
+                                    setTableFilter((prev) => ({
+                                        ...prev,
+                                        status: "Deactivated",
+                                        page: 1,
+                                    }))
+                                }
                             >
-                                Archived
+                                Deactivated
                             </Button>
                         </Flex>
 
@@ -107,7 +110,7 @@ export default function PageUser() {
                     </Flex>
                 </Col>
 
-                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                <Col xs={24}>
                     <div className="tbl-top-filter">
                         <Flex justify="space-between" align="center">
                             <Flex gap={15}>
@@ -115,19 +118,19 @@ export default function PageUser() {
                                     tableFilter={tableFilter}
                                     setTableFilter={setTableFilter}
                                 />
+
                                 {selectedRowKeys.length > 0 && (
                                     <Popconfirm
                                         title={
                                             <>
-                                                Are you sure you want to
-                                                <br />
+                                                Are you sure you want to <br />
                                                 {tableFilter.status === "Active"
-                                                    ? "archive"
-                                                    : "restore"}{" "}
+                                                    ? "deactivate"
+                                                    : "activate"}{" "}
                                                 the selected{" "}
                                                 {selectedRowKeys.length > 1
-                                                    ? "Grade Levels"
-                                                    : "Grade Level"}
+                                                    ? "users"
+                                                    : "user"}
                                                 ?
                                             </>
                                         }
@@ -136,11 +139,9 @@ export default function PageUser() {
                                         onConfirm={() => {
                                             handleSelectedArchived();
                                         }}
-                                        disabled={isLoadingArchiveGradeLevel}
                                     >
                                         <Button
                                             name="btn_active_archive"
-                                            loading={isLoadingArchiveGradeLevel}
                                             danger={
                                                 tableFilter.status === "Active"
                                             }
@@ -153,8 +154,8 @@ export default function PageUser() {
                                             }
                                         >
                                             {tableFilter.status === "Active"
-                                                ? "ARCHIVE"
-                                                : "RESTORE"}{" "}
+                                                ? "DEACTIVATE"
+                                                : "ACTIVATE"}{" "}
                                             SELECTED
                                         </Button>
                                     </Popconfirm>
@@ -166,7 +167,7 @@ export default function PageUser() {
                                 <TablePagination
                                     tableFilter={tableFilter}
                                     setTableFilter={setTableFilter}
-                                    total={dataSource?.data.total}
+                                    total={dataSource?.data?.total}
                                     showLessItems={true}
                                     showSizeChanger={false}
                                     tblIdWrapper="tbl_wrapper_position"
@@ -176,7 +177,7 @@ export default function PageUser() {
                     </div>
                 </Col>
 
-                <Col xs={24} sm={24} md={24} lg={24}>
+                <Col xs={24}>
                     <TableUser
                         dataSource={dataSource}
                         tableFilter={tableFilter}
@@ -186,14 +187,13 @@ export default function PageUser() {
                     />
                 </Col>
 
-                <Col xs={24} sm={24} md={24} lg={24}>
+                <Col xs={24}>
                     <Flex
                         justify="space-between"
                         align="center"
                         className="tbl-bottom-filter"
                     >
                         <div />
-
                         <Flex align="center">
                             <TableShowingEntriesV2 />
                             <TablePagination

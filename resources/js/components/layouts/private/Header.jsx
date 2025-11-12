@@ -17,6 +17,7 @@ import {
     defaultProfile,
     role,
     userData,
+    UserId,
 } from "../../providers/appConfig";
 import ModalMessage from "./components/ModalMessage";
 
@@ -62,6 +63,19 @@ export default function Header(props) {
         return () => {};
     }, []);
 
+    const UserIds = UserId("");
+
+    const { data: dataUser } = GET(
+        `api/users?id=${UserIds}`,
+        "user_detail",
+        () => {},
+        false
+    );
+
+    const currentUser =
+        dataUser?.data?.[0] ||
+        dataUser?.data?.find((user) => user.id == UserIds);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("userdata");
@@ -77,15 +91,25 @@ export default function Header(props) {
             (item) => item.read === 0 && item.status === 1
         );
 
+        dataUserNotificationsFiltered = dataUserNotificationsFiltered.filter(
+            (item) => {
+                const notificationDeptId =
+                    item.visitaion_information?.appointment_schedule
+                        ?.department_id;
+                return (
+                    notificationDeptId &&
+                    notificationDeptId !== currentUser?.department_id
+                );
+            }
+        );
+
         const userRole = role();
         if (userRole === "OP") {
             dataUserNotificationsFiltered =
                 dataUserNotificationsFiltered.filter(
                     (item) =>
                         item.visitaion_information?.status?.toLowerCase() ===
-                            "pending" ||
-                        item.visitaion_information?.status.toLowerCase() ===
-                            "pending"
+                        "pending"
                 );
         } else if (userRole === "Pico" || userRole === "Department") {
             dataUserNotificationsFiltered =
@@ -138,8 +162,6 @@ export default function Header(props) {
 
         if (dataUserNotificationsFiltered.length > 0) {
             dataUserNotificationsFiltered.forEach((notification, index) => {
-                console.log("notification", notification);
-                console.log("index", index);
                 items.push({
                     key: `notification-${notification.id || index}`,
                     label: (
@@ -157,7 +179,7 @@ export default function Header(props) {
                                 } is scheduled to visit the ${
                                     notification.visitaion_information
                                         ?.appointment_schedule?.department
-                                        ?.department_name || "Off"
+                                        ?.department_name || "Office"
                                 } at ${
                                     notification.visitaion_information
                                         ?.appointment_schedule
@@ -173,39 +195,19 @@ export default function Header(props) {
                                 type="secondary"
                                 style={{
                                     color:
-                                        notification.visitaion_information
-                                            ?.status &&
-                                        typeof notification
-                                            .visitaion_information.status ===
-                                            "string" &&
-                                        notification.visitaion_information.status.toLowerCase() ===
-                                            "pending"
+                                        notification.visitaion_information?.status?.toLowerCase() ===
+                                        "pending"
                                             ? "#faad14"
-                                            : notification.visitaion_information
-                                                  ?.status &&
-                                              typeof notification
-                                                  .visitaion_information
-                                                  .status === "string" &&
-                                              notification.visitaion_information.status.toLowerCase() ===
-                                                  "approved"
+                                            : notification.visitaion_information?.status?.toLowerCase() ===
+                                              "approved"
                                             ? "#52c41a"
-                                            : notification.visitaion_information
-                                                  ?.status &&
-                                              typeof notification
-                                                  .visitaion_information
-                                                  .status === "string" &&
-                                              notification.visitaion_information.status.toLowerCase() ===
-                                                  "declined"
+                                            : notification.visitaion_information?.status?.toLowerCase() ===
+                                              "declined"
                                             ? "#ff4d4f"
                                             : undefined,
                                 }}
                             >
-                                {notification.visitaion_information?.status &&
-                                typeof notification.visitaion_information
-                                    .status === "string"
-                                    ? notification.visitaion_information.status.toUpperCase()
-                                    : notification.visitaion_information
-                                          ?.status}
+                                {notification.visitaion_information?.status?.toUpperCase()}
                             </Typography.Text>
                         </div>
                     ),

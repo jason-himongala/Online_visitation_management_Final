@@ -42,6 +42,7 @@ Route::middleware('auth:api')->group(function () {
     // UserController
     Route::post('existing_username', [App\Http\Controllers\UserController::class, "existing_username"]);
     Route::post('add_user', [App\Http\Controllers\UserController::class, "add_user"]);
+    Route::post('user_toggle_status', [App\Http\Controllers\UserController::class, "user_toggle_status"]);
     Route::apiResource('users', App\Http\Controllers\UserController::class);
     // END UserController
 
