@@ -129,10 +129,16 @@ export default function ModalMessage(props) {
     }, [dataChatMember]);
 
     const filteredGroupChats = useMemo(() => {
+        // If user has "Pico" role, show all groups
+        if (userRole === "Pico") {
+            return groupChats;
+        }
+
+        // For other roles, only show groups where the user is a member
         return groupChats.filter((group) =>
             group.members.some((m) => m.profile?.user_id === userId)
         );
-    }, [groupChats, userId]);
+    }, [groupChats, userId, userRole]);
 
     const filteredGroups = filteredGroupChats.filter((g) =>
         (g.chat?.title_of_groupchat || "Group Chat")
@@ -242,13 +248,13 @@ export default function ModalMessage(props) {
 
     useEffect(() => {
         let interval;
-
         if (selectedGroup?.chat_id) {
             interval = setInterval(() => {
                 refetchChatMessages();
-            }, 3000);
+            }, 8000);
         }
         return () => clearInterval(interval);
+        return () => {};
     }, [selectedGroup?.chat_id]);
 
     return (

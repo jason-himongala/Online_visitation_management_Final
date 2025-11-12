@@ -1,16 +1,11 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { Badge, Dropdown, Image, Layout, Typography } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faPowerOff } from "@fortawesome/pro-light-svg-icons";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import {
-    faBell,
-    faMessages,
-    faMessageMinus,
-} from "@fortawesome/pro-solid-svg-icons";
-
+import { faBell, faMessages } from "@fortawesome/pro-solid-svg-icons";
 import { GET, POST } from "../../providers/useAxiosQuery";
 import {
     apiUrl,
@@ -35,36 +30,27 @@ export default function Header(props) {
         ["user_notifications_list", "visitation_information_submit"]
     );
 
-    useEffect(() => {
-        refetchSource();
-    }, []);
-
     const { mutate: mutateVisitorInfo } = POST(
         `api/user_notifications`,
         "visitation_information_submit"
     );
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    useEffect(() => {
+        refetchSource();
+    }, []);
 
     useEffect(() => {
         if (userData().profile_picture) {
-            let profile_picture = userData().profile_picture.split("//");
-
-            if (
-                profile_picture[0] === "http:" ||
-                profile_picture[0] === "https:"
-            ) {
+            const pic = userData().profile_picture.split("//");
+            if (pic[0] === "http:" || pic[0] === "https:") {
                 setProfilePicture(userData().profile_picture);
             } else {
                 setProfilePicture(apiUrl(userData().profile_picture));
             }
         }
-
-        return () => {};
     }, []);
 
     const UserIds = UserId("");
-
     const { data: dataUser } = GET(
         `api/users?id=${UserIds}`,
         "user_detail",
@@ -74,7 +60,7 @@ export default function Header(props) {
 
     const currentUser =
         dataUser?.data?.[0] ||
-        dataUser?.data?.find((user) => user.id == UserIds);
+        dataUser?.data?.find((user) => user.id === UserIds);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -82,66 +68,55 @@ export default function Header(props) {
         window.location.reload();
     };
 
+    // ✅ Safe + centralized notification filtering
+    const filterNotificationsByRole = (notifications) => {
+        let filtered = notifications.filter(
+            (item) => item.read === 0 && item.status === 1
+        );
+
+        const userRole = role();
+
+        if (userRole === "Department") {
+            filtered = filtered.filter((item) => {
+                const deptId =
+                    item.visitaion_information?.appointment_schedule
+                        ?.department_id;
+                return deptId && deptId === currentUser?.department_id;
+            });
+
+            filtered = filtered.filter((item) => {
+                const status = String(
+                    item.visitaion_information?.status || item.status || ""
+                ).toLowerCase();
+                return ["approved", "declined", "pending"].includes(status);
+            });
+        } else if (userRole === "Pico") {
+            // Pico sees all statuses
+        } else if (userRole === "OP") {
+            // OP sees only pending
+            filtered = filtered.filter((item) => {
+                const status = String(
+                    item.visitaion_information?.status || item.status || ""
+                ).toLowerCase();
+                return status === "pending";
+            });
+        } else {
+            filtered = [];
+        }
+
+        return filtered;
+    };
+
     const menuNotification = () => {
         const notifications = Array.isArray(dataUserNotifications)
             ? dataUserNotifications
             : dataUserNotifications?.data || [];
 
-        let dataUserNotificationsFiltered = notifications.filter(
-            (item) => item.read === 0 && item.status === 1
-        );
-
-        dataUserNotificationsFiltered = dataUserNotificationsFiltered.filter(
-            (item) => {
-                const notificationDeptId =
-                    item.visitaion_information?.appointment_schedule
-                        ?.department_id;
-                return (
-                    notificationDeptId &&
-                    notificationDeptId !== currentUser?.department_id
-                );
-            }
-        );
-
-        const userRole = role();
-        if (userRole === "OP") {
-            dataUserNotificationsFiltered =
-                dataUserNotificationsFiltered.filter(
-                    (item) =>
-                        item.visitaion_information?.status?.toLowerCase() ===
-                        "pending"
-                );
-        } else if (userRole === "Pico" || userRole === "Department") {
-            dataUserNotificationsFiltered =
-                dataUserNotificationsFiltered.filter((item) => {
-                    const visitationStatus = item.visitaion_information?.status;
-                    const itemStatus = item.status;
-
-                    let status = "";
-
-                    if (
-                        visitationStatus &&
-                        typeof visitationStatus === "string"
-                    ) {
-                        status = visitationStatus.toLowerCase();
-                    } else if (itemStatus && typeof itemStatus === "string") {
-                        status = itemStatus.toLowerCase();
-                    }
-
-                    return (
-                        status === "approved" ||
-                        status === "declined" ||
-                        status === "pending"
-                    );
-                });
-        }
+        const filtered = filterNotificationsByRole(notifications);
 
         const handleMarkAsRead = (notification) => {
             mutateVisitorInfo(
-                {
-                    id: notification.id,
-                    read: 1,
-                },
+                { id: notification.id, read: 1 },
                 {
                     onSuccess: () => {
                         notification.read = 1;
@@ -160,8 +135,8 @@ export default function Header(props) {
             { type: "divider" },
         ];
 
-        if (dataUserNotificationsFiltered.length > 0) {
-            dataUserNotificationsFiltered.forEach((notification, index) => {
+        if (filtered.length > 0) {
+            filtered.forEach((notification, index) => {
                 items.push({
                     key: `notification-${notification.id || index}`,
                     label: (
@@ -195,19 +170,30 @@ export default function Header(props) {
                                 type="secondary"
                                 style={{
                                     color:
-                                        notification.visitaion_information?.status?.toLowerCase() ===
-                                        "pending"
+                                        String(
+                                            notification.visitaion_information
+                                                ?.status || ""
+                                        ).toLowerCase() === "pending"
                                             ? "#faad14"
-                                            : notification.visitaion_information?.status?.toLowerCase() ===
-                                              "approved"
+                                            : String(
+                                                  notification
+                                                      .visitaion_information
+                                                      ?.status || ""
+                                              ).toLowerCase() === "approved"
                                             ? "#52c41a"
-                                            : notification.visitaion_information?.status?.toLowerCase() ===
-                                              "declined"
+                                            : String(
+                                                  notification
+                                                      .visitaion_information
+                                                      ?.status || ""
+                                              ).toLowerCase() === "declined"
                                             ? "#ff4d4f"
                                             : undefined,
                                 }}
                             >
-                                {notification.visitaion_information?.status?.toUpperCase()}
+                                {String(
+                                    notification.visitaion_information
+                                        ?.status || ""
+                                ).toUpperCase()}
                             </Typography.Text>
                         </div>
                     ),
@@ -247,14 +233,12 @@ export default function Header(props) {
                             src={profilePicture}
                             alt={userData().firstname}
                         />
-
                         <div className="info-wrapper">
                             <Typography.Text className="info-username">
                                 {`${userData().firstname} ${
                                     userData().lastname
                                 }`}
                             </Typography.Text>
-
                             <br />
                             <Typography.Text className="info-role">
                                 {role()}
@@ -268,18 +252,17 @@ export default function Header(props) {
                 icon: <FontAwesomeIcon icon={faEdit} />,
                 label: <Link to="/edit-profile">Edit Account Profile</Link>,
             },
+            {
+                key: "/signout",
+                className: "ant-menu-item-logout",
+                icon: <FontAwesomeIcon icon={faPowerOff} />,
+                label: (
+                    <Typography.Link onClick={handleLogout}>
+                        Sign Out
+                    </Typography.Link>
+                ),
+            },
         ];
-
-        items.push({
-            key: "/signout",
-            className: "ant-menu-item-logout",
-            icon: <FontAwesomeIcon icon={faPowerOff} />,
-            label: (
-                <Typography.Link onClick={handleLogout}>
-                    Sign Out
-                </Typography.Link>
-            ),
-        });
 
         return items;
     };
@@ -287,7 +270,7 @@ export default function Header(props) {
     return (
         <Layout.Header>
             <div className="header-left-menu">
-                {width < 768 ? (
+                {width < 768 && (
                     <div className="menu-left-icon menu-left-icon-menu-collapse-on-close">
                         {sideMenuCollapse ? (
                             <MenuUnfoldOutlined
@@ -301,7 +284,7 @@ export default function Header(props) {
                             />
                         )}
                     </div>
-                ) : null}
+                )}
             </div>
 
             <div className="header-right-menu">
@@ -316,9 +299,7 @@ export default function Header(props) {
                 )}
 
                 <Dropdown
-                    menu={{
-                        items: menuNotification(),
-                    }}
+                    menu={{ items: menuNotification() }}
                     placement="bottomRight"
                     overlayClassName="menu-submenu-notification-popup"
                     trigger={["click"]}
@@ -332,76 +313,9 @@ export default function Header(props) {
                                       )
                                           ? dataUserNotifications
                                           : dataUserNotifications.data || [];
-
-                                      let filteredNotifications =
-                                          notifications.filter(
-                                              (item) =>
-                                                  item.read === 0 &&
-                                                  item.status === 1
-                                          );
-
-                                      const userRole = role();
-                                      if (userRole === "OP") {
-                                          filteredNotifications =
-                                              filteredNotifications.filter(
-                                                  (item) =>
-                                                      (item
-                                                          .visitaion_information
-                                                          ?.status &&
-                                                          typeof item
-                                                              .visitaion_information
-                                                              .status ===
-                                                              "string" &&
-                                                          item.visitaion_information.status.toLowerCase() ===
-                                                              "pending") ||
-                                                      (item.status &&
-                                                          typeof item.status ===
-                                                              "string" &&
-                                                          item.status.toLowerCase() ===
-                                                              "pending")
-                                              );
-                                      } else if (
-                                          userRole === "Pico" ||
-                                          userRole === "Department"
-                                      ) {
-                                          filteredNotifications =
-                                              filteredNotifications.filter(
-                                                  (item) => {
-                                                      const visitationStatus =
-                                                          item
-                                                              .visitaion_information
-                                                              ?.status;
-                                                      const itemStatus =
-                                                          item.status;
-
-                                                      let status = "";
-
-                                                      if (
-                                                          visitationStatus &&
-                                                          typeof visitationStatus ===
-                                                              "string"
-                                                      ) {
-                                                          status =
-                                                              visitationStatus.toLowerCase();
-                                                      } else if (
-                                                          itemStatus &&
-                                                          typeof itemStatus ===
-                                                              "string"
-                                                      ) {
-                                                          status =
-                                                              itemStatus.toLowerCase();
-                                                      }
-
-                                                      return (
-                                                          status ===
-                                                              "approved" ||
-                                                          status === "declined"
-                                                      );
-                                                  }
-                                              );
-                                      }
-
-                                      return filteredNotifications.length;
+                                      return filterNotificationsByRole(
+                                          notifications
+                                      ).length;
                                   })()
                                 : 0
                         }
@@ -418,9 +332,7 @@ export default function Header(props) {
                 </Dropdown>
 
                 <Dropdown
-                    menu={{
-                        items: menuProfile(),
-                    }}
+                    menu={{ items: menuProfile() }}
                     placement="bottomRight"
                     overlayClassName="menu-submenu-profile-popup"
                     trigger={["click"]}

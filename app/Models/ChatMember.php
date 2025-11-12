@@ -18,9 +18,9 @@ class ChatMember extends Model
 
     public function scopeFilter($query, $request)
     {
-        // if ($request->status) {
-        //     return $query->where('status', $request->status);
-        // }
+        if ($request->user_id) {
+            return $query->where('profile_id', $request->user_id);
+        }
 
 
         return $query;
