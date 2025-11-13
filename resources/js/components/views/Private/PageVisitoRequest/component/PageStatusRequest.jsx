@@ -171,7 +171,7 @@ export default function PageStatusRequest(props) {
                             title="Date&Time"
                             key="available_time"
                             dataIndex="available_time"
-                            width={150}
+                            width={200}
                         />
 
                         <Table.Column
@@ -184,7 +184,7 @@ export default function PageStatusRequest(props) {
                             title="Status"
                             key="status"
                             dataIndex="status"
-                            width={150}
+                            width={90}
                             render={(status) => (
                                 <span
                                     style={{
