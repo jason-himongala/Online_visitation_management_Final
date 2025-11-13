@@ -27,7 +27,11 @@ export default function Header(props) {
 
     const { data: dataUserNotifications, refetch: refetchSource } = GET(
         `api/user_notifications`,
-        ["user_notifications_list", "visitation_information_submit"]
+        [
+            "user_notifications_list",
+            "visitation_information_submit",
+            "visitation_forms",
+        ]
     );
 
     const { mutate: mutateVisitorInfo } = POST(
@@ -68,7 +72,6 @@ export default function Header(props) {
         window.location.reload();
     };
 
-    // ✅ Safe + centralized notification filtering
     const filterNotificationsByRole = (notifications) => {
         let filtered = notifications.filter(
             (item) => item.read === 0 && item.status === 1
@@ -91,9 +94,7 @@ export default function Header(props) {
                 return ["approved", "declined", "pending"].includes(status);
             });
         } else if (userRole === "Pico") {
-            // Pico sees all statuses
         } else if (userRole === "OP") {
-            // OP sees only pending
             filtered = filtered.filter((item) => {
                 const status = String(
                     item.visitaion_information?.status || item.status || ""

@@ -4,134 +4,34 @@ import { Row, Button, Col, Flex, Card, Table, notification } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile } from "@fortawesome/pro-regular-svg-icons";
 
-import { GET, POST } from "../../../providers/useAxiosQuery";
+import ModalFileReview from "./ModalFileReview";
+import { GET, POST } from "../../../../providers/useAxiosQuery";
 import {
     TableGlobalSearchAnimated,
     TablePagination,
     TableShowingEntriesV2,
-} from "../../../providers/CustomTableFilter";
-import useTableScrollOnTop from "../../../providers/useTableScrollOnTop";
-import ModalFileReview from "./component/ModalFileReview";
-import { role } from "../../../providers/appConfig";
+    useTableScrollOnTop,
+} from "../../../../providers/CustomTableFilter";
 
-export default function PageAllRequest() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const userRole = role();
-
-    const [openModalFileReview, setOpenModalFileReview] = useState({
-        open: false,
-        data: null,
-    });
-
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-
-    const [tableFilter, setTableFilter] = useState({
-        page: 1,
-        page_size: 50,
-        search: "",
-        sort_field: "created_at",
-        sort_order: "desc",
-        status: location.pathname.includes("approved")
-            ? "Approved"
-            : location.pathname.includes("declined")
-            ? "Declined"
-            : location.pathname.includes("all-requests")
-            ? "Pending"
-            : location.pathname.includes("available-schedules")
-            ? "Pending"
-            : "",
-    });
-
-    useEffect(() => {
-        setTableFilter({
-            page: 1,
-            page_size: 50,
-            search: "",
-            from: location.pathname,
-            status: location.pathname.includes("approved")
-                ? "Approved"
-                : location.pathname.includes("declined")
-                ? "Declined"
-                : location.pathname.includes("all-requests")
-                ? "Pending"
-                : location.pathname.includes("available-schedules")
-                ? "Pending"
-                : "",
-            sort_field: "created_at",
-            sort_order: "desc",
-        });
-    }, [location]);
-
-    const { data: dataSource, refetch: refetchSource } = GET(
-        `api/visitation_information?${new URLSearchParams(tableFilter)}`,
-        "visitation_information_submit"
-    );
-
-    useEffect(() => {
-        refetchSource();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tableFilter]);
-
-    const { mutate: mutateVisitorInfo } = POST(`api/visitor_requests`, [
-        "visitation_information_submit",
-        "visitor_request_list",
-        "user_notifications",
-        "visitation_information_submit",
-    ]);
-
-    const handleUpdateStatus = (ids, status) => {
-        const selectedRecords = dataSource?.data?.data.filter((item) =>
-            ids.includes(item.id)
-        );
-
-        let profile_id = selectedRecords.map((item) => item.profile_id);
-        let visitaion_information_id = selectedRecords.map((item) => item.id);
-
-        mutateVisitorInfo(
-            {
-                profile_id,
-                visitaion_information_id,
-                status,
-            },
-            {
-                onSuccess: (res) => {
-                    if (res.success) {
-                        notification.success({
-                            message: `Success ${
-                                status === "approved" ? "Approved" : "Declined"
-                            }`,
-                            description: res.message,
-                        });
-                        setSelectedRowKeys([]);
-                        refetchSource();
-                    } else {
-                        notification.error({
-                            message: "Error",
-                            description: res.message,
-                        });
-                    }
-                },
-                onError: () => {
-                    notification.error({
-                        message: "Error",
-                        description: "Something went wrong.",
-                    });
-                },
-            }
-        );
-    };
-
-    useTableScrollOnTop("tbl_user", location);
-
-    const rowSelection = {
+export default function PageStatusRequest(props) {
+    const {
+        activeTab,
+        tableFilter,
+        setTableFilter,
+        handleUpdateStatus,
+        userRole,
         selectedRowKeys,
-        onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
-    };
+        dataSource,
+        rowSelection,
+        openModalFileReview,
+        setOpenModalFileReview,
+    } = props;
 
-    const isApprovedPage = location.pathname.includes("approved");
-    const isDeclinedPage = location.pathname.includes("declined");
-    const isAllRequestsPage = location.pathname.includes("all-requests");
+    const statusColors = {
+        pending: "#faad14", // Orange/Yellow for pending
+        approved: "#52c41a", // Green for approved
+        declined: "#ff4d4f", // Red for declined
+    };
 
     return (
         <Card>
@@ -148,8 +48,10 @@ export default function PageAllRequest() {
                                 {userRole === "OP" &&
                                     selectedRowKeys.length > 0 && (
                                         <>
-                                            {(isAllRequestsPage ||
-                                                isDeclinedPage) && (
+                                            {(tableFilter.status ===
+                                                "Pending" ||
+                                                tableFilter.status ===
+                                                    "Declined") && (
                                                 <Button
                                                     type="primary"
                                                     onClick={() =>
@@ -162,8 +64,10 @@ export default function PageAllRequest() {
                                                     Approve
                                                 </Button>
                                             )}
-                                            {(isAllRequestsPage ||
-                                                isApprovedPage) && (
+                                            {(tableFilter.status ===
+                                                "Pending" ||
+                                                tableFilter.status ===
+                                                    "Approved") && (
                                                 <Button
                                                     danger
                                                     onClick={() =>
@@ -238,10 +142,29 @@ export default function PageAllRequest() {
                         )}
 
                         <Table.Column
-                            title="Visitors Email"
+                            title="Visitors"
                             key="email"
                             dataIndex="email"
                             width={180}
+                            render={(_, record) =>
+                                record.profile
+                                    ? `${record.profile.firstname} ${
+                                          record.profile.lastname ?? ""
+                                      }`
+                                    : " "
+                            }
+                        />
+                        <Table.Column
+                            title="Department"
+                            key="department_name"
+                            dataIndex="department_name"
+                            width={180}
+                            render={(_, record) =>
+                                record.appointment_schedule?.department
+                                    ? record.appointment_schedule.department
+                                          .department_name
+                                    : ""
+                            }
                         />
 
                         <Table.Column
@@ -262,6 +185,20 @@ export default function PageAllRequest() {
                             key="status"
                             dataIndex="status"
                             width={150}
+                            render={(status) => (
+                                <span
+                                    style={{
+                                        color:
+                                            statusColors[
+                                                status?.toLowerCase()
+                                            ] || "#595959",
+                                        fontWeight: 600,
+                                        textTransform: "uppercase",
+                                    }}
+                                >
+                                    {status}
+                                </span>
+                            )}
                         />
                     </Table>
                 </Col>

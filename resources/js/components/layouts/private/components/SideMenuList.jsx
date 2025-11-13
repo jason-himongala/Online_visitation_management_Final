@@ -10,6 +10,7 @@ import {
     faTimesCircle,
     faBook,
 } from "@fortawesome/pro-regular-svg-icons";
+import { faUsers } from "@fortawesome/pro-light-svg-icons";
 
 export const adminSideMenu = [
     {
@@ -23,21 +24,27 @@ export const adminSideMenu = [
         path: "/user-profile",
         icon: <FontAwesomeIcon icon={faUserCircle} />,
     },
+
     {
-        title: "Pending Requests",
-        path: "/all-requests",
-        icon: <FontAwesomeIcon icon={faClipboardList} />,
+        title: "Visitor Requests",
+        path: "/visitor-requests",
+        icon: <FontAwesomeIcon icon={faUsers} />,
     },
-    {
-        title: "Approved",
-        path: "/approved",
-        icon: <FontAwesomeIcon icon={faCheckCircle} />,
-    },
-    {
-        title: "Declined",
-        path: "/declined",
-        icon: <FontAwesomeIcon icon={faTimesCircle} />,
-    },
+    // {
+    //     title: "Pending Requests",
+    //     path: "/all-requests",
+    //     icon: <FontAwesomeIcon icon={faClipboardList} />,
+    // },
+    // {
+    //     title: "Approved",
+    //     path: "/approved",
+    //     icon: <FontAwesomeIcon icon={faCheckCircle} />,
+    // },
+    // {
+    //     title: "Declined",
+    //     path: "/declined",
+    //     icon: <FontAwesomeIcon icon={faTimesCircle} />,
+    // },
     {
         title: "Visitation Forms",
         path: "/visitation-forms",
@@ -69,40 +76,51 @@ export const OPSideMenu = [
         path: "/dashboard",
         icon: <FontAwesomeIcon icon={faTachometerAlt} />,
     },
+    // {
+    //     title: "All Requests",
+    //     path: "/all-requests",
+    //     icon: <FontAwesomeIcon icon={faClipboardList} />,
+    // },
+    // {
+    //     title: "Approved",
+    //     path: "/approved",
+    //     icon: <FontAwesomeIcon icon={faCheckCircle} />,
+    // },
+    // {
+    //     title: "Declined",
+    //     path: "/declined",
+    //     icon: <FontAwesomeIcon icon={faTimesCircle} />,
+    // },
+
     {
-        title: "All Requests",
-        path: "/all-requests",
-        icon: <FontAwesomeIcon icon={faClipboardList} />,
-    },
-    {
-        title: "Approved",
-        path: "/approved",
-        icon: <FontAwesomeIcon icon={faCheckCircle} />,
-    },
-    {
-        title: "Declined",
-        path: "/declined",
-        icon: <FontAwesomeIcon icon={faTimesCircle} />,
+        title: "Visitor Requests",
+        path: "/visitor-requests",
+        icon: <FontAwesomeIcon icon={faUsers} />,
     },
 ];
 
 export const DepartmentSideMenu = [
-    {
-        title: "Pending Requests",
-        path: "/all-requests",
-        icon: <FontAwesomeIcon icon={faClipboardList} />,
-    },
-    {
-        title: "Approved",
-        path: "/approved",
-        icon: <FontAwesomeIcon icon={faCheckCircle} />,
-    },
-    {
-        title: "Declined",
-        path: "/declined",
-        icon: <FontAwesomeIcon icon={faTimesCircle} />,
-    },
+    // {
+    //     title: "Pending Requests",
+    //     path: "/all-requests",
+    //     icon: <FontAwesomeIcon icon={faClipboardList} />,
+    // },
+    // {
+    //     title: "Approved",
+    //     path: "/approved",
+    //     icon: <FontAwesomeIcon icon={faCheckCircle} />,
+    // },
+    // {
+    //     title: "Declined",
+    //     path: "/declined",
+    //     icon: <FontAwesomeIcon icon={faTimesCircle} />,
+    // },
 
+    {
+        title: "Visitor Requests",
+        path: "/visitor-requests",
+        icon: <FontAwesomeIcon icon={faUsers} />,
+    },
     {
         title: "Available Schedules",
         path: "/available-schedules",

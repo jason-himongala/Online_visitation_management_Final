@@ -18,6 +18,8 @@ const { Title, Text } = Typography;
 export default function ModalMessage(props) {
     const userId = UserId();
     const userRole = role();
+
+    console.log("UserRole UserId in ModalMessage:", userRole, userId);
     const { setToggleModalOpenGroupChat, toggleModalOpenGroupChat } = props;
 
     const [toggleModalChatRename, setToggleModalChatRename] = useState({
@@ -129,12 +131,10 @@ export default function ModalMessage(props) {
     }, [dataChatMember]);
 
     const filteredGroupChats = useMemo(() => {
-        // If user has "Pico" role, show all groups
         if (userRole === "Pico") {
             return groupChats;
         }
 
-        // For other roles, only show groups where the user is a member
         return groupChats.filter((group) =>
             group.members.some((m) => m.profile?.user_id === userId)
         );

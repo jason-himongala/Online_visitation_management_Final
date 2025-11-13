@@ -20,10 +20,9 @@ class VisitaionInformationController extends Controller
     public function index(Request $request)
     {
         $email = 'SELECT email FROM users WHERE id = (SELECT user_id FROM profiles WHERE id = visitaion_information.profile_id)';
-        $available_time = "(SELECT available_time FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id)";
-        
+        $available_time = "(SELECT CONCAT(DATE_FORMAT(date, '%M %d, %Y'), ' - ', available_time) FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id)";
         $query = VisitaionInformation::query()
-            ->with(['profile', 'appointment_schedule', 'profile.user'])
+            ->with(['profile', 'appointment_schedule', 'profile.user', 'appointment_schedule.department'])
             ->select([
                 'visitaion_information.*',
                 DB::raw("($email) AS email"),

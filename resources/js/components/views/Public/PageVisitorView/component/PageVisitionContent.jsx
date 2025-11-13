@@ -26,7 +26,11 @@ export default function PageVisitationContent(props) {
     );
     const { mutate: mutateVisitorForm, loading: isLoadingChat } = POST(
         `api/visitation_forms`,
-        "visitation_forms_submit"
+        [
+            "visitation_forms_submit",
+            "user_notifications",
+            "user_notifications_list",
+        ]
     );
 
     const onFinish = (values) => {

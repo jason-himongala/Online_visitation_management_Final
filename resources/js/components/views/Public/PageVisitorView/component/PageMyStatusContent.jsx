@@ -10,7 +10,7 @@ export default function PageMyStatusContent() {
 
     const { data: dataSource } = GET(
         `api/visitation_information?user_id=${userId}`,
-        ["visitation_information_submit", "visitation_information_submit"]
+        "visitation_information_submit"
     );
 
     const [toggleModalOpenGroupChat, setToggleModalOpenGroupChat] = useState({

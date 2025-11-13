@@ -1,3 +1,4 @@
+import { faUser } from "@fortawesome/pro-light-svg-icons";
 import { Routes, Route } from "react-router-dom";
 import {
     faBooks,
@@ -32,6 +33,7 @@ import PageVisitorRequest from "../views/Public/PageVisitorView/PageVisitorReque
 import PageVisitation from "../views/Private/PageVisitation/PageVisitation";
 import PageFeedBackForms from "../views/Private/PageFeedBack/PageFeedBackForms";
 import PagePermission from "../views/Private/PagePermission/PagePermission";
+import PageVisitorRequests from "../views/Private/PageVisitoRequest/PageVisitorRequests";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -402,6 +404,25 @@ export default function RouteList() {
                             },
                         ]}
                         component={PageFeedBackForms}
+                    />
+                }
+            />
+            <Route
+                path="/visitor-requests"
+                element={
+                    <PrivateRoute
+                        moduleCode="M-02"
+                        moduleName="Visitor Requests"
+                        title="PageVisitorRequests"
+                        subtitle="VIEW / EDIT"
+                        pageId="PageVisitorRequests"
+                        pageHeaderIcon={faUser}
+                        breadcrumb={[
+                            {
+                                name: "View Visitor Requests",
+                            },
+                        ]}
+                        component={PageVisitorRequests}
                     />
                 }
             />
