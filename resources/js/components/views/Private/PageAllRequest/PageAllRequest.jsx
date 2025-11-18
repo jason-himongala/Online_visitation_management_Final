@@ -12,9 +12,11 @@ import {
 } from "../../../providers/CustomTableFilter";
 import useTableScrollOnTop from "../../../providers/useTableScrollOnTop";
 import ModalFileReview from "./component/ModalFileReview";
-import { role } from "../../../providers/appConfig";
+import { role, UserId } from "../../../providers/appConfig";
 
 export default function PageAllRequest() {
+    const userID = UserId();
+    console.log("User ID:", userID);
     const navigate = useNavigate();
     const location = useLocation();
     const userRole = role();
@@ -67,6 +69,13 @@ export default function PageAllRequest() {
         `api/visitation_information?${new URLSearchParams(tableFilter)}`,
         "visitation_information_submit"
     );
+
+    const currentUser =
+        dataSource?.data?.[0] ||
+        dataSource?.data?.find((user) => user.profile_id == userID);
+
+    console.log("Current User:", currentUser);
+    console.log("User Department IDssss:", currentUser?.department_id);
 
     useEffect(() => {
         refetchSource();

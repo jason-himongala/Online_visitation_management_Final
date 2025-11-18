@@ -19,7 +19,7 @@ export default function ModalMessage(props) {
     const userId = UserId();
     const userRole = role();
 
-    console.log("UserRole UserId in ModalMessage:", userRole, userId);
+    // console.log("UserRole UserId in ModalMessage:", userRole, userId);
     const { setToggleModalOpenGroupChat, toggleModalOpenGroupChat } = props;
 
     const [toggleModalChatRename, setToggleModalChatRename] = useState({

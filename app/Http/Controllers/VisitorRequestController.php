@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\ChatMember;
+use App\Models\Department;
 use App\Models\Profile;
+use App\Models\User;
 use App\Models\VisitaionInformation;
 use App\Models\VisitorRequest;
 use Illuminate\Http\Request;
@@ -51,6 +53,7 @@ class VisitorRequestController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
         $dataValidated = $request->validate([
@@ -58,56 +61,17 @@ class VisitorRequestController extends Controller
             'profile_id.*' => 'exists:profiles,id',
             'visitaion_information_id' => 'required|array',
             'visitaion_information_id.*' => 'exists:visitaion_information,id',
+            'department_id' => 'nullable|array',
+            'department_id.*' => 'nullable|integer',
         ]);
 
-
-        $dataUserNitification = $request->validate([
-            'read' => 'boolean',
-            'status' => 'string',
-        ]);
-
-
+        $departmentGroups = [];
 
         try {
-            DB::transaction(function () use ($dataValidated, $request, $dataUserNitification) {
-                $chat = Chat::updateOrCreate(
-                    ["id" => $request->id ?? null],
-                    ["title_of_groupchat" => $request->title_of_groupchat ?? 'Group Chat']
-                );
-
-                foreach ($dataValidated['profile_id'] as $profileId) {
-                    ChatMember::updateOrCreate(
-                        [
-                            "chat_id"   => $chat->id,
-                            "profile_id" => $profileId,
-                        ],
-                        [
-                            "profile_id" => $profileId
-                        ]
-                    );
-                }
-
-                $profileIdsRole3 = Profile::whereHas('user', function ($query) {
-                    $query->whereIn('user_role_id', [2, 3]);
-                })->pluck('id');
-
-                foreach ($profileIdsRole3 as $pid) {
-                    ChatMember::updateOrCreate(
-                        [
-                            "chat_id"   => $chat->id,
-                            "profile_id" => $pid,
-                        ],
-                        [
-                            "profile_id" => $pid
-                        ]
-                    );
-                }
-
-
-
-
+            DB::transaction(function () use ($dataValidated, $request, &$departmentGroups) {
                 foreach ($dataValidated['profile_id'] as $index => $profileId) {
                     $visitationId = $dataValidated['visitaion_information_id'][$index] ?? null;
+                    $remark = $request->remarks[$index] ?? null;
 
                     if ($visitationId) {
                         VisitorRequest::updateOrCreate(
@@ -117,33 +81,89 @@ class VisitorRequestController extends Controller
                                 'visitaion_information_id' => $visitationId,
                             ]
                         );
-
                         VisitaionInformation::where('id', $visitationId)
-                            ->update(['status' => $request->status ?? '']);
+                            ->update([
+                                'status' => $request->status,
+                                'remarks' => $remark,
+                            ]);
+
+                        $visitationInfo = VisitaionInformation::with('appointment_schedule')
+                            ->find($visitationId);
+
+                        if ($visitationInfo && $visitationInfo->status !== 'declined') {
+                            $profileWithUser = Profile::with('user')->where('id', $profileId)->first();
+
+                            $departmentId = $visitationInfo->appointment_schedule->department_id ?? null;
+
+                            if ($departmentId && $profileWithUser && $profileWithUser->user) {
+                                $sameDepProfileIds = Profile::whereHas('user', function ($query) use ($departmentId) {
+                                    $query->where('department_id', $departmentId);
+                                })->pluck('id')->toArray();
+
+                                if (!isset($departmentGroups[$departmentId])) {
+                                    $departmentGroups[$departmentId] = [];
+                                }
+
+                                $departmentGroups[$departmentId][] = $profileId;
+
+                                foreach ($sameDepProfileIds as $sameDepProfileId) {
+                                    if (!in_array($sameDepProfileId, $departmentGroups[$departmentId])) {
+                                        $departmentGroups[$departmentId][] = $sameDepProfileId;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
+                foreach ($departmentGroups as $departmentId => $profileIds) {
+                    $department = Department::find($departmentId);
+                    $departmentName = $department ? $department->department_name : "Unknown Department";
 
-                $userIds = Profile::whereIn('id', $dataValidated['profile_id'])
-                    ->pluck('user_id')
-                    ->toArray();
+                    $chat = Chat::create([
+                        "title_of_groupchat" => "{$departmentName} Group Chat",
+                    ]);
 
-                foreach ($userIds as $userId) {
-                    \App\Models\UserNotification::updateOrCreate(
-                        [
-                            "user_id" => $userId,
-                        ],
-                        // [
-                        //     "read" => $dataUserNitification['read'] ?? false,
-                        //     "status" => $dataUserNitification['status'] ?? false,
-                        // ]
-                    );
+                    foreach ($profileIds as $profileId) {
+                        ChatMember::updateOrCreate(
+                            [
+                                "chat_id"   => $chat->id,
+                                "profile_id" => $profileId,
+                            ],
+                            [
+                                "profile_id" => $profileId,
+                                "department_id" => $departmentId,
+                            ]
+                        );
+                    }
+
+                    $profileIdsRole3 = Profile::whereHas('user', function ($query) {
+                        $query->where('user_role_id', 3);
+                    })->pluck('id');
+
+                    foreach ($profileIdsRole3 as $pid) {
+                        ChatMember::updateOrCreate(
+                            [
+                                "chat_id"   => $chat->id,
+                                "profile_id" => $pid,
+                            ],
+                            [
+                                "profile_id" => $pid,
+                                "department_id" => $departmentId,
+                            ]
+                        );
+                    }
                 }
             });
 
+            $message = count($departmentGroups) > 0
+                ? "Chat groups created and visitor requests processed successfully"
+                : "Visitor requests processed successfully (no chat groups created for declined requests)";
+
             return response()->json([
                 "success" => true,
-                "message" => "Chat, members, and visitor requests saved successfully"
+                "message" => $message,
+                "chat_groups_created" => count($departmentGroups)
             ]);
         } catch (\Throwable $th) {
             return response()->json([

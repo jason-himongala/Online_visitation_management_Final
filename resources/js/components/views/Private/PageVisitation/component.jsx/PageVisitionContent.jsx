@@ -22,7 +22,11 @@ import FloatInput from "../../../../providers/FloatInput";
 import { useEffect } from "react";
 
 export default function PageVisitationContent(props) {
-    const { toggleModalVisitationForm, setToggleModalVisitationForm } = props;
+    const {
+        toggleModalVisitationForm,
+        setToggleModalVisitationForm,
+        userRole,
+    } = props;
     // console.log("toggleModalVisitationForm", toggleModalVisitationForm);
     const { status, id } = props;
     // console.log("statusssss", status);
@@ -337,6 +341,8 @@ export default function PageVisitationContent(props) {
                                                 type="dashed"
                                                 onClick={() => add()}
                                                 block
+                                                hidden={userRole === "Pico"}
+                                                shape="round"
                                                 icon={
                                                     <FontAwesomeIcon
                                                         icon={faPlus}

@@ -195,6 +195,7 @@ export default function ModalFormEvent({ currentUser }) {
                         >
                             <FloatSelect
                                 label="Available Time"
+                                placeholder="Available Time"
                                 required
                                 options={[
                                     {
@@ -204,6 +205,14 @@ export default function ModalFormEvent({ currentUser }) {
                                     {
                                         label: "PM (Around 12:00 - 11:59pm)",
                                         value: "PM (Around 12:00 - 11:59pm)",
+                                    },
+                                    {
+                                        label: "8:00am-12pm/1:00pm-5:00pm",
+                                        value: "8:00am-12pm/1:00pm-5:00pm",
+                                    },
+                                    {
+                                        label: "Whole Day",
+                                        value: "Whole Day",
                                     },
                                 ]}
                             />

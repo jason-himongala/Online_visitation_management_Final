@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Row, Button, Col, Flex, Card, Table, notification } from "antd";
+import {
+    Row,
+    Button,
+    Col,
+    Flex,
+    Card,
+    Table,
+    notification,
+    Modal,
+    Input,
+} from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile } from "@fortawesome/pro-regular-svg-icons";
 
@@ -12,11 +22,14 @@ import {
     TableShowingEntriesV2,
     useTableScrollOnTop,
 } from "../../../../providers/CustomTableFilter";
+import FloatTextArea from "../../../../providers/FloatTextArea";
+
+const { TextArea } = Input;
 
 export default function PageStatusRequest(props) {
     const {
-        activeTab,
         tableFilter,
+        userID,
         setTableFilter,
         handleUpdateStatus,
         userRole,
@@ -27,10 +40,46 @@ export default function PageStatusRequest(props) {
         setOpenModalFileReview,
     } = props;
 
+    const [declineModal, setDeclineModal] = useState({
+        open: false,
+        remarks: "",
+        selectedKeys: [],
+    });
+
     const statusColors = {
         pending: "#faad14", // Orange/Yellow for pending
         approved: "#52c41a", // Green for approved
         declined: "#ff4d4f", // Red for declined
+    };
+
+    const handleDeclineClick = () => {
+        setDeclineModal({
+            open: true,
+            remarks: "",
+            selectedKeys: selectedRowKeys,
+        });
+    };
+
+    const handleDeclineConfirm = () => {
+        if (!declineModal.remarks.trim()) {
+            notification.error({
+                message: "Remarks Required",
+                description:
+                    "Please provide remarks for declining the request.",
+            });
+            return;
+        }
+
+        handleUpdateStatus(
+            declineModal.selectedKeys,
+            "declined",
+            declineModal.remarks
+        );
+        setDeclineModal({ open: false, remarks: "", selectedKeys: [] });
+    };
+
+    const handleDeclineCancel = () => {
+        setDeclineModal({ open: false, remarks: "", selectedKeys: [] });
     };
 
     return (
@@ -70,12 +119,7 @@ export default function PageStatusRequest(props) {
                                                     "Approved") && (
                                                 <Button
                                                     danger
-                                                    onClick={() =>
-                                                        handleUpdateStatus(
-                                                            selectedRowKeys,
-                                                            "declined"
-                                                        )
-                                                    }
+                                                    onClick={handleDeclineClick}
                                                 >
                                                     Decline
                                                 </Button>
@@ -180,6 +224,14 @@ export default function PageStatusRequest(props) {
                             dataIndex="purpose_of_visit"
                             width={150}
                         />
+                        {tableFilter.status === "Declined" && (
+                            <Table.Column
+                                title="Remarks"
+                                key="remarks"
+                                dataIndex="remarks"
+                                width={150}
+                            />
+                        )}
                         <Table.Column
                             title="Status"
                             key="status"
@@ -225,6 +277,34 @@ export default function PageStatusRequest(props) {
                     </Flex>
                 </Col>
             </Row>
+
+            <Modal
+                title="Decline Request"
+                open={declineModal.open}
+                onOk={handleDeclineConfirm}
+                onCancel={() =>
+                    setDeclineModal({
+                        open: false,
+                        remarks: "",
+                        selectedKeys: [],
+                    })
+                }
+                okText="Decline"
+                okButtonProps={{ danger: true }}
+            >
+                <p>Please provide a reason for declining this request:</p>
+                <FloatTextArea
+                    value={declineModal.remarks}
+                    onChange={(e) =>
+                        setDeclineModal((prev) => ({
+                            ...prev,
+                            remarks: e.target.value,
+                        }))
+                    }
+                    rows={4}
+                    placeholder="Enter remarks..."
+                />
+            </Modal>
 
             <ModalFileReview
                 openModalFileReview={openModalFileReview}

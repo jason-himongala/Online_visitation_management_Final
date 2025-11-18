@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Col, notification, Row } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,14 +6,16 @@ import { faUsers } from "@fortawesome/pro-regular-svg-icons";
 
 import Tabs from "../../../providers/Tabs";
 import PageStatusRequest from "./component/PageStatusRequest";
-import { role } from "../../../providers/appConfig";
+import { role, UserId } from "../../../providers/appConfig";
 import { GET, POST } from "../../../providers/useAxiosQuery";
+
 export default function PageVisitorRequests() {
     const [activeTab, setActiveTab] = useState("0");
 
     const navigate = useNavigate();
     const location = useLocation();
     const userRole = role();
+    const UserIds = UserId();
 
     const [openModalFileReview, setOpenModalFileReview] = useState({
         open: false,
@@ -72,14 +74,64 @@ export default function PageVisitorRequests() {
         });
     }, [location, activeTab]);
 
+    const { data: dataUser } = GET(
+        `api/users?id=${UserIds}`,
+        "user_detail",
+        () => {},
+        false
+    );
+
+    const currentUser =
+        dataUser?.data?.[0] ||
+        dataUser?.data?.find((user) => user.id === UserIds);
+
+    // console.log("User ID currentUser:", currentUser);
+    // console.log("User Role:", userRole);
+    // console.log("User Department ID:", currentUser?.department_id);
+
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/visitation_information?${new URLSearchParams(tableFilter)}`,
         "visitation_information_submit"
     );
 
+    const filteredDataSource = useMemo(() => {
+        if (!dataSource?.data?.data) return dataSource;
+
+        if (userRole === "PICO" || userRole === "OP") {
+            return dataSource;
+        }
+
+        if (userRole === "Department" && currentUser?.department_id) {
+            const filteredData = dataSource.data.data.filter(
+                (item) =>
+                    item.appointment_schedule?.department_id ===
+                    currentUser.department_id
+            );
+
+            return {
+                ...dataSource,
+                data: {
+                    ...dataSource.data,
+                    data: filteredData,
+                    total: filteredData.length,
+                    per_page: dataSource.data.per_page,
+                    current_page: dataSource.data.current_page,
+                    last_page: Math.ceil(
+                        filteredData.length / dataSource.data.per_page
+                    ),
+                },
+            };
+        }
+
+        return dataSource;
+    }, [dataSource, userRole, currentUser?.department_id]);
+
+    // console.log("Original Data Count:", dataSource?.data?.data?.length);
+    // console.log("Filtered Data Count:", filteredDataSource?.data?.data?.length);
+
     useEffect(() => {
         refetchSource();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        return () => {};
     }, [tableFilter]);
 
     const { mutate: mutateVisitorInfo } = POST(`api/visitor_requests`, [
@@ -89,36 +141,36 @@ export default function PageVisitorRequests() {
         "visitation_information_submit",
     ]);
 
-    const handleUpdateStatus = (ids, status) => {
-        const selectedRecords = dataSource?.data?.data.filter((item) =>
+    const handleUpdateStatus = (ids, status, remarkInput = "") => {
+        const selectedRecords = filteredDataSource?.data?.data.filter((item) =>
             ids.includes(item.id)
         );
 
         let profile_id = selectedRecords.map((item) => item.profile_id);
         let visitaion_information_id = selectedRecords.map((item) => item.id);
+        let department_id = selectedRecords.map(
+            (item) => item.appointment_schedule?.department_id || null
+        );
+
+        let remarks = selectedRecords.map(() => remarkInput);
 
         mutateVisitorInfo(
             {
                 profile_id,
                 visitaion_information_id,
+                department_id,
                 status,
+                remarks,
             },
             {
                 onSuccess: (res) => {
                     if (res.success) {
                         notification.success({
-                            message: `Success ${
-                                status === "approved" ? "Approved" : "Declined"
-                            }`,
+                            message: `Success`,
                             description: res.message,
                         });
                         setSelectedRowKeys([]);
                         refetchSource();
-                    } else {
-                        notification.error({
-                            message: "Error",
-                            description: res.message,
-                        });
                     }
                 },
                 onError: () => {
@@ -143,7 +195,7 @@ export default function PageVisitorRequests() {
         children: (
             <PageStatusRequest
                 status={status}
-                dataSource={dataSource}
+                dataSource={filteredDataSource}
                 tableFilter={tableFilter}
                 setTableFilter={setTableFilter}
                 handleUpdateStatus={handleUpdateStatus}

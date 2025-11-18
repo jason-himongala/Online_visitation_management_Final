@@ -24,6 +24,12 @@ class VisitaionInformation extends Model
             $query->whereIn('visitaion_information.status', $status);
         }
 
+        if ($request->user_id) {
+            $query->whereHas('profile.user', function ($q) use ($request) {
+                $q->where('users.id', $request->user_id);
+            });
+        }
+
 
         return $query;
     }

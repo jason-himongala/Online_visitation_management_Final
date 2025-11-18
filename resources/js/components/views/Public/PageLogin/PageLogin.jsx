@@ -57,7 +57,7 @@ export default function PageLogin() {
             <Row gutter={[20, 20]} className="w-full" justify="center">
                 <Card className="page-login-card w-lg">
                     <Flex align="center" justify="center">
-                        <img src={appLogo} className="w-50" />
+                        <img src={appLogo} className="w-25" />
                     </Flex>
                     <Typography.Title level={3} className="text-center mb-5!">
                         Login

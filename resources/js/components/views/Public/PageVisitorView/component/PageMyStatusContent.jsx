@@ -136,7 +136,7 @@ export default function PageMyStatusContent() {
 
                         <Divider />
 
-                        <div
+                        {/* <div
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
@@ -166,7 +166,7 @@ export default function PageMyStatusContent() {
                             >
                                 Open Chat
                             </Button>
-                        </div>
+                        </div> */}
 
                         <div
                             style={{

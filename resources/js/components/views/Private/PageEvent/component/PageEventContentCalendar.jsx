@@ -43,8 +43,8 @@ export default function PageEventContentCalendar() {
         dataUser?.data?.[0] ||
         dataUser?.data?.find((user) => user.id == UserIds);
 
-    console.log("Current User:", currentUser);
-    console.log("User Department ID:", currentUser?.department_id);
+    // console.log("Current User:", currentUser);
+    // console.log("User Department ID:", currentUser?.department_id);
 
     const [toggleModalFormEvent, setToggleModalFormEvent] = useState({
         open: false,
@@ -183,7 +183,6 @@ export default function PageEventContentCalendar() {
         }
     }, [currentUser?.department_id]);
 
-    // ✅ FIX: create form instance and set value after user is fetched
     const [form] = Form.useForm();
 
     useEffect(() => {

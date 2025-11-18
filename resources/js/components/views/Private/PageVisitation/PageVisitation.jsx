@@ -32,10 +32,13 @@ import {
     useTableScrollOnTop,
 } from "../../../providers/CustomTableFilter";
 import PageVisitationContent from "./component.jsx/PageVisitionContent";
+import { role } from "../../../providers/appConfig";
 
 export default function PageVisitation() {
     const navigate = useNavigate();
     const location = useLocation();
+
+    const userRole = role();
 
     const [tableFilter, setTableFilter] = useState({
         page: 1,
@@ -209,6 +212,7 @@ export default function PageVisitation() {
             <PageVisitationContent
                 toggleModalVisitationForm={toggleModalVisitationForm}
                 setToggleModalVisitationForm={setToggleModalVisitationForm}
+                userRole={userRole}
             />
         </Card>
     );

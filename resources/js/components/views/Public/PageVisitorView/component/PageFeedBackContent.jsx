@@ -20,6 +20,8 @@ import FloatDatePicker from "../../../../providers/FloatDatePicker";
 import FloatInput from "../../../../providers/FloatInput";
 import notificationErrors from "../../../../providers/notificationErrors";
 import ModalPreviewPdf from "../../../../providers/ModalPreviewPdf";
+import regionsSelection from "../../../../providers/regionsSelect";
+import FloatSelect from "../../../../providers/FloatSelect";
 
 export default function PageFeedbackContent(props) {
     const { status, id } = props;
@@ -317,7 +319,10 @@ export default function PageFeedbackContent(props) {
                                 label="Region of residences"
                                 name="region_of_residences"
                             >
-                                <FloatInput placeholder="Region of residences" />
+                                <FloatSelect
+                                    placeholder="Region of residences"
+                                    options={regionsSelection}
+                                />
                             </Form.Item>
                         </Col>
 

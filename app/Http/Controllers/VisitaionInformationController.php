@@ -73,6 +73,7 @@ class VisitaionInformationController extends Controller
         $dataValidated = $request->validate([
             // 'department_id' => 'required|exists:departments,id',
             'profile_id' => 'required|exists:profiles,id',
+            'remarks' => 'nullable',
             'appointment_schedule_id' => 'required|exists:appointment_schedules,id',
             'purpose_of_visit' => 'required|string|max:255',
 
