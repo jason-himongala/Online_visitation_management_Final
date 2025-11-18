@@ -25,12 +25,12 @@ export default function PageEvent() {
             label: "Calendar",
             children: <PageEventContentCalendar />,
         },
-        {
-            key: "1",
-            icon: <FontAwesomeIcon icon={faUsers} />,
-            label: "List of Pending Visitors",
-            children: <PageAllRequest />,
-        },
+        // {
+        //     key: "1",
+        //     icon: <FontAwesomeIcon icon={faUsers} />,
+        //     label: "List of Pending Visitors",
+        //     children: <PageAllRequest />,
+        // },
     ];
 
     return (
