@@ -84,13 +84,65 @@ export default function PageDashboard() {
         return dataSource;
     }, [dataSource, userRole, currentUser?.department_id]);
 
-    console.log("dataCardList", dataCardList);
+    const filteredDataCardList = useMemo(() => {
+        if (!dataCardList?.data) return dataCardList;
+
+        if (userRole === "PICO" || userRole === "OP") {
+            return dataCardList;
+        }
+
+        if (userRole === "Department" && currentUser?.department_id) {
+            const departmentData =
+                dataCardList.data.dataUser?.filter(
+                    (item) =>
+                        item.appointment_schedule?.department_id ===
+                        currentUser.department_id
+                ) || [];
+
+            const recalculatedCounts = {
+                approved_today: departmentData.filter(
+                    (item) =>
+                        item.status === "approved" &&
+                        new Date(item.updated_at).toDateString() ===
+                            new Date().toDateString()
+                ).length,
+                pending: departmentData.filter(
+                    (item) =>
+                        item.status === "pending" || item.status === "Pending"
+                ).length,
+                declined: departmentData.filter(
+                    (item) => item.status === "declined"
+                ).length,
+                request: {
+                    declined: departmentData.filter(
+                        (item) => item.status === "declined"
+                    ).length,
+                    approved: departmentData.filter(
+                        (item) => item.status === "approved"
+                    ).length,
+                },
+                dataUser: departmentData,
+            };
+
+            return {
+                ...dataCardList,
+                data: {
+                    ...dataCardList.data,
+                    ...recalculatedCounts,
+                },
+            };
+        }
+
+        return dataCardList;
+    }, [dataCardList, userRole, currentUser?.department_id]);
+
+    console.log("filteredDataCardList", filteredDataCardList);
     return (
         <Row gutter={[20, 20]}>
             <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                 <div>This Month ...</div>
                 <ListCard
-                    dataCardList={dataCardList}
+                    dataCardList={filteredDataCardList}
                     dataSource={filteredDataSource}
                     tableFilter={tableFilter}
                     setTableFilter={setTableFilter}

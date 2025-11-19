@@ -74,7 +74,10 @@ import {
     faCheckCircle,
     faClipboardList,
     faHourglassHalf,
+    faMessageXmark,
     faPesoSign,
+    faTrash,
+    faXmarkCircle,
 } from "@fortawesome/pro-regular-svg-icons";
 import { fal } from "@fortawesome/pro-light-svg-icons";
 import {
@@ -91,12 +94,10 @@ export default function ListCard(props) {
             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
                 <Card variant="borderless">
                     <Statistic
-                        title="Total Requests"
-                        value={Object.values(dataCardList?.data ?? {})
-                            .filter((val) => typeof val === "number")
-                            .reduce((acc, val) => acc + val, 0)}
+                        title="Pending Requests"
+                        value={dataCardList?.data?.pending ?? 0}
                         valueStyle={{ color: "#4097ff" }}
-                        prefix={<FontAwesomeIcon icon={faClipboardList} />}
+                        prefix={<FontAwesomeIcon icon={faHourglassHalf} />}
                     />
                 </Card>
             </Col>
@@ -104,21 +105,21 @@ export default function ListCard(props) {
             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
                 <Card variant="borderless">
                     <Statistic
-                        title="Pending Requests"
-                        value={dataCardList?.data.pending ?? 0}
-                        // precision={2}
-                        valueStyle={{ color: "#cf1322" }}
-                        prefix={<FontAwesomeIcon icon={faHourglassHalf} />}
+                        title="Approve Today"
+                        value={dataCardList?.data?.approved_today ?? 0}
+                        valueStyle={{ color: "#3f8600" }}
+                        prefix={<FontAwesomeIcon icon={faCheckCircle} />}
                     />
                 </Card>
             </Col>
             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
                 <Card variant="borderless">
                     <Statistic
-                        title="Approve Today"
-                        value={dataCardList?.data.approved_today ?? 0}
-                        valueStyle={{ color: "#3f8600" }}
-                        prefix={<FontAwesomeIcon icon={faCheckCircle} />}
+                        title="Declined Requests"
+                        value={dataCardList?.data?.declined ?? 0}
+                        // precision={2}
+                        valueStyle={{ color: "#cf1322" }}
+                        prefix={<FontAwesomeIcon icon={faXmarkCircle} />}
                     />
                 </Card>
             </Col>
