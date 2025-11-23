@@ -47,6 +47,11 @@ export const adminSideMenu = [
         path: "/available-schedules",
         icon: <FontAwesomeIcon icon={faBook} />,
     },
+    {
+        title: "Departments",
+        path: "/departments",
+        icon: <FontAwesomeIcon icon={faBook} />,
+    },
 ];
 
 export const OPSideMenu = [

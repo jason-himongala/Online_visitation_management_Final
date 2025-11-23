@@ -34,6 +34,7 @@ import PageVisitation from "../views/Private/PageVisitation/PageVisitation";
 import PageFeedBackForms from "../views/Private/PageFeedBack/PageFeedBackForms";
 import PagePermission from "../views/Private/PagePermission/PagePermission";
 import PageVisitorRequests from "../views/Private/PageVisitoRequest/PageVisitorRequests";
+import PageDepartment from "../views/Private/PageDepartment/PageDepartment";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -147,6 +148,16 @@ export default function RouteList() {
                         title="Contact"
                         pageId="PageContactContent"
                         component={PageFeedBack}
+                    />
+                }
+            />
+            <Route
+                path="/departments"
+                element={
+                    <PrivateRoute
+                        title="Departments"
+                        pageId="PageDepartments"
+                        component={PageDepartment}
                     />
                 }
             />

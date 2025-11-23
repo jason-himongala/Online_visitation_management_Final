@@ -240,22 +240,24 @@ export default function PageEventContentCalendar() {
                                 <FloatSelect
                                     className="w-full"
                                     options={
-                                        departments?.data
-                                            ?.filter((dept) => {
-                                                if (
-                                                    currentUser?.department_id
-                                                ) {
-                                                    return (
-                                                        dept.id ==
-                                                        currentUser.department_id
-                                                    );
-                                                }
-                                                return true;
-                                            })
-                                            ?.map((dept) => ({
-                                                label: dept.department_name,
-                                                value: dept.id,
-                                            })) || []
+                                        Array.isArray(departments?.data)
+                                            ? departments.data
+                                                  .filter((dept) => {
+                                                      if (
+                                                          currentUser?.department_id
+                                                      ) {
+                                                          return (
+                                                              dept.id ==
+                                                              currentUser.department_id
+                                                          );
+                                                      }
+                                                      return true;
+                                                  })
+                                                  .map((dept) => ({
+                                                      label: dept.department_name,
+                                                      value: dept.id,
+                                                  }))
+                                            : []
                                     }
                                     label="Department"
                                     placeholder="Department"

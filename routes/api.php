@@ -124,11 +124,14 @@ Route::middleware('auth:api')->group(function () {
     Route::get('generate_visitation_certificates', [App\Http\Controllers\ProfileDelegatesController::class, 'generate_visitation_certificates']);
     //End ProfileDelegatesController
 
-
-
     //DashboardController
     Route::get('dashboard_card_list', [App\Http\Controllers\DashboardController::class, 'dashboard_card_list']);
     //End DashboardController
+
+    //DepartmentController
+    Route::apiResource('department', App\Http\Controllers\DepartmentController::class);
+    Route::post('department_archive', [App\Http\Controllers\DepartmentController::class, 'department_archive']);
+    //End DepartmentController
 
 
     //UserNotificationController

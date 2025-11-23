@@ -17,8 +17,9 @@ class Department extends Model
 
     public function scopeFilter($query, $request)
     {
-
-
+        if ($request->isTrash) {
+            $query->onlyTrashed();
+        }
         return $query;
     }
 }
