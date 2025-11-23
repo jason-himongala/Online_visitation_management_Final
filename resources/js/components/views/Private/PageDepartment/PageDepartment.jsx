@@ -38,7 +38,7 @@ export default function PageDepartment() {
         page_size: 50,
         search: "",
         sort_field: "department_name",
-        sort_order: "asc",
+        sort_order: "desc",
         isTrash: 0,
     });
 
@@ -84,6 +84,7 @@ export default function PageDepartment() {
                         message: "Department",
                         description: res.message,
                     });
+                    setSelectedRowKeys([]);
                 } else {
                     notification.error({
                         message: "Department",
@@ -288,7 +289,6 @@ export default function PageDepartment() {
                                     key="action"
                                     dataIndex="action"
                                     align="center"
-                                
                                     render={(text, record) => {
                                         return (
                                             <Flex justify="center">
