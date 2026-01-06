@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { Button, Col, Form, Modal, notification, Row } from "antd";
+import { Button, Checkbox, Col, Form, Modal, notification, Row } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/pro-regular-svg-icons";
 import dayjs from "dayjs";
@@ -10,6 +10,7 @@ import validateRules from "../../../../providers/validateRules";
 import FloatDatePicker from "../../../../providers/FloatDatePicker";
 import notificationErrors from "../../../../providers/notificationErrors";
 import PageEventContextCalendar from "./PageEventContextCalendar";
+import FloatTextArea from "../../../../providers/FloatTextArea";
 import { role } from "../../../../providers/appConfig";
 
 export default function ModalFormEvent({ currentUser }) {
@@ -39,6 +40,9 @@ export default function ModalFormEvent({ currentUser }) {
             let value = values[key];
             if (key === "date") {
                 value = value ? dayjs(value).format("YYYY-MM-DD") : "";
+            }
+            if (key === "important_visit") {
+                value = value ? 1 : 0;
             }
             data.append(key, value);
         });
@@ -75,6 +79,8 @@ export default function ModalFormEvent({ currentUser }) {
                     appointment_type,
                     available_time,
                     date,
+                    important_notes,
+                    important_visit,
                 } = toggleModalFormEvent.data;
 
                 form.setFieldsValue({
@@ -83,6 +89,8 @@ export default function ModalFormEvent({ currentUser }) {
                     appointment_type: appointment_type || null,
                     available_time: available_time || null,
                     date: date ? dayjs(date) : currentDate,
+                    important_notes: important_notes || null,
+                    important_visit: important_visit === 1,
                 });
             } else {
                 form.setFieldsValue({
@@ -90,6 +98,8 @@ export default function ModalFormEvent({ currentUser }) {
                     date: currentDate,
                     appointment_type: null,
                     available_time: null,
+                    important_notes: null,
+                    important_visit: false,
                 });
             }
         } else {
@@ -225,6 +235,25 @@ export default function ModalFormEvent({ currentUser }) {
                             rules={[validateRules.required()]}
                         >
                             <FloatDatePicker label="Start Date" />
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24}>
+                        <Form.Item
+                            name="important_visit"
+                            valuePropName="checked"
+                        >
+                            <Checkbox>Official visit</Checkbox>
+                        </Form.Item>
+                    </Col>
+                    <Col xs={24}>
+                        <Form.Item shouldUpdate>
+                            {({ getFieldValue }) =>
+                                getFieldValue("important_visit") ? (
+                                    <Form.Item name="important_notes">
+                                        <FloatTextArea label="Notes" />
+                                    </Form.Item>
+                                ) : null
+                            }
                         </Form.Item>
                     </Col>
                 </Row>

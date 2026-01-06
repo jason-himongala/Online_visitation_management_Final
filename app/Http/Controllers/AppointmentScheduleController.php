@@ -47,6 +47,8 @@ class AppointmentScheduleController extends Controller
             'department_id' => 'required|exists:departments,id',
             'appointment_type' => 'required|string|max:255',
             'available_time' => 'required|string|max:255',
+            'important_notes' => 'nullable|string',
+            'important_visit' => 'nullable|boolean',
             'date' => 'required|date',
         ]);
 

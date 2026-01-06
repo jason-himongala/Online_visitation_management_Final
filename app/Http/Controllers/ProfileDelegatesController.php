@@ -90,20 +90,16 @@ class ProfileDelegatesController extends Controller
 
     public function generate_visitation_certificates(Request $request)
     {
-        $id = $request->id;
+        $visitation_information_id = $request->visitation_information_id;
         $fullname = $this->fullname;
-        $name_of_institution_agency = ('SELECT name_of_institution_agency FROM visitation_forms WHERE id = profile_delegates.visitation_form_id');
 
         $data = ProfileDelegates::with(['visitation_forms'])
-            ->where('id', $id)
+            ->where('visitation_form_id', $visitation_information_id)
             ->select([
                 '*',
                 DB::raw("($fullname) AS fullname"),
-                DB::raw("($name_of_institution_agency) AS name_of_institution_agency"),
             ])
             ->get();
-
-
 
         $csu_logo = base64_encode(file_get_contents(public_path("images/logo.png")));
         $csu_logo = 'data:image/png;base64,' . $csu_logo;
@@ -115,6 +111,7 @@ class ProfileDelegatesController extends Controller
             'csu_logo' => $csu_logo,
             'bagong_pillipinas_logo' => $bagong_pillipinas_logo
         ]);
+
         $pdf->getDomPDF()->setHttpContext(
             stream_context_create([
                 'ssl' => [

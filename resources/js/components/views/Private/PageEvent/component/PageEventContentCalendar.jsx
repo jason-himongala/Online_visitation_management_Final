@@ -16,7 +16,6 @@ import {
     Row,
     Typography,
     Form,
-    Divider,
     Table,
 } from "antd";
 
@@ -43,56 +42,29 @@ export default function PageEventContentCalendar() {
         dataUser?.data?.[0] ||
         dataUser?.data?.find((user) => user.id == UserIds);
 
-    // console.log("Current User:", currentUser);
-    // console.log("User Department ID:", currentUser?.department_id);
-
     const [toggleModalFormEvent, setToggleModalFormEvent] = useState({
         open: false,
         data: null,
     });
+
     const location = useLocation();
 
-    const [width, setWidth] = useState(window.innerWidth);
-    useEffect(() => {
-        const handleResize = () => {
-            setWidth(window.innerWidth);
-        };
-        window.addEventListener("resize", handleResize);
-        return () => {
-            window.removeEventListener("resize", handleResize);
-        };
-    }, []);
-
     const [currentDate, setCurrentDate] = useState(dayjs());
-    const [activeView, setActiveView] = useState("calendar");
-
-    const handlePrevMonth = (e) => {
-        e.stopPropagation();
-        setCurrentDate(currentDate.subtract(1, "month"));
-    };
-
-    const handleNextMonth = (e) => {
-        e.stopPropagation();
-        setCurrentDate(currentDate.add(1, "month"));
-    };
-
-    const handleToday = () => {
-        setCurrentDate(dayjs());
-    };
 
     const [tableFilter, setTableFilter] = useState({
-        page: 1,
-        page_size: 50,
-        search: "",
-        sort_field: "title",
-        sort_order: "asc",
-        isTrash: 0,
         department_id: null,
     });
 
     const { data: dataAppointmentSchedules } = GET(
         `api/appointment_schedule`,
         "appointment_schedule_list",
+        () => {},
+        false
+    );
+
+    const { data: departments } = GET(
+        `api/departments`,
+        "department_list",
         () => {},
         false
     );
@@ -114,74 +86,67 @@ export default function PageEventContentCalendar() {
             value,
             dataAppointmentSchedules?.data || []
         );
+
         return (
-            <ul
-                style={{
-                    paddingLeft: 0,
-                    listStyle: "none",
-                    textAlign: "center",
-                }}
-            >
-                {eventData.map((item, index) => (
-                    <li
-                        key={index}
-                        style={{ cursor: "pointer" }}
-                        onClick={() =>
-                            setToggleModalFormEvent({ open: true, data: item })
-                        }
-                    >
-                        <Typography.Text
-                            className="text-sm font-semibold"
+            <ul style={{ paddingLeft: 0, listStyle: "none" }}>
+                {eventData.map((item, index) => {
+                    const isImportant =
+                        item.important_visit === 1 && item.important_notes;
+
+                    return (
+                        <li
+                            key={index}
+                            onClick={() =>
+                                setToggleModalFormEvent({
+                                    open: true,
+                                    data: item,
+                                })
+                            }
                             style={{
-                                color:
-                                    item.appointment_type === "Not Available"
-                                        ? "red"
-                                        : item.appointment_type === "Available"
-                                        ? "green"
-                                        : "inherit",
-                                display: "inline-block",
-                                textAlign: "center",
+                                cursor: "pointer",
+                                marginBottom: 6,
+                                padding: 6,
+                                borderRadius: 6,
+                                // backgroundColor: isImportant
+                                //     ? "#fff7e6"
+                                //     : "transparent",
+                                // border: isImportant
+                                //     ? "1px solid #faad14"
+                                //     : "none",
                             }}
                         >
-                            {item.appointment_type}
+                            <Typography.Text
+                                style={{
+                                    fontWeight: 600,
+                                    color: isImportant
+                                        ? "#fa8c16"
+                                        : item.appointment_type ===
+                                          "Not Available"
+                                        ? "red"
+                                        : "green",
+                                }}
+                            >
+                                {item.appointment_type}
+                            </Typography.Text>
                             <br />
                             <Typography.Text className="text-xs">
                                 {item.available_time}
                             </Typography.Text>
-                        </Typography.Text>
-                    </li>
-                ))}
+
+                            {isImportant && (
+                                <div className="flex items-center gap-1 text-xs font-bold text-orange-600">
+                                    <span className="w-2 h-2 bg-orange-500 rounded-full inline-block"></span>
+                                    Official visit
+                                </div>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
         );
     };
 
-    const { data: departments } = GET(
-        `api/departments`,
-        "department_list",
-        () => {},
-        false
-    );
-
-    const onChangeTableFilter = (key, value) => {
-        setTableFilter({
-            ...tableFilter,
-            [key]: value,
-        });
-    };
-
     useTableScrollOnTop("tbl_appointment", location);
-
-    useEffect(() => {
-        if (
-            currentUser?.department_id &&
-            tableFilter.department_id !== currentUser.department_id
-        ) {
-            setTableFilter((prev) => ({
-                ...prev,
-                department_id: currentUser.department_id,
-            }));
-        }
-    }, [currentUser?.department_id]);
 
     const [form] = Form.useForm();
 
@@ -190,8 +155,11 @@ export default function PageEventContentCalendar() {
             form.setFieldsValue({
                 department_id: currentUser.department_id,
             });
+            setTableFilter({
+                department_id: currentUser.department_id,
+            });
         }
-    }, [currentUser, form]);
+    }, [currentUser]);
 
     return (
         <PageEventContextCalendar.Provider
@@ -200,184 +168,151 @@ export default function PageEventContentCalendar() {
                 setToggleModalFormEvent,
             }}
         >
-            <div className="page-event-content-calendar">
-                <Row gutter={[20, 20]} justify="center">
-                    {userRole && userRole !== "Pico" && (
-                        <Col span={24}>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "flex-start",
-                                }}
-                            >
-                                <Button
-                                    type="primary"
-                                    shape="round"
-                                    icon={<FontAwesomeIcon icon={faPlus} />}
-                                    onClick={() =>
-                                        setToggleModalFormEvent({
-                                            open: true,
-                                            data: null,
-                                        })
-                                    }
-                                >
-                                    Create Appointment Schedule
-                                </Button>
-                            </div>
-                        </Col>
-                    )}
-
-                    <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Form
-                            form={form}
-                            layout="vertical"
-                            initialValues={{
-                                department_id:
-                                    currentUser?.department_id || null,
-                            }}
+            <Row gutter={[20, 20]}>
+                {userRole !== "Pico" && (
+                    <Col span={24}>
+                        <Button
+                            type="primary"
+                            shape="round"
+                            icon={<FontAwesomeIcon icon={faPlus} />}
+                            onClick={() =>
+                                setToggleModalFormEvent({
+                                    open: true,
+                                    data: null,
+                                })
+                            }
                         >
-                            <Form.Item name="department_id">
-                                <FloatSelect
-                                    className="w-full"
-                                    options={
-                                        Array.isArray(departments?.data)
-                                            ? departments.data
-                                                  .filter((dept) => {
-                                                      if (
-                                                          currentUser?.department_id
-                                                      ) {
-                                                          return (
-                                                              dept.id ==
-                                                              currentUser.department_id
-                                                          );
-                                                      }
-                                                      return true;
-                                                  })
-                                                  .map((dept) => ({
-                                                      label: dept.department_name,
-                                                      value: dept.id,
-                                                  }))
-                                            : []
-                                    }
-                                    label="Department"
-                                    placeholder="Department"
-                                    allowClear={false}
-                                    disabled={userRole !== "Pico"}
-                                    onChange={(value) =>
-                                        onChangeTableFilter(
-                                            "department_id",
-                                            value
-                                        )
-                                    }
-                                />
-                            </Form.Item>
-                        </Form>
-
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                            <Table
-                                id="tbl_appointment"
-                                dataSource={(
-                                    dataAppointmentSchedules?.data || []
-                                ).filter(
-                                    (item) =>
-                                        !currentUser?.department_id ||
-                                        item.department_id ===
-                                            currentUser.department_id
-                                )}
-                                pagination={false}
-                                rowKey="id"
-                                size="small"
-                                style={{ width: "100%" }}
-                            >
-                                <Table.Column
-                                    title="Type"
-                                    dataIndex="appointment_type"
-                                    key="appointment_type"
-                                    render={(text) => (
-                                        <Badge
-                                            color={
-                                                text === "Not Available"
-                                                    ? "red"
-                                                    : text === "Available"
-                                                    ? "green"
-                                                    : "blue"
-                                            }
-                                            text={text}
-                                        />
-                                    )}
-                                />
-                                <Table.Column
-                                    title="Date"
-                                    dataIndex="date"
-                                    key="date"
-                                    render={(text) =>
-                                        dayjs(text).format("MMM DD, YYYY")
-                                    }
-                                />
-                                <Table.Column
-                                    title="Time"
-                                    dataIndex="available_time"
-                                    key="available_time"
-                                />
-                                <Table.Column
-                                    title="Department"
-                                    dataIndex="department_name"
-                                    key="department_name"
-                                />
-                            </Table>
-                        </Col>
+                            Create Appointment Schedule
+                        </Button>
                     </Col>
+                )}
 
-                    <Col xs={24} sm={24} md={16} lg={18} xl={18}>
-                        <Row gutter={[20, 20]}>
-                            <Col span={24}>
-                                <Flex
-                                    justify="start"
-                                    align="center"
-                                    className="mb-4 gap-4"
-                                >
-                                    <Button
-                                        onClick={handleToday}
-                                        className="px-5 py-2 border border-green-700 text-green-700 rounded-full flex items-center"
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faChevronLeft}
-                                            onClick={handlePrevMonth}
-                                            className="mr-2 cursor-pointer"
-                                        />
-                                        Today
-                                        <FontAwesomeIcon
-                                            icon={faChevronRight}
-                                            onClick={handleNextMonth}
-                                            className="ml-2 cursor-pointer"
-                                        />
-                                    </Button>
+                <Col xs={24} md={8}>
+                    <Form
+                        form={form}
+                        layout="vertical"
+                        initialValues={{
+                            department_id: currentUser?.department_id || null,
+                        }}
+                    >
+                        <Form.Item name="department_id">
+                            <FloatSelect
+                                label="Department"
+                                options={
+                                    Array.isArray(departments?.data)
+                                        ? departments.data.map((dept) => ({
+                                              label: dept.department_name,
+                                              value: dept.id,
+                                          }))
+                                        : []
+                                }
+                                disabled={userRole !== "Pico"}
+                                onChange={(value) =>
+                                    setTableFilter({
+                                        department_id: value,
+                                    })
+                                }
+                            />
+                        </Form.Item>
+                    </Form>
 
-                                    <Typography.Title
-                                        level={3}
-                                        className="m-0 text-center flex-1 font-bold"
-                                    >
-                                        {currentDate.format("MMMM YYYY")}
-                                    </Typography.Title>
-                                </Flex>
-                            </Col>
+                    <Table
+                        id="tbl_appointment"
+                        size="small"
+                        pagination={false}
+                        rowKey="id"
+                        dataSource={
+                            dataAppointmentSchedules?.data?.filter(
+                                (item) =>
+                                    !tableFilter.department_id ||
+                                    item.department_id ===
+                                        tableFilter.department_id
+                            ) || []
+                        }
+                        rowClassName={(record) =>
+                            record.important_visit === 1 &&
+                            record.important_notes
+                                ? "important-row"
+                                : ""
+                        }
+                    >
+                        <Table.Column
+                            title="Type"
+                            dataIndex="appointment_type"
+                            render={(text) => (
+                                <Badge
+                                    color={
+                                        text === "Not Available"
+                                            ? "red"
+                                            : "green"
+                                    }
+                                    text={text}
+                                />
+                            )}
+                        />
+                        <Table.Column
+                            title="Date"
+                            dataIndex="date"
+                            render={(text) =>
+                                dayjs(text).format("MMM DD, YYYY")
+                            }
+                        />
+                        <Table.Column title="Time" dataIndex="available_time" />
+                        <Table.Column
+                            title="Official visit"
+                            render={(_, record) =>
+                                record.important_visit === 1 &&
+                                record.important_notes ? (
+                                    <Badge color="gold" text="Official visit" />
+                                ) : (
+                                    "-"
+                                )
+                            }
+                        />
+                    </Table>
+                </Col>
 
-                            <Col span={24}>
-                                <Card>
-                                    <Calendar
-                                        value={currentDate}
-                                        onChange={setCurrentDate}
-                                        cellRender={dateCellRender}
-                                        className="responsive-calendar"
-                                    />
-                                </Card>
-                            </Col>
-                        </Row>
-                    </Col>
+                <Col xs={24} md={16}>
+                    <Flex justify="space-between" align="center">
+                        <Button onClick={() => setCurrentDate(dayjs())}>
+                            Today
+                        </Button>
 
-                    <ModalFormEvent currentUser={currentUser} />
-                </Row>
-            </div>
+                        <Typography.Title level={3}>
+                            {currentDate.format("MMMM YYYY")}
+                        </Typography.Title>
+
+                        <div>
+                            <FontAwesomeIcon
+                                icon={faChevronLeft}
+                                onClick={() =>
+                                    setCurrentDate(
+                                        currentDate.subtract(1, "month")
+                                    )
+                                }
+                                className="mr-3 cursor-pointer"
+                            />
+                            <FontAwesomeIcon
+                                icon={faChevronRight}
+                                onClick={() =>
+                                    setCurrentDate(currentDate.add(1, "month"))
+                                }
+                                className="cursor-pointer"
+                            />
+                        </div>
+                    </Flex>
+
+                    <Card>
+                        <Calendar
+                            value={currentDate}
+                            onChange={setCurrentDate}
+                            cellRender={dateCellRender}
+                        />
+                    </Card>
+                </Col>
+
+                <ModalFormEvent currentUser={currentUser} />
+            </Row>
         </PageEventContextCalendar.Provider>
     );
 }

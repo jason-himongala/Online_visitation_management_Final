@@ -44,7 +44,6 @@ export default function PageVisitorView() {
         <>
             <Layout className="privates-layout flex items-center justify-center min-h-screen">
                 <Layout.Content className="flex flex-col items-center justify-center text-center">
-                    {/* Main Title */}
                     <Typography.Title
                         level={1}
                         className={`!text-white !drop-shadow-[2px_2px_4px_rgba(0,0,0,1)] ${
@@ -54,15 +53,12 @@ export default function PageVisitorView() {
                         Welcome to CSU Visitation System
                     </Typography.Title>
 
-                    {/* Subtitle */}
                     <Typography.Title
                         level={1}
                         className="!text-white !text-[25px] !drop-shadow-[2px_2px_4px_rgba(0,0,0,1)]"
                     >
                         Request and manage your campus visits with ease
                     </Typography.Title>
-
-                    {/* Button */}
 
                     <br />
                     <br />
@@ -73,16 +69,16 @@ export default function PageVisitorView() {
                         <Button
                             onClick={() => navigate("/my-status")}
                             className="
-                        group
-                        !bg-gradient-to-r !from-green-700 !to-green-900 
-                        hover:!from-green-800 hover:!to-green-950
-                        !text-white !font-semibold 
-                        !px-12 md:!px-16 !py-5 
-                        !rounded-full 
-                        !text-lg md:!text-2xl 
-                        !transition-all !duration-300 
-                        !shadow-lg hover:!shadow-xl 
-                        !flex !items-center !justify-center !gap-3
+                            group
+                            !bg-gradient-to-r !from-green-700 !to-green-900 
+                            hover:!from-green-800 hover:!to-green-950
+                            !text-white !font-semibold 
+                            !px-12 md:!px-16 !py-5 
+                            !rounded-full 
+                            !text-lg md:!text-2xl 
+                            !transition-all !duration-300 
+                            !shadow-lg hover:!shadow-xl 
+                            !flex !items-center !justify-center !gap-3
         "
                             style={{
                                 border: "none",
@@ -116,7 +112,6 @@ export default function PageVisitorView() {
                 <ListOffficeCard />
             </Card>
 
-            {/* Footer */}
             <Layout.Footer className="!text-center !bg-[#0d5b10] !text-white">
                 <Typography.Text className="!text-white">
                     © 2025 CSU Visitation System | Developed by Jason

@@ -5,6 +5,7 @@ import {
     faChevronLeft,
     faChevronRight,
     faList,
+    faTimes,
 } from "@fortawesome/pro-regular-svg-icons";
 import dayjs from "dayjs";
 import {
@@ -18,11 +19,11 @@ import {
     notification,
     Row,
     Table,
+    Tag,
     Typography,
 } from "antd";
 
 import { GET } from "../../../../providers/useAxiosQuery";
-
 import { useTableScrollOnTop } from "../../../../providers/CustomTableFilter";
 import FloatSelect from "../../../../providers/FloatSelect";
 import ModalVisitorInformationForm from "./ModalVisitorInformationForm";
@@ -30,6 +31,7 @@ import ModalApplicationList from "./ModalApplicationList";
 
 export default function PageVisitorRequestContent(props) {
     const { width } = props;
+    const location = useLocation();
 
     const [
         toggleModalVisitorInformationForm,
@@ -37,16 +39,7 @@ export default function PageVisitorRequestContent(props) {
     ] = useState({
         open: false,
         data: null,
-    });
-
-    const [tableFilter, setTableFilter] = useState({
-        page: 1,
-        page_size: 50,
-        search: "",
-        sort_field: "title",
-        sort_order: "asc",
-        isTrash: 0,
-        department_id: "",
+        selectedAppointments: [],
     });
 
     const [toggleModalApplicationList, setToggleModalApplicationList] =
@@ -55,12 +48,12 @@ export default function PageVisitorRequestContent(props) {
             data: null,
         });
 
-    const handleOpenModalVisitorInformationForm = () => {
-        setToggleModalVisitorInformationForm({ open: true, data: null });
-    };
+    const [tableFilter, setTableFilter] = useState({
+        department_ids: [],
+    });
 
     const [currentDate, setCurrentDate] = useState(dayjs());
-    const location = useLocation();
+    const [selectedAppointments, setSelectedAppointments] = useState([]);
 
     const handlePrevMonth = (e) => {
         e.stopPropagation();
@@ -74,6 +67,14 @@ export default function PageVisitorRequestContent(props) {
 
     const handleToday = () => {
         setCurrentDate(dayjs());
+    };
+
+    const handleClearSelection = () => {
+        setSelectedAppointments([]);
+        notification.info({
+            message: "Selection Cleared",
+            description: "All selected appointments have been cleared.",
+        });
     };
 
     const { data: Usersdepartments } = GET(
@@ -96,10 +97,60 @@ export default function PageVisitorRequestContent(props) {
             const matchDate =
                 dayjs(event.date).format("YYYY-MM-DD") === dateStr;
             const matchDept =
-                !tableFilter.department_id ||
-                event.department_id === tableFilter.department_id;
+                !tableFilter.department_ids.length ||
+                tableFilter.department_ids.includes(event.department_id);
             return matchDate && matchDept;
         });
+    };
+
+    const handleCellClick = (item) => {
+        if (item.appointment_type === "Not Available") {
+            notification.error({
+                message: "Unavailable",
+                description: "This appointment slot is not available.",
+            });
+            return;
+        }
+
+        // Check if already selected
+        const isSelected = selectedAppointments.some(
+            (selected) => selected.id === item.id
+        );
+
+        if (isSelected) {
+            // Remove from selection
+            setSelectedAppointments((prev) =>
+                prev.filter((selected) => selected.id !== item.id)
+            );
+            notification.info({
+                message: "Removed",
+                description: `Removed ${item.department_name} - ${item.available_time}`,
+            });
+        } else {
+            // Check if the same time slot from same department already exists
+            const sameDeptTime = selectedAppointments.find(
+                (selected) =>
+                    selected.department_id === item.department_id &&
+                    selected.available_time === item.available_time &&
+                    selected.date === item.date
+            );
+
+            if (sameDeptTime) {
+                notification.warning({
+                    message: "Already Selected",
+                    description:
+                        "You have already selected this time slot for this department.",
+                });
+                return;
+            }
+
+            // Add to selection
+            setSelectedAppointments((prev) => [...prev, item]);
+            notification.success({
+                message: "Added",
+                description: `Added ${item.department_name} - ${item.available_time}`,
+            });
+        }
     };
 
     const dateCellRender = (value) => {
@@ -107,6 +158,7 @@ export default function PageVisitorRequestContent(props) {
             value,
             dataAppointmentSchedules?.data || []
         );
+
         return (
             <ul
                 style={{
@@ -115,199 +167,272 @@ export default function PageVisitorRequestContent(props) {
                     textAlign: "center",
                 }}
             >
-                {eventData.map((item, index) => (
-                    <li
-                        key={index}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => {
-                            if (item.appointment_type === "Not Available") {
-                                notification.error({
-                                    message: "Unavailable",
-                                    description:
-                                        "This appointment slot is not available.",
-                                });
-                                return;
-                            }
-                            setToggleModalVisitorInformationForm({
-                                open: true,
-                                data: item,
-                            });
-                        }}
-                    >
-                        <Typography.Text
-                            className="text-sm font-semibold"
+                {eventData.map((item, index) => {
+                    const isSelected = selectedAppointments.some(
+                        (selected) => selected.id === item.id
+                    );
+                    const isImportant =
+                        item.important_visit === 1 && item.important_notes;
+
+                    return (
+                        <li
+                            key={index}
                             style={{
-                                color:
-                                    item.appointment_type === "Not Available"
-                                        ? "red"
-                                        : item.appointment_type === "Available"
-                                        ? "green"
-                                        : "inherit",
-                                display: "inline-block",
-                                textAlign: "center",
+                                cursor: "pointer",
+                                marginBottom: 6,
+                                padding: 6,
+                                borderRadius: 6,
+                                // backgroundColor: isSelected
+                                //     ? "#e6f7ff"
+                                //     : "transparent",
+                                // border: isSelected
+                                //     ? "2px solid #1890ff"
+                                //     : "1px solid #f0f0f0",
+                                transition: "all 0.3s ease",
                             }}
+                            onClick={() => handleCellClick(item)}
                         >
-                            {item.appointment_type}
-                            <br />
-                            <Typography.Text className="text-xs">
-                                {item.available_time}
+                            <Typography.Text
+                                className="text-sm font-semibold"
+                                style={{
+                                    color:
+                                        item.appointment_type ===
+                                        "Not Available"
+                                            ? "#ff4d4f"
+                                            : item.appointment_type ===
+                                              "Available"
+                                            ? "#52c41a"
+                                            : "#1890ff",
+                                }}
+                            >
+                                {item.appointment_type}
+                                <br />
+                                <Typography.Text className="text-xs">
+                                    {item.available_time}
+                                </Typography.Text>
                             </Typography.Text>
-                        </Typography.Text>
-                    </li>
-                ))}
+
+                            {isImportant && (
+                                <div style={{ marginTop: 4 }}>
+                                    <Badge
+                                        status="warning"
+                                        text={
+                                            <span className="text-xs font-bold">
+                                                {item.important_notes}
+                                            </span>
+                                        }
+                                    />
+                                </div>
+                            )}
+
+                            {isSelected && (
+                                <div className="mt-2">
+                                    <Tag color="blue" className="text-xs">
+                                        Selected
+                                    </Tag>
+                                </div>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
         );
     };
 
     useTableScrollOnTop("tbl_page_visitor", location);
 
-    const onChangeTableFilter = (key, value) => {
-        setTableFilter({
-            ...tableFilter,
-            [key]: value,
-        });
-    };
-
     return (
-        <Row gutter={[25, 40]}>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24}></Col>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24}></Col>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                <Card>
-                    <Form>
-                        <Form.Item name="department_id">
-                            <FloatSelect
-                                placeholder="Select Office"
-                                label="Select Office"
-                                options={
-                                    Usersdepartments?.data
-                                        ? Usersdepartments.data
-                                              .filter(
-                                                  (item) =>
-                                                      item.department_name !==
-                                                          null &&
-                                                      item.department_id !==
-                                                          null
-                                              )
-                                              .map((item) => ({
-                                                  label: item.department_name,
-                                                  value: item.department_id,
-                                              }))
-                                        : []
-                                }
-                                onChange={(value) =>
-                                    onChangeTableFilter("department_id", value)
-                                }
-                                allowClear
-                            />
-                        </Form.Item>
-                    </Form>
-                </Card>
-            </Col>
-            <Col xs={7} sm={7} md={7} lg={7} xl={7}>
-                <Card>
-                    <Row gutter={[24, 24]}>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}></Col>
-                        <Col
-                            xs={24}
-                            sm={24}
-                            md={24}
-                            lg={24}
-                            xl={24}
-                            className="mt-4"
-                        >
-                            <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                                <div
-                                    style={{
-                                        textAlign: "center",
-                                        width: "100%",
-                                    }}
-                                >
-                                    <Typography.Title level={4}>
-                                        Application List
-                                    </Typography.Title>
-                                </div>
-                            </Col>
-                            <Table
-                                dataSource={(
-                                    dataAppointmentSchedules?.data || []
-                                ).filter(
-                                    (item) =>
-                                        !tableFilter.department_id ||
-                                        item.department_id ===
-                                            tableFilter.department_id
-                                )}
-                                bordered
-                                rowKey={(record) => record.key}
-                                pagination={false}
-                                size="middle"
-                            >
-                                <Table.Column
-                                    title="Date"
-                                    dataIndex="date"
-                                    key="date"
-                                    width={100}
+        <>
+            <Row gutter={[25, 40]}>
+                <Col span={24}>
+                    <Card>
+                        <Form>
+                            <Form.Item name="department_ids">
+                                <FloatSelect
+                                    label="Select Office(s)"
+                                    placeholder="Select Office(s)"
+                                    options={
+                                        Usersdepartments?.data
+                                            ? Usersdepartments.data
+                                                  .filter(
+                                                      (item) =>
+                                                          item.department_name &&
+                                                          item.department_id
+                                                  )
+                                                  .map((item) => ({
+                                                      label: item.department_name,
+                                                      value: item.department_id,
+                                                  }))
+                                            : []
+                                    }
+                                    allowClear
+                                    mode="multiple"
+                                    onChange={(values) =>
+                                        setTableFilter({
+                                            department_ids: values || [],
+                                        })
+                                    }
                                 />
-                                <Table.Column
-                                    title="Office"
-                                    dataIndex="department_name"
-                                    key="department_name"
-                                    width={100}
-                                />
-                            </Table>{" "}
-                        </Col>
-                    </Row>
-                </Card>
-            </Col>
+                            </Form.Item>
+                        </Form>
+                    </Card>
+                </Col>
 
-            <Col xs={17} sm={17} md={17} lg={17} xl={17}>
-                <Card>
-                    <Row gutter={20} className="w-full">
-                        <Col xs={24} sm={18} md={18} lg={24}>
-                            <Flex
-                                justify="start"
-                                align="center"
-                                className="mb-4 gap-4"
+                <Col xs={24} md={7}>
+                    <Card>
+                        <Typography.Title
+                            level={4}
+                            style={{ textAlign: "center" }}
+                        >
+                            Selected Appointments
+                        </Typography.Title>
+
+                        {selectedAppointments.length > 0 ? (
+                            <>
+                                <Table
+                                    bordered
+                                    pagination={false}
+                                    size="small"
+                                    rowKey="id"
+                                    dataSource={selectedAppointments}
+                                    scroll={{ y: 300 }}
+                                >
+                                    <Table.Column
+                                        title="Date"
+                                        dataIndex="date"
+                                        render={(date) =>
+                                            dayjs(date).format("MMM DD, YYYY")
+                                        }
+                                    />
+                                    <Table.Column
+                                        title="Office"
+                                        dataIndex="department_name"
+                                    />
+                                    <Table.Column
+                                        title="Time"
+                                        dataIndex="available_time"
+                                    />
+                                    <Table.Column
+                                        title="Action"
+                                        render={(_, record) => (
+                                            <Button
+                                                type="text"
+                                                danger
+                                                size="small"
+                                                icon={
+                                                    <FontAwesomeIcon
+                                                        icon={faTimes}
+                                                    />
+                                                }
+                                                onClick={() =>
+                                                    handleCellClick(record)
+                                                }
+                                            >
+                                                Remove
+                                            </Button>
+                                        )}
+                                    />
+                                </Table>
+
+                                <br />
+
+                                <Flex justify="space-between" className="mt-4">
+                                    <Button
+                                        type="default"
+                                        danger
+                                        onClick={handleClearSelection}
+                                    >
+                                        Clear All
+                                    </Button>
+
+                                    <Button
+                                        type="primary"
+                                        onClick={() => {
+                                            if (
+                                                selectedAppointments.length ===
+                                                0
+                                            ) {
+                                                notification.warning({
+                                                    message:
+                                                        "No appointments selected",
+                                                    description:
+                                                        "Please select at least one appointment slot.",
+                                                });
+                                                return;
+                                            }
+                                            setToggleModalVisitorInformationForm(
+                                                {
+                                                    open: true,
+                                                    data: selectedAppointments[0],
+                                                    selectedAppointments:
+                                                        selectedAppointments,
+                                                }
+                                            );
+                                        }}
+                                    >
+                                        Preview Request
+                                    </Button>
+                                </Flex>
+                            </>
+                        ) : (
+                            <Typography.Text
+                                type="secondary"
+                                className="block text-center py-8"
                             >
+                                No appointments selected. Click on available
+                                time slots in the calendar to select.
+                            </Typography.Text>
+                        )}
+                    </Card>
+                </Col>
+
+                <Col xs={24} md={17}>
+                    <Card>
+                        <Flex
+                            justify="space-between"
+                            align="center"
+                            className="mb-4"
+                        >
+                            <Flex align="center" gap={20}>
                                 <Button
                                     onClick={handleToday}
-                                    className="px-5 py-2 border border-green-700 text-green-700 rounded-full flex items-center"
+                                    className="px-5 py-2 border border-green-700 text-green-700 rounded-full"
                                 >
                                     <FontAwesomeIcon
                                         icon={faChevronLeft}
                                         onClick={handlePrevMonth}
-                                        className="mr-2 cursor-pointer"
+                                        className="mr-2"
                                     />
                                     Today
                                     <FontAwesomeIcon
                                         icon={faChevronRight}
                                         onClick={handleNextMonth}
-                                        className="ml-2 cursor-pointer"
+                                        className="ml-2"
                                     />
                                 </Button>
 
-                                <Typography.Title
-                                    level={3}
-                                    className="m-0 text-center flex-1 font-bold"
-                                >
+                                <Typography.Title level={3} className="m-0">
                                     {currentDate.format("MMMM YYYY")}
                                 </Typography.Title>
                             </Flex>
-                        </Col>
 
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                            <Card>
-                                <Calendar
-                                    value={currentDate}
-                                    fullscreen
-                                    onChange={setCurrentDate}
-                                    cellRender={dateCellRender}
-                                />
-                            </Card>
-                        </Col>
-                    </Row>
-                </Card>
-            </Col>
+                            {selectedAppointments.length > 0 && (
+                                <Tag color="blue" className="text-lg px-4 py-1">
+                                    {selectedAppointments.length} appointment(s)
+                                    selected
+                                </Tag>
+                            )}
+                        </Flex>
+
+                        <Calendar
+                            value={currentDate}
+                            fullscreen
+                            onChange={setCurrentDate}
+                            cellRender={dateCellRender}
+                        />
+                    </Card>
+                </Col>
+            </Row>
 
             <ModalVisitorInformationForm
                 toggleModalVisitorInformationForm={
@@ -316,12 +441,14 @@ export default function PageVisitorRequestContent(props) {
                 setToggleModalVisitorInformationForm={
                     setToggleModalVisitorInformationForm
                 }
+                selectedAppointments={selectedAppointments}
+                setSelectedAppointments={setSelectedAppointments}
             />
 
             <ModalApplicationList
                 toggleModalApplicationList={toggleModalApplicationList}
                 setToggleModalApplicationList={setToggleModalApplicationList}
             />
-        </Row>
+        </>
     );
 }

@@ -9,4 +9,37 @@
     --color-highlight: #ebfca3;
 }
 
+.important-row {
+    background-color: #fffbe6 !important;
+}
+
+.ant-list-item {
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.ant-list-item:hover {
+    background-color: #fafafa;
+}
+
+.selected-appointment {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+    }
+}
+
+.calendar-cell {
+    min-height: 120px;
+}
+
 $body-bg: var(--color-blue-800);

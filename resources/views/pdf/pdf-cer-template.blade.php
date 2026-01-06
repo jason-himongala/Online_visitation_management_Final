@@ -22,7 +22,7 @@
             margin: 6px 0;
         }
         table {
-            width: 60%;
+            width: 80%; /* Increased width */
             margin: 15px auto;
             border-collapse: collapse;
             font-size: 14px;
@@ -32,12 +32,23 @@
         }
         th, td {
             padding: 8px;
+            text-align: left; /* Changed to left alignment */
+        }
+        th {
             text-align: center;
+            background-color: #f2f2f2;
         }
         .signatory {
             margin-top: 40px;
             font-weight: bold;
             font-size: 14px;
+        }
+        .logo-cell {
+            width: 80px;
+            border: none;
+        }
+        .center-cell {
+            border: none;
         }
     </style>
 </head>
@@ -46,19 +57,16 @@
     <div class="header" style="width:100%; margin-bottom:10px;">
         <table style="width:100%; border:none;">
             <tr>
-
-
-                
-                <td style="width:80px; text-align:left; border:none;">
+                <td class="logo-cell" style="text-align:left;">
                     <img src="{{$csu_logo}}" alt="Left Logo" style="width:80px;">
                 </td>
-                <td style="text-align:center; border:none;">
+                <td class="center-cell" style="text-align:center;">
                     <p>Republic of the Philippines</p>
                     <h2 style="color: green; margin: 0; font-size:18px;">CARAGA STATE UNIVERSITY</h2>
                     <p>Ampayon, Butuan City 8600, Philippines</p>
                     <p>Management Information System Office</p>
                 </td>
-                <td style="width:80px; text-align:right; border:none;">
+                <td class="logo-cell" style="text-align:right;">
                     <img src="{{$bagong_pillipinas_logo}}" alt="Right Logo" style="width:80px;">
                 </td>
             </tr>
@@ -72,16 +80,28 @@
         on _______________, and actively participated in the proceedings.</p>
 
     <table>
-        <tr>
-            <th>NAME</th>
-            <th>AGENCY</th>
-        </tr>
-        <tr>
-            <td style="height:30px;">
-                {{$data->first()->fullname}}
-            </td>
-            <td>{{$data->first()->name_of_institution_agency}}</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>NAME</th>
+                <th>AGENCY</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($data as $delegate)
+            <tr>
+                <td style="height:30px; min-height:30px;">
+                    {{ $delegate->fullname ?? 'N/A' }}
+                </td>
+                <td>
+                    {{ $delegate->visitation_forms->name_of_institution_agency ?? 'N/A' }}
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="2" style="text-align:center;">No delegates found</td>
+            </tr>
+            @endforelse
+        </tbody>
     </table>
 
     <p>This certificate is hereby provided in adherence to government accounting regulations,<br>

@@ -183,6 +183,38 @@ export default function ModalMessage(props) {
         return grouped;
     };
 
+    // Function to render messages with clickable links
+    const renderMessageWithLinks = (text) => {
+        const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+        const parts = text.split(urlRegex);
+
+        return parts.map((part, index) => {
+            if (urlRegex.test(part)) {
+                let url = part;
+                if (!url.startsWith("http")) {
+                    url = "https://" + url;
+                }
+                return (
+                    <a
+                        key={index}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        style={{
+                            color: "#1890ff",
+                            textDecoration: "underline",
+                            wordBreak: "break-all",
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {part}
+                    </a>
+                );
+            }
+            return <span key={index}>{part}</span>;
+        });
+    };
+
     const handleSend = async () => {
         if (newMessage.trim() === "" || !selectedGroup) return;
 
@@ -523,7 +555,9 @@ export default function ModalMessage(props) {
                                                                     </div>
                                                                 )}
                                                                 <div>
-                                                                    {msg.text}
+                                                                    {renderMessageWithLinks(
+                                                                        msg.text
+                                                                    )}
                                                                 </div>
                                                                 <div
                                                                     style={{

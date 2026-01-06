@@ -68,58 +68,51 @@ class VisitaionInformationController extends Controller
     {
         $ret = [
             "success" => true,
-            "message" => "Visitaion Information created successfully."
+            "message" => "Visitation Information created successfully."
         ];
-        $dataValidated = $request->validate([
-            // 'department_id' => 'required|exists:departments,id',
+
+        $request->validate([
             'profile_id' => 'required|exists:profiles,id',
-            'remarks' => 'nullable',
-            'appointment_schedule_id' => 'required|exists:appointment_schedules,id',
             'purpose_of_visit' => 'required|string|max:255',
-
+            'appointments' => 'required|array|min:1',
+            'appointments.*.appointment_schedule_id' => 'required|exists:appointment_schedules,id',
+            'appointments.*.department_id' => 'nullable|exists:departments,id',
+            'appointments.*.date' => 'nullable|date',
+            'appointments.*.time' => 'nullable|string',
         ]);
-        $dataUserNotifications = $request->validate([
-            'visitation_information_id' => 'nullable|exists:visitation_information,id',
-            'user_id' => 'nullable|exists:users,id',
-            'read' => 'boolean',
-            'status' => 'boolean',
-
-        ]);
-
-
 
         try {
-            DB::transaction(function () use ($dataValidated,  &$ret, $request, $dataUserNotifications) {
+            DB::transaction(function () use ($request, &$ret) {
+                $createdVisitations = [];
 
-                $idVisitaionInformation = VisitaionInformation::updateOrCreate(
-                    ["id" => $request->id ?? null],
-                    $dataValidated
-                );
+                foreach ($request->appointments as $appointment) {
+                    $visitation = VisitaionInformation::create([
+                        'profile_id' => $request->profile_id,
+                        'remarks' => $request->remarks,
+                        'appointment_schedule_id' => $appointment['appointment_schedule_id'],
+                        'purpose_of_visit' => $request->purpose_of_visit,
+                    ]);
 
-                $id = $idVisitaionInformation->id;
+                    UserNotification::create([
+                        "user_id" => 1, // Or get from auth
+                        "visitation_information_id" => $visitation->id,
+                        "read" => false,
+                        "status" => true,
+                    ]);
 
-                UserNotification::create([
-                    "user_id" => 1,
-                    "visitation_information_id" => $id,
-                    "read" => $dataUserNotifications['read'] ?? false,
-                    "status" => $dataUserNotifications['status'] ?? true,
-                ]);
-
-
-
-
-
+                    $createdVisitations[] = $visitation;
+                }
 
                 $ret['success'] = true;
-                $ret['message'] = "Data " . ($request->id ? "updated" : "saved") . " successfully";
+                $ret['message'] = "Successfully created " . count($createdVisitations) . " visitation(s)";
+                $ret['data'] = $createdVisitations;
             });
         } catch (\Throwable $th) {
+            $ret['success'] = false;
             $ret['message'] = "An error occurred: " . $th->getMessage();
         }
 
-        $ret['request'] = $request->all();
-
-        return response()->json($ret, 200);
+        return response()->json($ret, $ret['success'] ? 200 : 500);
     }
 
     /**

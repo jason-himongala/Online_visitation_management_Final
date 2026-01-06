@@ -633,40 +633,39 @@ export default function PageFeedbackContent(props) {
                         </Col>
                     </Row>
                 </Form>
-                {/* 
-                {isSubmitted && dataDelegates?.data && ( */}
-                <Table
-                    dataSource={dataDelegates && dataDelegates.data}
-                    pagination={false}
-                    rowKey={(record) => record.id}
-                    className="mt-4"
-                >
-                    <Table.Column
-                        title="Delegates Name"
-                        dataIndex="fullname"
-                        key="fullname"
-                    />
+                {isSubmitted && dataDelegates?.data && (
+                    <>
+                        <Table
+                            dataSource={dataDelegates && dataDelegates.data}
+                            pagination={false}
+                            rowKey={(record) => record.id}
+                            className="mt-4"
+                        >
+                            <Table.Column
+                                title="Delegates Name"
+                                dataIndex="fullname"
+                                key="fullname"
+                            />
+                        </Table>
 
-                    <Table.Column
-                        title="Certificate"
-                        key="action"
-                        render={(text, record) => (
+                        <br />
+                        <div className="text-center mt-4">
                             <Button
-                                type="link"
+                                type="primary"
+                                size="large"
                                 onClick={() =>
                                     setToggleModalPreviewPdf({
                                         open: true,
-                                        url: `api/generate_visitation_certificates?id=${record.id}`,
+                                        url: `api/generate_visitation_certificates?visitation_information_id=${id}`,
                                     })
                                 }
+                                className="bg-green-700 border-green-800 hover:bg-green-800"
                             >
-                                Download
+                                Download Certificate of Appearance
                             </Button>
-                        )}
-                    />
-                </Table>
-                {/* )} */}
-
+                        </div>
+                    </>
+                )}
                 <ModalPreviewPdf
                     setToggleModalPreviewPdf={setToggleModalPreviewPdf}
                     toggleModalPreviewPdf={toggleModalPreviewPdf}
