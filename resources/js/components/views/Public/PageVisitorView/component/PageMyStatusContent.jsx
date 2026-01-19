@@ -1,6 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Card, List, Button, Modal, Typography, Divider } from "antd";
+import {
+    Card,
+    List,
+    Button,
+    Modal,
+    Typography,
+    Divider,
+    Popconfirm,
+} from "antd";
 
 import { GET } from "../../../../providers/useAxiosQuery";
 import ModalGroupChatView from "./ModalGroupChatView";
@@ -110,23 +118,28 @@ export default function PageMyStatusContent() {
                                           item.status.slice(1).toLowerCase()
                                         : ""}
                                 </Button>
-                                <Button
-                                    danger
-                                    size="small"
-                                    style={{
-                                        background: "#ff7875",
-                                        color: "#fff",
-                                        border: "none",
-                                        borderRadius: 6,
-                                        fontSize: 14,
-                                        padding: "4px 16px",
-
-                                        fontWeight: "bold",
-                                    }}
-                                    onClick={() => handleRemove(item.id)}
+                                <Popconfirm
+                                    title="Are you sure you want to remove this item?"
+                                    onConfirm={() => handleRemove(item.id)}
+                                    okText="Yes"
+                                    cancelText="No"
                                 >
-                                    Remove
-                                </Button>
+                                    <Button
+                                        danger
+                                        size="small"
+                                        style={{
+                                            background: "#ff7875",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 6,
+                                            fontSize: 14,
+                                            padding: "4px 16px",
+                                            fontWeight: "bold",
+                                        }}
+                                    >
+                                        Remove
+                                    </Button>
+                                </Popconfirm>
                             </div>
                         </div>
                     </Card>
