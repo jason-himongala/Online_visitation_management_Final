@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faChevronLeft,
@@ -49,7 +49,7 @@ export default function PageVisitorRequestContent(props) {
         });
 
     const [tableFilter, setTableFilter] = useState({
-        department_ids: [],
+        department_id: "",
     });
 
     const [currentDate, setCurrentDate] = useState(dayjs());
@@ -84,12 +84,20 @@ export default function PageVisitorRequestContent(props) {
         false,
     );
 
-    const { data: dataAppointmentSchedules } = GET(
-        `api/appointment_schedule`,
+    const {
+        data: dataAppointmentSchedules,
+        refetch: refetchAppointmentSchedules,
+    } = GET(
+        `api/appointment_schedule?${new URLSearchParams(tableFilter)}`,
         "appointment_schedule_list",
         () => {},
         false,
     );
+
+    useEffect(() => {
+        refetchAppointmentSchedules();
+        return () => {};
+    }, [tableFilter]);
 
     const getEventData = (date, events) => {
         const dateStr = dayjs(date).format("YYYY-MM-DD");
@@ -97,8 +105,8 @@ export default function PageVisitorRequestContent(props) {
             const matchDate =
                 dayjs(event.date).format("YYYY-MM-DD") === dateStr;
             const matchDept =
-                !tableFilter.department_ids.length ||
-                tableFilter.department_ids.includes(event.department_id);
+                !tableFilter.department_id.length ||
+                tableFilter.department_id.includes(event.department_id);
             return matchDate && matchDept;
         });
     };
@@ -245,7 +253,7 @@ export default function PageVisitorRequestContent(props) {
                 </Col>
                 <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                     <Form>
-                        <Form.Item name="department_ids">
+                        <Form.Item name="department_id">
                             <FloatSelect
                                 label="Select Office(s)"
                                 placeholder="Select Office(s)"
@@ -266,7 +274,7 @@ export default function PageVisitorRequestContent(props) {
                                 allowClear
                                 onChange={(values) =>
                                     setTableFilter({
-                                        department_ids: values || [],
+                                        department_id: values || [],
                                     })
                                 }
                             />
