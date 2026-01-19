@@ -81,14 +81,14 @@ export default function PageVisitorRequestContent(props) {
         `api/users`,
         "department_list",
         () => {},
-        false
+        false,
     );
 
     const { data: dataAppointmentSchedules } = GET(
         `api/appointment_schedule`,
         "appointment_schedule_list",
         () => {},
-        false
+        false,
     );
 
     const getEventData = (date, events) => {
@@ -112,27 +112,24 @@ export default function PageVisitorRequestContent(props) {
             return;
         }
 
-        // Check if already selected
         const isSelected = selectedAppointments.some(
-            (selected) => selected.id === item.id
+            (selected) => selected.id === item.id,
         );
 
         if (isSelected) {
-            // Remove from selection
             setSelectedAppointments((prev) =>
-                prev.filter((selected) => selected.id !== item.id)
+                prev.filter((selected) => selected.id !== item.id),
             );
             notification.info({
                 message: "Removed",
                 description: `Removed ${item.department_name} - ${item.available_time}`,
             });
         } else {
-            // Check if the same time slot from same department already exists
             const sameDeptTime = selectedAppointments.find(
                 (selected) =>
                     selected.department_id === item.department_id &&
                     selected.available_time === item.available_time &&
-                    selected.date === item.date
+                    selected.date === item.date,
             );
 
             if (sameDeptTime) {
@@ -144,7 +141,6 @@ export default function PageVisitorRequestContent(props) {
                 return;
             }
 
-            // Add to selection
             setSelectedAppointments((prev) => [...prev, item]);
             notification.success({
                 message: "Added",
@@ -156,7 +152,7 @@ export default function PageVisitorRequestContent(props) {
     const dateCellRender = (value) => {
         const eventData = getEventData(
             value,
-            dataAppointmentSchedules?.data || []
+            dataAppointmentSchedules?.data || [],
         );
 
         return (
@@ -169,7 +165,7 @@ export default function PageVisitorRequestContent(props) {
             >
                 {eventData.map((item, index) => {
                     const isSelected = selectedAppointments.some(
-                        (selected) => selected.id === item.id
+                        (selected) => selected.id === item.id,
                     );
                     const isImportant =
                         item.important_visit === 1 && item.important_notes;
@@ -200,9 +196,9 @@ export default function PageVisitorRequestContent(props) {
                                         "Not Available"
                                             ? "#ff4d4f"
                                             : item.appointment_type ===
-                                              "Available"
-                                            ? "#52c41a"
-                                            : "#1890ff",
+                                                "Available"
+                                              ? "#52c41a"
+                                              : "#1890ff",
                                 }}
                             >
                                 {item.appointment_type}
@@ -245,37 +241,37 @@ export default function PageVisitorRequestContent(props) {
         <>
             <Row gutter={[25, 40]}>
                 <Col span={24}>
-                    <Card>
-                        <Form>
-                            <Form.Item name="department_ids">
-                                <FloatSelect
-                                    label="Select Office(s)"
-                                    placeholder="Select Office(s)"
-                                    options={
-                                        Usersdepartments?.data
-                                            ? Usersdepartments.data
-                                                  .filter(
-                                                      (item) =>
-                                                          item.department_name &&
-                                                          item.department_id
-                                                  )
-                                                  .map((item) => ({
-                                                      label: item.department_name,
-                                                      value: item.department_id,
-                                                  }))
-                                            : []
-                                    }
-                                    allowClear
-                                    mode="multiple"
-                                    onChange={(values) =>
-                                        setTableFilter({
-                                            department_ids: values || [],
-                                        })
-                                    }
-                                />
-                            </Form.Item>
-                        </Form>
-                    </Card>
+                    <Card></Card>
+                </Col>
+                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                    <Form>
+                        <Form.Item name="department_ids">
+                            <FloatSelect
+                                label="Select Office(s)"
+                                placeholder="Select Office(s)"
+                                options={
+                                    Usersdepartments?.data
+                                        ? Usersdepartments.data
+                                              .filter(
+                                                  (item) =>
+                                                      item.department_name &&
+                                                      item.department_id,
+                                              )
+                                              .map((item) => ({
+                                                  label: item.department_name,
+                                                  value: item.department_id,
+                                              }))
+                                        : []
+                                }
+                                allowClear
+                                onChange={(values) =>
+                                    setTableFilter({
+                                        department_ids: values || [],
+                                    })
+                                }
+                            />
+                        </Form.Item>
+                    </Form>
                 </Col>
 
                 <Col xs={24} md={7}>
@@ -366,7 +362,7 @@ export default function PageVisitorRequestContent(props) {
                                                     data: selectedAppointments[0],
                                                     selectedAppointments:
                                                         selectedAppointments,
-                                                }
+                                                },
                                             );
                                         }}
                                     >
