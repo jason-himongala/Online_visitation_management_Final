@@ -54,7 +54,7 @@ export default function PageUserForm() {
         `api/departments`,
         "departments_list",
         () => {},
-        false
+        false,
     );
 
     // Fetch user data
@@ -78,7 +78,7 @@ export default function PageUserForm() {
                     data.profile.attachments.length > 0
                 ) {
                     let profileAttachments = data.profile.attachments.filter(
-                        (f) => f.file_description === "Profile Picture"
+                        (f) => f.file_description === "Profile Picture",
                     );
 
                     if (profileAttachments.length > 0) {
@@ -110,21 +110,21 @@ export default function PageUserForm() {
                     department_id,
                 });
             }
-        }
+        },
     );
 
     const { data: dataRole } = GET(
         "api/user_role",
         "user_role_select",
         () => {},
-        false
+        false,
     );
 
     console.log("dataRole", dataRole);
 
     const { mutate: mutateUser, isLoading: isLoadingUser } = POST(
         `api/users`,
-        "users_info"
+        "users_info",
     );
 
     const onFinish = (values) => {
@@ -146,7 +146,7 @@ export default function PageUserForm() {
             data.append(
                 "profile_picture",
                 toggleModalUploadProfilePicture.file,
-                toggleModalUploadProfilePicture.fileName
+                toggleModalUploadProfilePicture.fileName,
             );
         }
 
@@ -199,7 +199,7 @@ export default function PageUserForm() {
                 handleTriggerDebounce(field, value);
             }
         },
-        [handleTriggerDebounce]
+        [handleTriggerDebounce],
     );
     return (
         <Row gutter={[12, 12]}>
@@ -247,7 +247,7 @@ export default function PageUserForm() {
                                                                 (item) => ({
                                                                     value: item.id,
                                                                     label: item.role,
-                                                                })
+                                                                }),
                                                             )}
                                                             disabled={
                                                                 formDisabled
@@ -256,11 +256,11 @@ export default function PageUserForm() {
                                                             onChange={(e) => {
                                                                 handleDebounce(
                                                                     "user_role_id",
-                                                                    e
+                                                                    e,
                                                                 );
                                                                 form.setFieldValue(
                                                                     "department_id",
-                                                                    undefined
+                                                                    undefined,
                                                                 );
                                                             }}
                                                         />
@@ -271,7 +271,7 @@ export default function PageUserForm() {
                                                     <Form.Item
                                                         shouldUpdate={(
                                                             prev,
-                                                            cur
+                                                            cur,
                                                         ) =>
                                                             prev.user_role_id !==
                                                             cur.user_role_id
@@ -279,7 +279,7 @@ export default function PageUserForm() {
                                                     >
                                                         {({ getFieldValue }) =>
                                                             getFieldValue(
-                                                                "user_role_id"
+                                                                "user_role_id",
                                                             ) === 2 && (
                                                                 <Form.Item
                                                                     name="department_id"
@@ -294,11 +294,11 @@ export default function PageUserForm() {
                                                                             dataDepartment?.data
                                                                                 ? dataDepartment.data.map(
                                                                                       (
-                                                                                          item
+                                                                                          item,
                                                                                       ) => ({
                                                                                           value: item.id,
                                                                                           label: item.department_name,
-                                                                                      })
+                                                                                      }),
                                                                                   )
                                                                                 : []
                                                                         }
@@ -307,11 +307,11 @@ export default function PageUserForm() {
                                                                         }
                                                                         required
                                                                         onChange={(
-                                                                            e
+                                                                            e,
                                                                         ) => {
                                                                             handleDebounce(
                                                                                 "department_id",
-                                                                                e
+                                                                                e,
                                                                             );
                                                                         }}
                                                                     />
@@ -395,7 +395,7 @@ export default function PageUserForm() {
                                                                         data: {
                                                                             id: params.id,
                                                                         },
-                                                                    }
+                                                                    },
                                                                 )
                                                             }
                                                         >
@@ -423,7 +423,7 @@ export default function PageUserForm() {
                                                                         data: {
                                                                             id: params.id,
                                                                         },
-                                                                    }
+                                                                    },
                                                                 )
                                                             }
                                                         >
@@ -436,7 +436,7 @@ export default function PageUserForm() {
                                     },
                                     {
                                         key: "1",
-                                        label: "PERSONAL INFORMATION",
+                                        label: "INFORMATION",
                                         children: (
                                             <Row gutter={[24, 0]}>
                                                 <Col lg={12}>
@@ -456,7 +456,7 @@ export default function PageUserForm() {
                                                                 handleDebounce(
                                                                     "firstname",
                                                                     e.target
-                                                                        .value
+                                                                        .value,
                                                                 );
                                                             }}
                                                         />
@@ -479,7 +479,7 @@ export default function PageUserForm() {
                                                                 handleDebounce(
                                                                     "lastname",
                                                                     e.target
-                                                                        .value
+                                                                        .value,
                                                                 );
                                                             }}
                                                         />
@@ -496,7 +496,7 @@ export default function PageUserForm() {
                                                             onChange={(e) => {
                                                                 handleDebounce(
                                                                     "middlename",
-                                                                    e
+                                                                    e,
                                                                 );
                                                             }}
                                                         />
@@ -540,7 +540,7 @@ export default function PageUserForm() {
                                                             (ps) => ({
                                                                 ...ps,
                                                                 open: true,
-                                                            })
+                                                            }),
                                                         )
                                                     }
                                                 />
