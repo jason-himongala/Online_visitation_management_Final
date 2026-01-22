@@ -167,7 +167,7 @@ export default function ListCard(props) {
                                     type="primary"
                                     onClick={() => handleProcessExcel()}
                                 >
-                                    Export
+                                    Export to Excel
                                 </Button>
                             </Col>
                         </Row>
