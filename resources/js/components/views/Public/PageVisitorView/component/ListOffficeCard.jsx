@@ -4,8 +4,18 @@ import { apiUrl } from "../../../../providers/appConfig";
 
 export default function ListOfficeCard() {
     const departments = [
-        { name: "GS", logo: "GS-1.webp", description: "Graduate School" },
-        { name: "CoFES", logo: "CoFES-2.webp", description: "" },
+        {
+            name: "GS",
+            logo: "GS-1.webp",
+            description: "Graduate School",
+            link: `https://www.carsu.edu.ph/ovpaa/graduate-school/`,
+        },
+        {
+            name: "CoFES",
+            logo: "CoFES-2.webp",
+            description: `The College of Forestry and Environmental Science (CoFES) is committed to developing competent and socially responsible professionals in forestry and environmental science.`,
+            link: "https://www.carsu.edu.ph/ovpaa/college-of-forestry-and-environmental-science/",
+        },
         {
             name: "CMNS",
             logo: "CMNS-2.webp",
@@ -22,18 +32,23 @@ export default function ListOfficeCard() {
                             The College of Agriculture and Agri-Industries (CAA) equips students with technical 
                             knowledge and hands-on skills in crop and livestock production and sustainable 
                             agricultural practices.`,
+
+            link: `https://www.carsu.edu.ph/ovpaa/college-of-agriculture-and-agri-industries/`,
         },
         {
             name: "CCIS",
             logo: "CCIS-2.webp",
             description: `YOUR BEST OPTION TO SUCCESS
                             The College of Computing and Information Sciences (CCIS) shapes future tech leaders by blending innovation, skills, and purpose where ideas turn into solutions for the digital world.`,
+            link: `https://www.carsu.edu.ph/ovpaa/college-of-computing-and-information-sciences/`,
         },
         {
             name: "CED",
             logo: "CEd-2.webp",
             description: `ONE CED, ONE GOAL
                         The College of Education (CED) shapes future educators who inspire, lead, and transform lives.`,
+
+            link: `https://www.carsu.edu.ph/ovpaa/college-of-education/`,
         },
         {
             name: "CEGS",
@@ -42,6 +57,8 @@ export default function ListOfficeCard() {
                             The College of Engineering and Geosciences (CEGS) shapes future engineers and
                             geoscientists with the skills, knowledge, and innovation to solve real-world
                             challenges and drive sustainable progress.`,
+
+            link: `https://www.carsu.edu.ph/ovpaa/college-of-engineering-and-geosciences/`,
         },
         {
             name: "CHASS",
@@ -50,6 +67,7 @@ export default function ListOfficeCard() {
                         The College of Humanities and Social Sciences aims to produce students who are better 
                         citizens in a multicultural world through their knowledge of cultural differences and 
                         of the history of fundamental cultural changes, imbued with good moral and ethical values.`,
+            link: `https://www.carsu.edu.ph/ovpaa/college-of-humanities-and-social-sciences/`,
         },
     ];
 
@@ -70,6 +88,12 @@ export default function ListOfficeCard() {
     const closeModal = () => {
         setModalOpen(false);
         setSelectedDept(null);
+    };
+
+    const handleImageClick = (item) => {
+        if (item.link) {
+            window.open(item.link, "_blank", "noopener,noreferrer");
+        }
     };
 
     // const trackAnimationStyle = modalOpen
@@ -99,7 +123,12 @@ export default function ListOfficeCard() {
                                 margin: "0 10px",
                             }}
                         >
-                            <div>
+                            <div
+                                onClick={() => handleImageClick(item)}
+                                style={{
+                                    cursor: item.link ? "pointer" : "default",
+                                }}
+                            >
                                 <img
                                     src={apiUrl(`images/${item.logo}`)}
                                     style={{
@@ -114,7 +143,7 @@ export default function ListOfficeCard() {
                             </div>
                         </Card>
 
-                        {hoveredIndex === idx && (
+                        {/* {hoveredIndex === idx && (
                             <div
                                 style={{
                                     position: "absolute",
@@ -165,7 +194,7 @@ export default function ListOfficeCard() {
                                     See more
                                 </Button>
                             </div>
-                        )}
+                        )} */}
                     </div>
                 ))}
             </div>
@@ -174,9 +203,19 @@ export default function ListOfficeCard() {
                 open={modalOpen}
                 onCancel={closeModal}
                 footer={[
-                    <Button type="round" onClick={closeModal}>
+                    <Button key="close" onClick={closeModal}>
                         Close
                     </Button>,
+                    selectedDept?.link && (
+                        <Button
+                            key="link"
+                            href={selectedDept.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Visit Page
+                        </Button>
+                    ),
                 ]}
                 maskStyle={{
                     backdropFilter: "blur(6px)",
@@ -187,7 +226,7 @@ export default function ListOfficeCard() {
                     textAlign: "center",
                 }}
             >
-                <div style={{ textAlign: "center" }}>
+                <div style={{ textAlign: "center", whiteSpace: "pre-line" }}>
                     {selectedDept?.description || ""}
                 </div>
             </Modal>

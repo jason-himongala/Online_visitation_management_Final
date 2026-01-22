@@ -485,7 +485,7 @@ export default function PageUserForm() {
                                                         />
                                                     </Form.Item>
                                                 </Col>
-                                                <Col lg={12}>
+                                                {/* <Col lg={12}>
                                                     <Form.Item name="middlename">
                                                         <FloatInput
                                                             label="Middle Name"
@@ -501,14 +501,14 @@ export default function PageUserForm() {
                                                             }}
                                                         />
                                                     </Form.Item>
-                                                </Col>
+                                                </Col> */}
                                             </Row>
                                         ),
                                     },
                                 ]}
                             />
                         </Col>
-                        <Col lg={10}>
+                        {/* <Col lg={10}>
                             <Collapse
                                 items={[
                                     {
@@ -558,7 +558,7 @@ export default function PageUserForm() {
                                     },
                                 ]}
                             />
-                        </Col>
+                        </Col> */}
                         {!params.id && (
                             <Col span={24}>
                                 <Button

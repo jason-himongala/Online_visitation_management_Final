@@ -83,6 +83,7 @@ class VisitationFormController extends Controller
             'preferred_time_of_visit' => 'required',
             'alternate_date_of_visit' => 'required|date',
             'alternate_time_of_visit' => 'required',
+            'remarks' => 'nullable',
         ]);
 
         $dataProfileDelegates = $request->input('profile_delegates');

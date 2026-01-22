@@ -1,64 +1,3 @@
-// import { Card, Col, Flex, Row, Statistic } from "antd";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import {
-//     faCheckCircle,
-//     faClipboardList,
-//     faHourglassHalf,
-//     faPesoSign,
-// } from "@fortawesome/pro-regular-svg-icons";
-// import { fal } from "@fortawesome/pro-light-svg-icons";
-
-// export default function ListCard({ dataCardList }) {
-//     return (
-//         <Row gutter={[20, 20]}>
-//             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
-//                 <Card variant="borderless">
-//                     <Statistic
-//                         title="Total Requests"
-//                         value={Object.values(dataCardList?.data ?? {})
-//                             .filter((val) => typeof val === "number")
-//                             .reduce((acc, val) => acc + val, 0)}
-//                         valueStyle={{ color: "#4097ff" }}
-//                         prefix={<FontAwesomeIcon icon={faClipboardList} />}
-//                     />
-//                 </Card>
-//             </Col>
-
-//             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
-//                 <Card variant="borderless">
-//                     <Statistic
-//                         title="Pending Requests"
-//                         value={dataCardList?.data.pending ?? 0}
-//                         // precision={2}
-//                         valueStyle={{ color: "#cf1322" }}
-//                         prefix={<FontAwesomeIcon icon={faHourglassHalf} />}
-//                     />
-//                 </Card>
-//             </Col>
-//             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
-//                 <Card variant="borderless">
-//                     <Statistic
-//                         title="Approve Today"
-//                         value={dataCardList?.data.approved_today ?? 0}
-//                         valueStyle={{ color: "#3f8600" }}
-//                         prefix={<FontAwesomeIcon icon={faCheckCircle} />}
-//                     />
-//                 </Card>
-//             </Col>
-
-//             <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
-//                 <Card variant="borderless">
-//                     <Statistic
-//                         title="Recent Activity"
-//                         value="No recent activity"
-//                         valueStyle={{ color: "#3f8600" }}
-//                     />
-//                 </Card>
-//             </Col>
-//         </Row>
-//     );
-// }
-
 import {
     Button,
     Card,
@@ -68,6 +7,9 @@ import {
     Statistic,
     Table,
     Typography,
+    DatePicker,
+    Form,
+    message,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -84,11 +26,59 @@ import {
     TablePagination,
     TableShowingEntriesV2,
 } from "../../../../providers/CustomTableFilter";
+import { apiUrl } from "../../../../providers/appConfig";
+import dayjs from "dayjs";
+
+const { RangePicker } = DatePicker;
 
 export default function ListCard(props) {
-    const { dataCardList, dataSource, statusColors } = props;
+    const { dataCardList, dataSource, statusColors, handleDateChange } = props;
 
     console.log("dataSource", dataSource);
+
+    const [form] = Form.useForm();
+
+    const handleProcessExcel = () => {
+        form.validateFields()
+            .then((values) => {
+                const { year_and_month_range } = values;
+
+                if (
+                    !year_and_month_range ||
+                    year_and_month_range.length !== 2
+                ) {
+                    message.error("Please select a date range");
+                    return;
+                }
+
+                const [startDate, endDate] = year_and_month_range;
+
+                const startYear = startDate.year();
+                const startMonth = startDate.month() + 1;
+                const endYear = endDate.year();
+                const endMonth = endDate.month() + 1;
+
+                const url = apiUrl(
+                    `api/export_visitation_information?start_year=${startYear}&start_month=${startMonth}&end_year=${endYear}&end_month=${endMonth}`,
+                );
+
+                window.open(url, "_blank");
+            })
+            .catch((error) => {
+                console.error("Validation failed:", error);
+                message.error("Please select a valid date range");
+            });
+    };
+
+    const handleRangeChange = (dates) => {
+        if (dates && dates.length === 2) {
+            const [startDate, endDate] = dates;
+            if (handleDateChange) {
+                handleDateChange(dates);
+            }
+        }
+    };
+
     return (
         <Row gutter={[20, 20]}>
             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
@@ -117,7 +107,6 @@ export default function ListCard(props) {
                     <Statistic
                         title="Declined Requests"
                         value={dataCardList?.data?.declined ?? 0}
-                        // precision={2}
                         valueStyle={{ color: "#cf1322" }}
                         prefix={<FontAwesomeIcon icon={faXmarkCircle} />}
                     />
@@ -137,6 +126,52 @@ export default function ListCard(props) {
                     >
                         Recent Activity
                     </Typography>
+
+                    <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+                        <Row gutter={[20, 20]} align="middle">
+                            <Form form={form}>
+                                <Col
+                                    xs={24}
+                                    sm={24}
+                                    md={24}
+                                    lg={24}
+                                    xl={24}
+                                    xxl={24}
+                                >
+                                    <Form.Item
+                                        name="year_and_month_range"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message:
+                                                    "Please select date range",
+                                            },
+                                        ]}
+                                    >
+                                        <RangePicker
+                                            picker="month"
+                                            onChange={handleRangeChange}
+                                            style={{ width: "100%" }}
+                                            format="YYYY-MM"
+                                            placeholder={[
+                                                "Start Month",
+                                                "End Month",
+                                            ]}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Form>
+
+                            <Col xs={4} sm={4} md={4} lg={4} xl={4} xxl={4}>
+                                <Button
+                                    type="primary"
+                                    onClick={() => handleProcessExcel()}
+                                >
+                                    Export
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Col>
 
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Card variant="borderless">

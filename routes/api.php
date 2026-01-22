@@ -1,10 +1,5 @@
 <?php
 
-use App\Http\Controllers\GoogleController;
-use App\Models\StudentGrade;
-use Illuminate\Container\Attributes\DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,7 +24,7 @@ Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('initial_registration', [App\Http\Controllers\UserController::class, "initial_registration"]);
 Route::post('profiles_signup', [App\Http\Controllers\ProfileController::class, 'profiles_signup']);
 Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, 'update_profile_photo']);
-
+Route::get('export_visitation_information', [App\Http\Controllers\VisitaionInformationController::class, 'export_visitation_information']);
 
 
 
@@ -139,6 +134,4 @@ Route::middleware('auth:api')->group(function () {
     //End UserNotificationController
 
 
-    Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
-    Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 });

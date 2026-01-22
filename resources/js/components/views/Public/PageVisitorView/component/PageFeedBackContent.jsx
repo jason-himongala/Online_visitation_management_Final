@@ -38,12 +38,12 @@ export default function PageFeedbackContent(props) {
 
     const { data: dataDelegates } = GET(
         `api/profile_delegates?visitation_information_id=${id}`,
-        "profile_delegates_filter"
+        "profile_delegates_filter",
     );
 
     const { mutate: mutateVisitorForm, loading: isLoadingFeedback } = POST(
         `api/feedback`,
-        "feedback_form"
+        "feedback_form",
     );
 
     const dataSource = [
@@ -113,6 +113,7 @@ export default function PageFeedbackContent(props) {
 
             let value = values[key];
             data.append("user_id", userId);
+            data.append("remarks", "Submitted");
             data.append("visitation_information_id", id);
 
             if (key === "date") {

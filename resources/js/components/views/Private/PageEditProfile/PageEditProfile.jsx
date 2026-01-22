@@ -67,11 +67,11 @@ export default function PageEditProfile() {
 
             let profilePicture =
                 data.profile?.attachments?.filter(
-                    (f) => f.file_description === "Profile Picture"
+                    (f) => f.file_description === "Profile Picture",
                 ) || [];
             let signature =
                 data.profile?.attachments?.filter(
-                    (f) => f.file_description === "Signature"
+                    (f) => f.file_description === "Signature",
                 ) || [];
 
             if (profilePicture.length > 0) {
@@ -79,7 +79,7 @@ export default function PageEditProfile() {
                     open: false,
                     file: null,
                     src: apiUrl(
-                        profilePicture[profilePicture.length - 1].file_path
+                        profilePicture[profilePicture.length - 1].file_path,
                     ),
                     is_camera: null,
                     fileName: null,
@@ -109,7 +109,7 @@ export default function PageEditProfile() {
 
     const { mutate: mutateUpdateInfo } = POST(
         `api/user_profile_info_update`,
-        "user_profile_info_update"
+        "user_profile_info_update",
     );
 
     const onFinish = (values) => {
@@ -289,7 +289,7 @@ export default function PageEditProfile() {
                             },
                             {
                                 key: "1",
-                                label: "PERSONAL INFORMATION",
+                                label: "INFORMATION",
                                 children: (
                                     <Row gutter={[20, 0]}>
                                         <Col
@@ -321,22 +321,6 @@ export default function PageEditProfile() {
                                             lg={12}
                                             xl={12}
                                         >
-                                            <Form.Item name="middlename">
-                                                <FloatInput
-                                                    label="Middle Name"
-                                                    placeholder="Middle Name"
-                                                    onChange={handleDebounce}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        <Col
-                                            xs={24}
-                                            sm={24}
-                                            md={12}
-                                            lg={12}
-                                            xl={12}
-                                        >
                                             <Form.Item
                                                 name="lastname"
                                                 rules={[
@@ -347,50 +331,6 @@ export default function PageEditProfile() {
                                                     label="Last Name"
                                                     placeholder="Last Name"
                                                     required
-                                                    onChange={handleDebounce}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        <Col
-                                            xs={24}
-                                            sm={24}
-                                            md={12}
-                                            lg={12}
-                                            xl={12}
-                                        >
-                                            <Form.Item name="name_ext">
-                                                <FloatInput
-                                                    label="Name Extension"
-                                                    placeholder="Name Extension"
-                                                    onChange={handleDebounce}
-                                                />
-                                            </Form.Item>
-                                        </Col>
-
-                                        <Col
-                                            xs={24}
-                                            sm={24}
-                                            md={24}
-                                            lg={12}
-                                            xl={12}
-                                            xxl={12}
-                                        >
-                                            <Form.Item name="gender">
-                                                <FloatSelect
-                                                    label="Gender"
-                                                    placeholder="Gender"
-                                                    options={[
-                                                        {
-                                                            label: "Male",
-                                                            value: "Male",
-                                                        },
-                                                        {
-                                                            label: "Female",
-                                                            value: "Female",
-                                                        },
-                                                    ]}
-                                                    allowClear
                                                     onChange={handleDebounce}
                                                 />
                                             </Form.Item>
@@ -411,7 +351,7 @@ export default function PageEditProfile() {
                     xxl={8}
                     className="collapse-wrapper-photo"
                 >
-                    <Collapse
+                    {/* <Collapse
                         className="collapse-main-primary"
                         defaultActiveKey={["0", "1"]}
                         size="large"
@@ -451,7 +391,7 @@ export default function PageEditProfile() {
                                                             (ps) => ({
                                                                 ...ps,
                                                                 open: true,
-                                                            })
+                                                            }),
                                                         )
                                                     }
                                                 />
@@ -487,7 +427,7 @@ export default function PageEditProfile() {
                             //     ),
                             // },
                         ]}
-                    />
+                    /> */}
                 </Col>
             </Row>
 

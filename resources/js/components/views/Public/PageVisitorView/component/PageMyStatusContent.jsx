@@ -58,6 +58,58 @@ export default function PageMyStatusContent() {
         (item) => !removedIds.includes(item.id),
     );
 
+    const { data: datavistionForms, loading: isLoadingChat } = GET(
+        `api/visitation_forms`,
+        [
+            "visitation_forms_submit",
+            "user_notifications",
+            "user_notifications_list",
+        ],
+    );
+
+    const handleVisitationFormClick = () => {
+        const formSubmitted = datavistionForms?.data.find(
+            (form) =>
+                form.visitation_information_id === selectedItem.id &&
+                form.remarks === "Submitted",
+        );
+
+        if (formSubmitted) {
+            Modal.info({
+                title: "Form Submitted",
+                content: "You have already filled up the visitation form.",
+            });
+        } else {
+            navigate(
+                `/visitation-form/${selectedItem.status?.toLowerCase()}/${
+                    selectedItem.id
+                }`,
+            );
+        }
+    };
+    const { data: dataFeedback } = GET(`api/feedback`, "feedback_form");
+
+    const handleFeedbackFormClick = () => {
+        const formSubmitted = dataFeedback?.data.find(
+            (form) =>
+                form.visitation_information_id === selectedItem.id &&
+                form.remarks === "Submitted",
+        );
+
+        if (formSubmitted) {
+            Modal.info({
+                title: "Form Submitted",
+                content: "You have already filled up the visitation form.",
+            });
+        } else {
+            navigate(
+                `/feedback-form/${selectedItem.status?.toLowerCase()}/${
+                    selectedItem.id
+                }`,
+            );
+        }
+    };
+
     return (
         <>
             <List
@@ -157,7 +209,7 @@ export default function PageMyStatusContent() {
                             danger
                             onClick={() => handleRemove(selectedItem.id)}
                         >
-                            Remove
+                            Close
                         </Button>
                     ) : null
                 }
@@ -207,6 +259,7 @@ export default function PageMyStatusContent() {
                                 background: "#f6ffed",
                                 padding: "12px 16px",
                                 borderRadius: 4,
+                                marginBottom: "12px",
                             }}
                         >
                             <span>
@@ -218,13 +271,7 @@ export default function PageMyStatusContent() {
                                     background: "#0d5b10",
                                     borderColor: "#0d5b10",
                                 }}
-                                onClick={() =>
-                                    navigate(
-                                        `/visitation-form/${selectedItem.status?.toLowerCase()}/${
-                                            selectedItem.id
-                                        }`,
-                                    )
-                                }
+                                onClick={handleVisitationFormClick}
                             >
                                 Go to Visitation form
                             </Button>
@@ -247,13 +294,7 @@ export default function PageMyStatusContent() {
                                     background: "#0d5b10",
                                     borderColor: "#0d5b10",
                                 }}
-                                onClick={() =>
-                                    navigate(
-                                        `/feedback-form/${selectedItem.status?.toLowerCase()}/${
-                                            selectedItem.id
-                                        }`,
-                                    )
-                                }
+                                onClick={handleFeedbackFormClick}
                             >
                                 Go to Feedback form
                             </Button>

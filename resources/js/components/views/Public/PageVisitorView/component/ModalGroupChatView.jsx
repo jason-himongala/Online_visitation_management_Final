@@ -1,16 +1,31 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { faArrowLeft } from "@fortawesome/pro-regular-svg-icons";
+import {
+    faArrowLeft,
+    faArchive,
+    faInbox,
+} from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     SendOutlined,
     CheckOutlined,
     CheckCircleOutlined,
+    DownOutlined,
 } from "@ant-design/icons";
-import { Modal, Input, Button, List, Avatar, Typography } from "antd";
+import {
+    Modal,
+    Input,
+    Button,
+    List,
+    Avatar,
+    Typography,
+    Collapse,
+    Popconfirm,
+} from "antd";
 import { UserId } from "../../../../providers/appConfig";
 import { GET, POST } from "../../../../providers/useAxiosQuery";
 
 const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 export default function ModalGroupChatView(props) {
     const userId = UserId();
@@ -21,13 +36,21 @@ export default function ModalGroupChatView(props) {
     const [newMessage, setNewMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [hasOpened, setHasOpened] = useState(false);
+    const [archivedGroups, setArchivedGroups] = useState(() => {
+        const saved = localStorage.getItem("archivedGroups");
+        return saved ? JSON.parse(saved) : [];
+    });
     const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        localStorage.setItem("archivedGroups", JSON.stringify(archivedGroups));
+    }, [archivedGroups]);
 
     const { data: dataChatMember } = GET(
         `api/chat_members`,
         "chat_members_list",
         () => {},
-        false
+        false,
     );
 
     const { data: dataChatMessages, refetch: refetchChatMessages } = GET(
@@ -35,7 +58,7 @@ export default function ModalGroupChatView(props) {
             ? `api/conversations_chat?chat_id=${selectedGroup.chat_id}`
             : null,
         "post_visitor_chat_message" +
-            (selectedGroup ? selectedGroup.chat_id : "")
+            (selectedGroup ? selectedGroup.chat_id : ""),
     );
 
     useEffect(() => {
@@ -50,12 +73,12 @@ export default function ModalGroupChatView(props) {
     useEffect(() => {
         if (selectedGroup && dataChatMessages?.data) {
             const myProfileId = selectedGroup.members.find(
-                (m) => m.profile?.user_id === userId
+                (m) => m.profile?.user_id === userId,
             )?.profile?.id;
 
             const mappedMessages = dataChatMessages.data.map((msg) => {
                 const senderMember = selectedGroup.members.find(
-                    (m) => m.profile?.id === msg.profile_id
+                    (m) => m.profile?.id === msg.profile_id,
                 );
                 const isCurrentUser = msg.profile_id === myProfileId;
                 return {
@@ -117,15 +140,38 @@ export default function ModalGroupChatView(props) {
 
     const filteredGroupChats = useMemo(() => {
         return groupChats.filter((group) =>
-            group.members.some((m) => m.profile?.user_id === userId)
+            group.members.some((m) => m.profile?.user_id === userId),
         );
     }, [groupChats, userId]);
 
-    const filteredGroups = filteredGroupChats.filter((g) =>
-        (g.chat?.title_of_groupchat || "Group Chat")
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+    const activeFilteredGroups = filteredGroupChats.filter(
+        (g) =>
+            !archivedGroups.includes(g.chat_id) &&
+            (g.chat?.title_of_groupchat || "Group Chat")
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()),
     );
+
+    const archivedFilteredGroups = filteredGroupChats.filter(
+        (g) =>
+            archivedGroups.includes(g.chat_id) &&
+            (g.chat?.title_of_groupchat || "Group Chat")
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()),
+    );
+
+    const handleArchive = (chatId, e) => {
+        e.stopPropagation();
+        setArchivedGroups((prev) => [...prev, chatId]);
+        if (selectedGroup?.chat_id === chatId) {
+            setSelectedGroup(null);
+        }
+    };
+
+    const handleUnarchive = (chatId, e) => {
+        e.stopPropagation();
+        setArchivedGroups((prev) => prev.filter((id) => id !== chatId));
+    };
 
     const formatTime = (timestamp) =>
         new Date(timestamp).toLocaleTimeString([], {
@@ -166,14 +212,14 @@ export default function ModalGroupChatView(props) {
 
     const { mutate: mutateVisitorInfo, loading: isLoadingChat } = POST(
         `api/conversations_chat`,
-        "post_visitor_chat_message"
+        "post_visitor_chat_message",
     );
 
     const handleSend = async () => {
         if (newMessage.trim() === "" || !selectedGroup) return;
 
         const currentMember = selectedGroup.members.find(
-            (m) => m.profile?.user_id === userId
+            (m) => m.profile?.user_id === userId,
         );
         const chat_id = selectedGroup.chat_id;
         const profile_id = currentMember?.profile?.id;
@@ -222,8 +268,8 @@ export default function ModalGroupChatView(props) {
     const groupedMessages = selectedGroup
         ? groupMessagesByDate(
               [...(messages[selectedGroup.chat_id] || [])].sort(
-                  (a, b) => a.timestamp - b.timestamp
-              )
+                  (a, b) => a.timestamp - b.timestamp,
+              ),
           )
         : {};
 
@@ -259,75 +305,192 @@ export default function ModalGroupChatView(props) {
                 setToggleModalOpenGroupChat({ open: false, data: null });
                 setSelectedGroup(null);
             }}
-            footer={[
-                <Button
-                    key="submit"
-                    type="default"
-                    shape="round"
-                    size="large"
-                    onClick={() =>
-                        setToggleModalOpenGroupChat({ open: false, data: null })
-                    }
-                >
-                    Close
-                </Button>,
-            ]}
+            footer={null}
             width={1500}
+            bodyStyle={{ height: "70vh", padding: 0 }}
             maskStyle={{
                 backdropFilter: "blur(1px)",
                 backgroundColor: "rgba(0,0,0,0.3)",
-                overflowY: "auto",
             }}
         >
-            <div style={{ display: "flex" }}>
-                <div style={{ width: 300, marginRight: 16 }}>
-                    <Title level={4}>Groups</Title>
-                    <Input
-                        placeholder="Search groups..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        allowClear
-                        style={{ marginBottom: 12 }}
-                    />
-                    <List
-                        dataSource={filteredGroups}
-                        renderItem={(group) => (
-                            <List.Item
-                                key={group.chat_id}
-                                className={
-                                    selectedGroup?.chat_id === group.chat_id
-                                        ? "selected"
-                                        : ""
-                                }
-                                onClick={() => setSelectedGroup(group)}
-                                style={{
-                                    cursor: "pointer",
-                                    background:
+            <div style={{ display: "flex", height: "100%" }}>
+                <div
+                    style={{
+                        width: 350,
+                        borderRight: "1px solid #f0f0f0",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    <div style={{ padding: "16px" }}>
+                        <Title level={4}>Groups</Title>
+                        <Input
+                            placeholder="Search groups..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            allowClear
+                        />
+                    </div>
+                    <div style={{ flex: 1, overflowY: "auto" }}>
+                        <List
+                            dataSource={activeFilteredGroups}
+                            renderItem={(group) => (
+                                <List.Item
+                                    key={group.chat_id}
+                                    className={
                                         selectedGroup?.chat_id === group.chat_id
-                                            ? "#f0f5ff"
-                                            : "transparent",
-                                    borderRadius: 6,
-                                }}
-                            >
-                                <List.Item.Meta
-                                    avatar={<Avatar src={group.chat?.avatar} />}
-                                    title={
-                                        <span>
-                                            {group.chat?.title_of_groupchat ||
-                                                "Group Chat"}
-                                        </span>
+                                            ? "selected"
+                                            : ""
                                     }
-                                    description={`${group.members.length} members`}
+                                    onClick={() => setSelectedGroup(group)}
+                                    style={{
+                                        cursor: "pointer",
+                                        background:
+                                            selectedGroup?.chat_id ===
+                                            group.chat_id
+                                                ? "#e6f7ff"
+                                                : "transparent",
+                                        padding: "12px 24px",
+                                    }}
+                                    actions={[
+                                        <Popconfirm
+                                            title="Archive this chat?"
+                                            onConfirm={(e) =>
+                                                handleArchive(group.chat_id, e)
+                                            }
+                                            onCancel={(e) =>
+                                                e.stopPropagation()
+                                            }
+                                            okText="Yes"
+                                            cancelText="No"
+                                        >
+                                            <Button
+                                                type="text"
+                                                icon={
+                                                    <FontAwesomeIcon
+                                                        icon={faArchive}
+                                                    />
+                                                }
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            />
+                                        </Popconfirm>,
+                                    ]}
+                                >
+                                    <List.Item.Meta
+                                        avatar={
+                                            <Avatar src={group.chat?.avatar} />
+                                        }
+                                        title={
+                                            <span>
+                                                {group.chat
+                                                    ?.title_of_groupchat ||
+                                                    "Group Chat"}
+                                            </span>
+                                        }
+                                        description={`${group.members.length} members`}
+                                    />
+                                </List.Item>
+                            )}
+                        />
+                        <Collapse
+                            bordered={false}
+                            expandIcon={({ isActive }) => (
+                                <DownOutlined rotate={isActive ? 180 : 0} />
+                            )}
+                            style={{ background: "transparent" }}
+                        >
+                            <Panel
+                                header={`Archived (${archivedFilteredGroups.length})`}
+                                key="1"
+                            >
+                                <List
+                                    dataSource={archivedFilteredGroups}
+                                    renderItem={(group) => (
+                                        <List.Item
+                                            key={group.chat_id}
+                                            onClick={() =>
+                                                setSelectedGroup(group)
+                                            }
+                                            style={{
+                                                cursor: "pointer",
+                                                background:
+                                                    selectedGroup?.chat_id ===
+                                                    group.chat_id
+                                                        ? "#e6f7ff"
+                                                        : "transparent",
+                                                padding: "12px 24px",
+                                            }}
+                                            actions={[
+                                                <Popconfirm
+                                                    title="Unarchive this chat?"
+                                                    onConfirm={(e) =>
+                                                        handleUnarchive(
+                                                            group.chat_id,
+                                                            e,
+                                                        )
+                                                    }
+                                                    onCancel={(e) =>
+                                                        e.stopPropagation()
+                                                    }
+                                                    okText="Yes"
+                                                    cancelText="No"
+                                                >
+                                                    <Button
+                                                        type="text"
+                                                        icon={
+                                                            <FontAwesomeIcon
+                                                                icon={faInbox}
+                                                            />
+                                                        }
+                                                        onClick={(e) =>
+                                                            e.stopPropagation()
+                                                        }
+                                                    />
+                                                </Popconfirm>,
+                                            ]}
+                                        >
+                                            <List.Item.Meta
+                                                avatar={
+                                                    <Avatar
+                                                        src={group.chat?.avatar}
+                                                    />
+                                                }
+                                                title={
+                                                    <span>
+                                                        {group.chat
+                                                            ?.title_of_groupchat ||
+                                                            "Group Chat"}
+                                                    </span>
+                                                }
+                                                description={`${group.members.length} members`}
+                                            />
+                                        </List.Item>
+                                    )}
                                 />
-                            </List.Item>
-                        )}
-                    />
+                            </Panel>
+                        </Collapse>
+                    </div>
                 </div>
 
-                <div style={{ flex: 1 }}>
+                <div
+                    style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
                     {selectedGroup ? (
                         <>
-                            <Title level={5} className="chat-header">
+                            <div
+                                style={{
+                                    padding: "10px 16px",
+                                    borderBottom: "1px solid #f0f0f0",
+                                    display: "flex",
+                                    alignItems: "center",
+                                }}
+                            >
                                 <Button
                                     type="link"
                                     onClick={() => setSelectedGroup(null)}
@@ -337,21 +500,30 @@ export default function ModalGroupChatView(props) {
                                     }
                                 />
                                 <Avatar src={selectedGroup.chat?.avatar} />
-                                <b style={{ marginLeft: 8 }}>
-                                    {selectedGroup.chat?.title_of_groupchat ||
-                                        "Group Chat"}
-                                </b>
-                                <div style={{ fontSize: 12, color: "#888" }}>
-                                    {selectedGroup.members
-                                        .map((m) => m.name)
-                                        .join(", ")}
+                                <div style={{ marginLeft: 12 }}>
+                                    <b style={{ display: "block" }}>
+                                        {selectedGroup.chat
+                                            ?.title_of_groupchat ||
+                                            "Group Chat"}
+                                    </b>
+                                    <div
+                                        style={{
+                                            fontSize: 12,
+                                            color: "#888",
+                                        }}
+                                    >
+                                        {selectedGroup.members
+                                            .map((m) => m.name)
+                                            .join(", ")}
+                                    </div>
                                 </div>
-                            </Title>
+                            </div>
 
                             <div
                                 style={{
-                                    maxHeight: 400,
+                                    flex: 1,
                                     overflowY: "auto",
+                                    padding: "0 16px",
                                 }}
                             >
                                 {(!messages[selectedGroup.chat_id] ||
@@ -373,7 +545,7 @@ export default function ModalGroupChatView(props) {
                                                                 : ""
                                                         }`}
                                                     />
-                                                )
+                                                ),
                                             )}
                                         </div>
                                         <p className="mt-4 text-gray-700 text-sm font-medium text-center">
@@ -413,6 +585,8 @@ export default function ModalGroupChatView(props) {
                                                                 "You"
                                                                     ? "flex-end"
                                                                     : "flex-start",
+                                                            border: "none",
+                                                            padding: "4px 0",
                                                         }}
                                                     >
                                                         <div
@@ -420,6 +594,7 @@ export default function ModalGroupChatView(props) {
                                                                 display: "flex",
                                                                 alignItems:
                                                                     "flex-end",
+                                                                gap: 8,
                                                             }}
                                                         >
                                                             {msg.sender !==
@@ -428,16 +603,13 @@ export default function ModalGroupChatView(props) {
                                                                     src={
                                                                         selectedGroup.members.find(
                                                                             (
-                                                                                m
+                                                                                m,
                                                                             ) =>
                                                                                 m.name ===
-                                                                                msg.sender
+                                                                                msg.sender,
                                                                         )
                                                                             ?.avatar
                                                                     }
-                                                                    style={{
-                                                                        marginRight: 8,
-                                                                    }}
                                                                 />
                                                             )}
                                                             <div
@@ -451,7 +623,7 @@ export default function ModalGroupChatView(props) {
                                                                         "8px 12px",
                                                                     borderRadius: 12,
                                                                     maxWidth:
-                                                                        "70%",
+                                                                        "100%",
                                                                 }}
                                                             >
                                                                 {msg.sender !==
@@ -482,7 +654,7 @@ export default function ModalGroupChatView(props) {
                                                                     }}
                                                                 >
                                                                     {formatTime(
-                                                                        msg.timestamp
+                                                                        msg.timestamp,
                                                                     )}
                                                                     {msg.sender ===
                                                                         "You" && (
@@ -516,7 +688,7 @@ export default function ModalGroupChatView(props) {
                                                 )}
                                             />
                                         </div>
-                                    )
+                                    ),
                                 )}
                                 <div ref={messagesEndRef} />
                             </div>
@@ -524,8 +696,9 @@ export default function ModalGroupChatView(props) {
                             <div
                                 style={{
                                     display: "flex",
-                                    marginTop: 12,
+                                    padding: "12px 16px",
                                     gap: 8,
+                                    borderTop: "1px solid #f0f0f0",
                                 }}
                             >
                                 <Input
@@ -546,13 +719,9 @@ export default function ModalGroupChatView(props) {
                                 </Button>
                             </div>
                         </>
-                    ) : !hasOpened ? (
-                        <div className="flex items-center justify-center h-full text-gray-400">
-                            Select a group to start chatting
-                        </div>
                     ) : (
                         <div className="flex items-center justify-center h-full text-gray-400">
-                            No messages yet
+                            Select a group to start chatting
                         </div>
                     )}
                 </div>

@@ -78,6 +78,7 @@ class FeedbackController extends Controller
             'cc1_checkbox' => 'required|string',
             'cc2_checkbox' => 'required|string',
             'cc3_checkbox' => 'required|string',
+            'remarks' => 'nullable|string',
         ]);
 
 

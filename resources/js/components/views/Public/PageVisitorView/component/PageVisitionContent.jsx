@@ -22,7 +22,7 @@ export default function PageVisitationContent(props) {
         `api/departments`,
         "department_list",
         () => {},
-        false
+        false,
     );
     const { mutate: mutateVisitorForm, loading: isLoadingChat } = POST(
         `api/visitation_forms`,
@@ -30,7 +30,7 @@ export default function PageVisitationContent(props) {
             "visitation_forms_submit",
             "user_notifications",
             "user_notifications_list",
-        ]
+        ],
     );
 
     const onFinish = (values) => {
@@ -38,10 +38,14 @@ export default function PageVisitationContent(props) {
 
         let data = new FormData();
         let userId = UserId();
+
+        data.append("remarks", "Submitted");
+
         Object.keys(values).forEach((key) => {
             let value = values[key];
 
             data.append("user_id", userId);
+            data.append("remarks", "Submitted");
             data.append("visitation_information_id", id);
             if (
                 key === "preferred_date_of_visit" ||
@@ -336,7 +340,7 @@ export default function PageVisitationContent(props) {
                                                         </Form.Item>
                                                     </Col>
                                                 </Row>
-                                            )
+                                            ),
                                         )}
                                         <Form.Item>
                                             <Button
