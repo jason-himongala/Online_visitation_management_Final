@@ -72,21 +72,21 @@ export default function ListOfficeCard() {
         setSelectedDept(null);
     };
 
-    const trackAnimationStyle = modalOpen
-        ? { animationPlayState: "paused", WebkitAnimationPlayState: "paused" }
-        : {
-              animationPlayState: "running",
-              WebkitAnimationPlayState: "running",
-          };
+    // const trackAnimationStyle = modalOpen
+    //     ? { animationPlayState: "paused", WebkitAnimationPlayState: "paused" }
+    //     : {
+    //           animationPlayState: "running",
+    //           WebkitAnimationPlayState: "running",
+    //       };
 
     return (
         <div style={{ overflow: "hidden", width: "100%" }}>
-            <div className="scroll-track" style={trackAnimationStyle}>
+            <div className="scroll-track">
                 {scrollingList.map((item, idx) => (
                     <div
                         key={idx}
                         className="scroll-item scroll-item-1"
-                        style={{ position: "relative", ...trackAnimationStyle }}
+                        style={{ position: "relative" }}
                         onMouseEnter={() => setHoveredIndex(idx)}
                         onMouseLeave={() => setHoveredIndex(null)}
                     >
