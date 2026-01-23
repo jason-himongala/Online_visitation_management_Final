@@ -23,16 +23,24 @@ import {
 } from "@fortawesome/pro-regular-svg-icons";
 import { fal } from "@fortawesome/pro-light-svg-icons";
 import {
+    TableGlobalSearchAnimated,
     TablePagination,
     TableShowingEntriesV2,
 } from "../../../../providers/CustomTableFilter";
 import { apiUrl } from "../../../../providers/appConfig";
-import dayjs from "dayjs";
+import { useState } from "react";
 
 const { RangePicker } = DatePicker;
 
 export default function ListCard(props) {
-    const { dataCardList, dataSource, statusColors, handleDateChange } = props;
+    const {
+        dataCardList,
+        dataSource,
+        statusColors,
+        handleDateChange,
+        tableFilter,
+        setTableFilter,
+    } = props;
 
     console.log("dataSource", dataSource);
 
@@ -72,11 +80,17 @@ export default function ListCard(props) {
 
     const handleRangeChange = (dates) => {
         if (dates && dates.length === 2) {
-            const [startDate, endDate] = dates;
             if (handleDateChange) {
                 handleDateChange(dates);
             }
         }
+        setTableFilter((prev) => ({
+            ...prev,
+            page: 1,
+            year_and_month_range: dates
+                ? `${dates[0].format("YYYY-MM")},${dates[1].format("YYYY-MM")}`
+                : "",
+        }));
     };
 
     return (
@@ -128,7 +142,7 @@ export default function ListCard(props) {
                     </Typography>
 
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
-                        <Row gutter={[20, 20]} align="middle">
+                        <Row gutter={[12, 12]}>
                             <Form form={form}>
                                 <Col
                                     xs={24}
@@ -162,7 +176,15 @@ export default function ListCard(props) {
                                 </Col>
                             </Form>
 
-                            <Col xs={4} sm={4} md={4} lg={4} xl={4} xxl={4}>
+                            <Col
+                                xs={4}
+                                sm={4}
+                                md={4}
+                                lg={4}
+                                xl={4}
+                                xxl={4}
+                                style={{ marginTop: "-1px" }}
+                            >
                                 <Button
                                     type="primary"
                                     onClick={() => handleProcessExcel()}
@@ -176,7 +198,47 @@ export default function ListCard(props) {
                     <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
                         <Card variant="borderless">
                             <Row gutter={[20, 20]} id="tbl_wrapper">
-                                <Col xs={24}>
+                                <Col
+                                    xs={24}
+                                    sm={24}
+                                    md={24}
+                                    lg={24}
+                                    xl={24}
+                                    xxl={24}
+                                >
+                                    <Flex
+                                        align="center"
+                                        className="tbl-top-filter"
+                                        justify="space-between"
+                                    >
+                                        <Flex gap={15} align="center">
+                                            <TableGlobalSearchAnimated
+                                                tableFilter={tableFilter}
+                                                setTableFilter={setTableFilter}
+                                            />
+                                        </Flex>
+
+                                        <Flex align="center">
+                                            <TableShowingEntriesV2 />
+                                            <TablePagination
+                                                tableFilter={tableFilter}
+                                                setTableFilter={setTableFilter}
+                                                total={dataSource?.data.total}
+                                                showLessItems={true}
+                                                showSizeChanger={false}
+                                                tblIdWrapper="tbl_wrapper_deduction"
+                                            />
+                                        </Flex>
+                                    </Flex>
+                                </Col>
+                                <Col
+                                    xs={24}
+                                    sm={24}
+                                    md={24}
+                                    lg={24}
+                                    xl={24}
+                                    xxl={24}
+                                >
                                     <Table
                                         id="tbl_profiles"
                                         dataSource={
@@ -210,15 +272,6 @@ export default function ListCard(props) {
                                             key="department_name"
                                             dataIndex="department_name"
                                             width={180}
-                                            render={(_, record) =>
-                                                record.appointment_schedule
-                                                    ?.department
-                                                    ? record
-                                                          .appointment_schedule
-                                                          .department
-                                                          .department_name
-                                                    : ""
-                                            }
                                         />
 
                                         <Table.Column
@@ -263,6 +316,24 @@ export default function ListCard(props) {
                                             )}
                                         />
                                     </Table>
+                                </Col>
+
+                                <Col xs={24} sm={24} md={24}>
+                                    <Flex
+                                        className="tbl-bottom-filter"
+                                        justify="end"
+                                        align="center"
+                                    >
+                                        <TableShowingEntriesV2 />
+                                        <TablePagination
+                                            tableFilter={tableFilter}
+                                            setTableFilter={setTableFilter}
+                                            total={dataSource?.data.total}
+                                            showLessItems={true}
+                                            showSizeChanger={false}
+                                            tblIdWrapper="tbl_wrapper"
+                                        />
+                                    </Flex>
                                 </Col>
                             </Row>
                         </Card>

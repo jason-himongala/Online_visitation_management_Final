@@ -21,6 +21,7 @@ import {
     Typography,
     Collapse,
     Popconfirm,
+    Badge,
 } from "antd";
 
 import { GET, POST } from "../../../providers/useAxiosQuery";
@@ -45,11 +46,18 @@ export default function ModalMessage(props) {
     const [messages, setMessages] = useState({});
     const [newMessage, setNewMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
-    const [hasOpened, setHasOpened] = useState(false);
+    const [unreadCounts, setUnreadCounts] = useState({});
     const [archivedGroups, setArchivedGroups] = useState(() => {
         const saved = localStorage.getItem("archivedGroupsAdmin");
         return saved ? JSON.parse(saved) : [];
     });
+
+    // Store last seen message IDs per chat
+    const [lastSeenMessageIds, setLastSeenMessageIds] = useState(() => {
+        const saved = localStorage.getItem("lastSeenMessageIdsAdmin");
+        return saved ? JSON.parse(saved) : {};
+    });
+
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -59,14 +67,24 @@ export default function ModalMessage(props) {
         );
     }, [archivedGroups]);
 
-    const { data: dataChatMember } = GET(
+    useEffect(() => {
+        localStorage.setItem(
+            "lastSeenMessageIdsAdmin",
+            JSON.stringify(lastSeenMessageIds),
+        );
+    }, [lastSeenMessageIds]);
+
+    const { data: dataChatMember, refetch: refetchChatMembers } = GET(
         `api/chat_members`,
         "chat_member_list_rename",
-        () => {},
-        false,
     );
 
-    const { mutate: mutateVisitorInfo, loading: isLoadingChat } = POST(
+    const { data: allMessages, refetch: refetchAllMessages } = GET(
+        `api/conversations_chat`,
+        "all_conversations_chat",
+    );
+
+    const { mutate: mutateVisitorInfo } = POST(
         `api/conversations_chat`,
         "post_visitor_chat_message",
     );
@@ -78,12 +96,84 @@ export default function ModalMessage(props) {
         "post_visitor_chat_message" +
             (selectedGroup ? selectedGroup.chat_id : ""),
     );
+
+    const myProfileId = useMemo(() => {
+        if (!dataChatMember?.data) return null;
+        const allMembers = dataChatMember.data.flat();
+        return (
+            allMembers.find((m) => m.profile?.user_id === userId)?.profile
+                ?.id ?? null
+        );
+    }, [dataChatMember, userId]);
+
+    useEffect(() => {
+        if (selectedGroup && dataChatMessages?.data && myProfileId) {
+            const chatId = selectedGroup.chat_id;
+            const messagesInChat = dataChatMessages.data;
+
+            if (messagesInChat.length > 0) {
+                const latestMessageId = Math.max(
+                    ...messagesInChat.map((msg) => msg.id),
+                );
+
+                setLastSeenMessageIds((prev) => ({
+                    ...prev,
+                    [chatId]: latestMessageId,
+                }));
+
+                setUnreadCounts((prev) => ({
+                    ...prev,
+                    [chatId]: 0,
+                }));
+            }
+        }
+    }, [dataChatMessages, selectedGroup, myProfileId]);
+
+    useEffect(() => {
+        if (allMessages?.data && myProfileId && dataChatMember?.data) {
+            const messagesByChat = {};
+            allMessages.data.forEach((msg) => {
+                if (!messagesByChat[msg.chat_id]) {
+                    messagesByChat[msg.chat_id] = [];
+                }
+                messagesByChat[msg.chat_id].push(msg);
+            });
+
+            const newUnreadCounts = {};
+
+            const chatIds = [
+                ...new Set(dataChatMember.data.map((item) => item.chat_id)),
+            ];
+
+            chatIds.forEach((chatId) => {
+                const chatMessages = messagesByChat[chatId] || [];
+
+                if (chatMessages.length === 0) {
+                    newUnreadCounts[chatId] = 0;
+                    return;
+                }
+
+                const lastSeenId = lastSeenMessageIds[chatId] || 0;
+
+                const newMessagesCount = chatMessages.filter(
+                    (msg) =>
+                        msg.profile_id !== myProfileId && msg.id > lastSeenId,
+                ).length;
+
+                newUnreadCounts[chatId] = newMessagesCount;
+            });
+
+            setUnreadCounts(newUnreadCounts);
+        }
+    }, [allMessages, myProfileId, dataChatMember, lastSeenMessageIds]);
+
     useEffect(() => {
         if (selectedGroup) {
             setMessages((prev) => ({
                 ...prev,
                 [selectedGroup.chat_id]: [],
             }));
+            refetchChatMessages();
         }
     }, [selectedGroup]);
 
@@ -121,16 +211,15 @@ export default function ModalMessage(props) {
     }, [dataChatMessages, selectedGroup, userId]);
 
     useEffect(() => {
-        if (toggleModalOpenGroupChat.open) {
-            setHasOpened(true);
-        } else {
+        if (!toggleModalOpenGroupChat.open) {
             setSelectedGroup(null);
         }
     }, [toggleModalOpenGroupChat.open]);
 
     const groupChats = useMemo(() => {
+        if (!dataChatMember?.data) return [];
         const groups = {};
-        dataChatMember?.data.forEach((item) => {
+        dataChatMember.data.forEach((item) => {
             const chatId = item.chat_id;
             if (!groups[chatId]) {
                 groups[chatId] = {
@@ -191,6 +280,24 @@ export default function ModalMessage(props) {
         if (selectedGroup?.chat_id === chatId) {
             setSelectedGroup(null);
         }
+        if (allMessages?.data) {
+            const chatMessages = allMessages.data.filter(
+                (msg) => msg.chat_id === chatId,
+            );
+            if (chatMessages.length > 0) {
+                const latestMessageId = Math.max(
+                    ...chatMessages.map((msg) => msg.id),
+                );
+                setLastSeenMessageIds((prev) => ({
+                    ...prev,
+                    [chatId]: latestMessageId,
+                }));
+            }
+        }
+        setUnreadCounts((prev) => ({
+            ...prev,
+            [chatId]: 0,
+        }));
     };
 
     const handleUnarchive = (chatId, e) => {
@@ -286,6 +393,7 @@ export default function ModalMessage(props) {
         mutateVisitorInfo(payload, {
             onSuccess: () => {
                 refetchChatMessages();
+                refetchAllMessages();
                 setNewMessage("");
 
                 if (messagesEndRef.current) {
@@ -295,23 +403,6 @@ export default function ModalMessage(props) {
                 }
             },
         });
-
-        const timestamp = Date.now();
-        const newMsg = {
-            id: timestamp,
-            text: newMessage,
-            sender: "You",
-            timestamp,
-            status: "sent",
-        };
-
-        setMessages((prev) => ({
-            ...prev,
-            [selectedGroup.chat_id]: [
-                ...(prev[selectedGroup.chat_id] || []),
-                newMsg,
-            ],
-        }));
 
         setNewMessage("");
     };
@@ -323,21 +414,17 @@ export default function ModalMessage(props) {
               ),
           )
         : {};
-    useEffect(() => {
-        if (selectedGroup?.chat_id) {
-            refetchChatMessages();
-        }
-    }, [selectedGroup?.chat_id, refetchChatMessages]);
 
     useEffect(() => {
-        let interval;
-        if (selectedGroup?.chat_id) {
-            interval = setInterval(() => {
+        const interval = setInterval(() => {
+            refetchAllMessages();
+            if (selectedGroup) {
                 refetchChatMessages();
-            }, 8000);
-        }
+            }
+        }, 1000);
+
         return () => clearInterval(interval);
-    }, [selectedGroup?.chat_id]);
+    }, [selectedGroup, refetchAllMessages, refetchChatMessages]);
 
     return (
         <Modal
@@ -437,11 +524,35 @@ export default function ModalMessage(props) {
                                             <Avatar src={group.chat?.avatar} />
                                         }
                                         title={
-                                            <span>
-                                                {group.chat
-                                                    ?.title_of_groupchat ||
-                                                    "Group Chat"}
-                                            </span>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "8px",
+                                                }}
+                                            >
+                                                <span style={{ flex: 1 }}>
+                                                    {group.chat
+                                                        ?.title_of_groupchat ||
+                                                        "Group Chat"}
+                                                </span>
+                                                {unreadCounts[group.chat_id] >
+                                                    0 && (
+                                                    <Badge
+                                                        count={
+                                                            unreadCounts[
+                                                                group.chat_id
+                                                            ]
+                                                        }
+                                                        size="small"
+                                                        style={{
+                                                            backgroundColor:
+                                                                "#ff4d4f",
+                                                            marginLeft: "auto",
+                                                        }}
+                                                    />
+                                                )}
+                                            </div>
                                         }
                                         description={`${group.members.length} members`}
                                     />
@@ -459,7 +570,38 @@ export default function ModalMessage(props) {
                                 style={{ background: "transparent" }}
                             >
                                 <Panel
-                                    header={`Archived (${archivedFilteredGroups.length})`}
+                                    header={
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "space-between",
+                                                width: "100%",
+                                            }}
+                                        >
+                                            <span>Archived</span>
+                                            {archivedFilteredGroups.some(
+                                                (g) =>
+                                                    unreadCounts[g.chat_id] > 0,
+                                            ) && (
+                                                <Badge
+                                                    count={archivedFilteredGroups.reduce(
+                                                        (total, g) =>
+                                                            total +
+                                                            (unreadCounts[
+                                                                g.chat_id
+                                                            ] || 0),
+                                                        0,
+                                                    )}
+                                                    size="small"
+                                                    style={{
+                                                        backgroundColor:
+                                                            "#ff4d4f",
+                                                    }}
+                                                />
+                                            )}
+                                        </div>
+                                    }
                                     key="1"
                                 >
                                     <List
@@ -520,11 +662,43 @@ export default function ModalMessage(props) {
                                                         />
                                                     }
                                                     title={
-                                                        <span>
-                                                            {group.chat
-                                                                ?.title_of_groupchat ||
-                                                                "Group Chat"}
-                                                        </span>
+                                                        <div
+                                                            style={{
+                                                                display: "flex",
+                                                                alignItems:
+                                                                    "center",
+                                                                gap: "8px",
+                                                            }}
+                                                        >
+                                                            <span
+                                                                style={{
+                                                                    flex: 1,
+                                                                }}
+                                                            >
+                                                                {group.chat
+                                                                    ?.title_of_groupchat ||
+                                                                    "Group Chat"}
+                                                            </span>
+                                                            {unreadCounts[
+                                                                group.chat_id
+                                                            ] > 0 && (
+                                                                <Badge
+                                                                    count={
+                                                                        unreadCounts[
+                                                                            group
+                                                                                .chat_id
+                                                                        ]
+                                                                    }
+                                                                    size="small"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            "#ff4d4f",
+                                                                        marginLeft:
+                                                                            "auto",
+                                                                    }}
+                                                                />
+                                                            )}
+                                                        </div>
                                                     }
                                                     description={`${group.members.length} members`}
                                                 />
@@ -590,30 +764,48 @@ export default function ModalMessage(props) {
                                         </div>
                                     </div>
                                 </div>
-                                {(userRole === "Pico" ||
-                                    userRole === "Admin" ||
-                                    userRole === "Department") && (
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<EditOutlined />}
-                                        onClick={() => {
-                                            setToggleModalChatRename({
-                                                open: true,
-                                                data: {
-                                                    id: selectedGroup.chat_id,
-                                                    title_of_groupchat:
-                                                        selectedGroup.chat
-                                                            ?.title_of_groupchat,
-                                                },
-                                            });
-                                        }}
-                                        style={{
-                                            opacity: 0.7,
-                                            fontSize: "16px",
-                                        }}
-                                    />
-                                )}
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "12px",
+                                    }}
+                                >
+                                    {unreadCounts[selectedGroup.chat_id] >
+                                        0 && (
+                                        <Badge
+                                            count={`${unreadCounts[selectedGroup.chat_id]} new`}
+                                            style={{
+                                                backgroundColor: "#1890ff",
+                                                fontSize: "12px",
+                                            }}
+                                        />
+                                    )}
+                                    {(userRole === "Pico" ||
+                                        userRole === "Admin" ||
+                                        userRole === "Department") && (
+                                        <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<EditOutlined />}
+                                            onClick={() => {
+                                                setToggleModalChatRename({
+                                                    open: true,
+                                                    data: {
+                                                        id: selectedGroup.chat_id,
+                                                        title_of_groupchat:
+                                                            selectedGroup.chat
+                                                                ?.title_of_groupchat,
+                                                    },
+                                                });
+                                            }}
+                                            style={{
+                                                opacity: 0.7,
+                                                fontSize: "16px",
+                                            }}
+                                        />
+                                    )}
+                                </div>
                             </div>
 
                             <div
@@ -812,7 +1004,6 @@ export default function ModalMessage(props) {
                                     type="primary"
                                     icon={<SendOutlined />}
                                     onClick={handleSend}
-                                    loading={isLoadingChat}
                                 >
                                     Send
                                 </Button>

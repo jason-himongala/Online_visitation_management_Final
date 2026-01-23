@@ -351,7 +351,7 @@ export default function PageEditProfile() {
                     xxl={8}
                     className="collapse-wrapper-photo"
                 >
-                    {/* <Collapse
+                    <Collapse
                         className="collapse-main-primary"
                         defaultActiveKey={["0", "1"]}
                         size="large"
@@ -386,6 +386,7 @@ export default function PageEditProfile() {
                                                         />
                                                     }
                                                     className="btn-upload"
+                                                    disabled
                                                     onClick={() =>
                                                         setToggleModalUploadProfilePicture(
                                                             (ps) => ({
@@ -427,7 +428,7 @@ export default function PageEditProfile() {
                             //     ),
                             // },
                         ]}
-                    /> */}
+                    />
                 </Col>
             </Row>
 

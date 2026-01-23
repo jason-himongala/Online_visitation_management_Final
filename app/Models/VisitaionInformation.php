@@ -30,6 +30,15 @@ class VisitaionInformation extends Model
             });
         }
 
+        if ($request->year_and_month_range) {
+            $yearAndMonth = explode("-", $request->year_and_month_range);
+            $year = $yearAndMonth[0];
+            $month = $yearAndMonth[1];
+
+            $query->whereYear('visitaion_information.created_at', $year)
+                ->whereMonth('visitaion_information.created_at', $month);
+        }
+
 
         return $query;
     }

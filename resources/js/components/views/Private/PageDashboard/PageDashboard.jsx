@@ -3,7 +3,7 @@ import ListCard from "./components/ListCard";
 import { GET } from "../../../providers/useAxiosQuery";
 import Highcharts from "highcharts";
 import highchartsSetOptions from "highcharts/modules/exporting";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { role, UserId } from "../../../providers/appConfig";
 
@@ -28,18 +28,23 @@ export default function PageDashboard() {
         search: "",
         sort_field: "created_at",
         sort_order: "desc",
+        year_and_month_range: "",
     });
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/visitation_information?${new URLSearchParams(tableFilter)}`,
-        "visitation_information_submit"
+        "visitation_information_submit",
     );
+
+    useEffect(() => {
+        refetchSource();
+    }, [tableFilter, refetchSource]);
 
     const { data: dataUser } = GET(
         `api/users?id=${UserIds}`,
         "user_detail",
         () => {},
-        false
+        false,
     );
 
     const statusColors = {
@@ -63,7 +68,7 @@ export default function PageDashboard() {
             const filteredData = dataSource.data.data.filter(
                 (item) =>
                     item.appointment_schedule?.department_id ===
-                    currentUser.department_id
+                    currentUser.department_id,
             );
 
             return {
@@ -75,7 +80,7 @@ export default function PageDashboard() {
                     per_page: dataSource.data.per_page,
                     current_page: dataSource.data.current_page,
                     last_page: Math.ceil(
-                        filteredData.length / dataSource.data.per_page
+                        filteredData.length / dataSource.data.per_page,
                     ),
                 },
             };
@@ -96,7 +101,7 @@ export default function PageDashboard() {
                 dataCardList.data.dataUser?.filter(
                     (item) =>
                         item.appointment_schedule?.department_id ===
-                        currentUser.department_id
+                        currentUser.department_id,
                 ) || [];
 
             const recalculatedCounts = {
@@ -104,21 +109,21 @@ export default function PageDashboard() {
                     (item) =>
                         item.status === "approved" &&
                         new Date(item.updated_at).toDateString() ===
-                            new Date().toDateString()
+                            new Date().toDateString(),
                 ).length,
                 pending: departmentData.filter(
                     (item) =>
-                        item.status === "pending" || item.status === "Pending"
+                        item.status === "pending" || item.status === "Pending",
                 ).length,
                 declined: departmentData.filter(
-                    (item) => item.status === "declined"
+                    (item) => item.status === "declined",
                 ).length,
                 request: {
                     declined: departmentData.filter(
-                        (item) => item.status === "declined"
+                        (item) => item.status === "declined",
                     ).length,
                     approved: departmentData.filter(
-                        (item) => item.status === "approved"
+                        (item) => item.status === "approved",
                     ).length,
                 },
                 dataUser: departmentData,

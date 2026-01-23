@@ -508,7 +508,7 @@ export default function PageUserForm() {
                                 ]}
                             />
                         </Col>
-                        {/* <Col lg={10}>
+                        <Col lg={10}>
                             <Collapse
                                 items={[
                                     {
@@ -534,6 +534,7 @@ export default function PageUserForm() {
                                                             icon={faCamera}
                                                         />
                                                     }
+                                                    disabled
                                                     className="btn-upload"
                                                     onClick={() =>
                                                         setToggleModalUploadProfilePicture(
@@ -558,7 +559,7 @@ export default function PageUserForm() {
                                     },
                                 ]}
                             />
-                        </Col> */}
+                        </Col>
                         {!params.id && (
                             <Col span={24}>
                                 <Button

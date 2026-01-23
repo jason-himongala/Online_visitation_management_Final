@@ -16,40 +16,65 @@ class VisitaionInformationController extends Controller
     /**
      * Display a listing of the resource.
      */
+
     public function index(Request $request)
     {
         $email = 'SELECT email FROM users WHERE id = (SELECT user_id FROM profiles WHERE id = visitaion_information.profile_id)';
         $available_time = "(SELECT CONCAT(DATE_FORMAT(date, '%M %d, %Y'), ' - ', available_time) FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id)";
+        $department_name = "(SELECT department_name FROM departments WHERE id = (SELECT department_id FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id))";
+
         $query = VisitaionInformation::query()
             ->with(['profile', 'appointment_schedule', 'profile.user', 'appointment_schedule.department'])
             ->select([
                 'visitaion_information.*',
                 DB::raw("($email) AS email"),
                 DB::raw("($available_time) AS available_time"),
+                DB::raw("($department_name) AS department_name"),
             ])
             ->leftJoin('profiles', 'profiles.id', '=', 'visitaion_information.profile_id');
 
-        if ($request->has('user_id')) {
+        if ($request->search) {
+            $query->where(function ($q) use ($request, $email, $available_time, $department_name) {
+                $q->orWhere(DB::raw("($available_time)"), 'LIKE', "%$request->search%")
+                    ->orWhere(DB::raw("($email)"), 'LIKE', "%$request->search%")
+                    ->orWhere(DB::raw("($department_name)"), 'LIKE', "%$request->search%");
+            });
+        }
+
+        if ($request->status) {
+            $status = explode(",", $request->status);
+            $query->whereIn('visitaion_information.status', $status);
+        }
+
+        if ($request->user_id) {
             $query->where('profiles.user_id', $request->user_id);
         }
 
-        $data = $query
-            ->search([
-                'search' => $request->search,
-                'rawFields' => [
-                    "($email)",
-                    "($available_time)",
-                ]
-            ])
-            ->filter($request)
-            ->sortable($request)
-            ->pagination($request);
+        if ($request->year_and_month_range) {
+            $yearAndMonth = explode("-", $request->year_and_month_range);
+            $year = $yearAndMonth[0];
+            $month = $yearAndMonth[1];
 
-        $ret = [
-            "success" => true,
-            "data" => $data
-        ];
-        return response()->json($ret, 200);
+            $query->whereYear('visitaion_information.created_at', $year)
+                ->whereMonth('visitaion_information.created_at', $month);
+        }
+
+        if ($request->sort_field && $request->sort_order && $request->sort_field !== 'null' && $request->sort_order !== 'null') {
+            $query->orderBy($request->sort_field, $request->sort_order);
+        } else {
+            $query->orderBy('visitaion_information.created_at', 'desc');
+        }
+
+        if ($request->page_size) {
+            $data = $query->paginate($request->page_size, ['*'], 'page', $request->page);
+        } else {
+            $data = $query->get();
+        }
+
+        return response()->json([
+            'success'   => true,
+            'data'      => $data
+        ], 200);
     }
 
     /**
@@ -148,9 +173,7 @@ class VisitaionInformationController extends Controller
 
     public function export_visitation_information(Request $request)
     {
-        // Validate based on parameters provided
         if ($request->has('start_year') && $request->has('start_month')) {
-            // Range export validation
             $request->validate([
                 'start_year' => 'required|integer|min:2000|max:' . date('Y'),
                 'start_month' => 'required|integer|min:1|max:12',
@@ -163,27 +186,21 @@ class VisitaionInformationController extends Controller
             $endYear = $request->input('end_year', $startYear);
             $endMonth = $request->input('end_month', $startMonth);
 
-            // Create date objects
             $startDate = Carbon::create($startYear, $startMonth, 1)->startOfMonth();
             $endDate = Carbon::create($endYear, $endMonth, 1)->endOfMonth();
 
-            // Validate date range
             if ($endDate->lt($startDate)) {
                 return response()->json([
                     'error' => 'End date must be after start date'
                 ], 422);
             }
 
-            // Format months
             $startMonthFormatted = str_pad($startMonth, 2, '0', STR_PAD_LEFT);
             $endMonthFormatted = str_pad($endMonth, 2, '0', STR_PAD_LEFT);
 
-            // Create filename
             if ($startYear == $endYear && $startMonth == $endMonth) {
-                // Single month
                 $fileName = "visitations_{$startYear}_{$startMonthFormatted}.xlsx";
             } else {
-                // Range
                 $fileName = "visitations_{$startYear}_{$startMonthFormatted}_to_{$endYear}_{$endMonthFormatted}.xlsx";
             }
 
@@ -192,7 +209,6 @@ class VisitaionInformationController extends Controller
                 $fileName
             );
         } else {
-            // Single month export validation
             $request->validate([
                 'year' => 'required|integer|min:2000|max:' . date('Y'),
                 'month' => 'required|integer|min:1|max:12',
@@ -201,10 +217,8 @@ class VisitaionInformationController extends Controller
             $year = $request->input('year');
             $month = $request->input('month');
 
-            // Format month
             $monthFormatted = str_pad($month, 2, '0', STR_PAD_LEFT);
 
-            // Create filename
             $fileName = "visitations_{$year}_{$monthFormatted}.xlsx";
 
             return Excel::download(
