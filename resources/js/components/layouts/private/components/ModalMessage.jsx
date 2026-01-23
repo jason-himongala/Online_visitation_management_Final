@@ -52,7 +52,6 @@ export default function ModalMessage(props) {
         return saved ? JSON.parse(saved) : [];
     });
 
-    // Store last seen message IDs per chat
     const [lastSeenMessageIds, setLastSeenMessageIds] = useState(() => {
         const saved = localStorage.getItem("lastSeenMessageIdsAdmin");
         return saved ? JSON.parse(saved) : {};
@@ -82,6 +81,8 @@ export default function ModalMessage(props) {
     const { data: allMessages, refetch: refetchAllMessages } = GET(
         `api/conversations_chat`,
         "all_conversations_chat",
+        () => {},
+        false,
     );
 
     const { mutate: mutateVisitorInfo } = POST(

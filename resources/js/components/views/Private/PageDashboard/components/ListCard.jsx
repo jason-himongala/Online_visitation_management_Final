@@ -29,6 +29,7 @@ import {
 } from "../../../../providers/CustomTableFilter";
 import { apiUrl } from "../../../../providers/appConfig";
 import { useState } from "react";
+import notificationErrors from "../../../../providers/notificationErrors";
 
 const { RangePicker } = DatePicker;
 
@@ -75,6 +76,7 @@ export default function ListCard(props) {
             .catch((error) => {
                 console.error("Validation failed:", error);
                 message.error("Please select a valid date range");
+                // notificationErrors(message);
             });
     };
 
