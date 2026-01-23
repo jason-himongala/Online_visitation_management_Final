@@ -44,7 +44,7 @@ export const encrypt = (data) =>
 export const decrypt = (data) => {
     try {
         return CryptoJS.AES.decrypt(data, encryptKey).toString(
-            CryptoJS.enc.Utf8
+            CryptoJS.enc.Utf8,
         );
     } catch (error) {
         console.error("Error decrypting data:", error);

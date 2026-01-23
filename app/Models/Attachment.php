@@ -12,8 +12,9 @@ class Attachment extends Model
 
     protected $guarded = [];
 
-    public function attachmentable()
+
+    public function attachments()
     {
-        return $this->morphTo();
+        return $this->morphTo('attachmentable');
     }
 }

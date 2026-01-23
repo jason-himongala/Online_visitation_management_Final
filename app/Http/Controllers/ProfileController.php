@@ -231,22 +231,31 @@ class ProfileController extends Controller
     }
 
 
+
+
     public function update_profile_photo(Request $request)
     {
         $ret = [
             "success" => false,
-            "message" => "Profile photo not updated"
+            "message" => "Profile photo not updated",
         ];
+
+        $request->validate([
+            'profile_id' => ['required'],
+            'profile_picture' => ['required', 'mimes:jpg,jpeg,png'],
+        ]);
 
         $findProfile = Profile::find($request->profile_id);
 
-        if ($findProfile && $request->hasFile('profile_picture')) {
-            $create_attachment = $this->create_attachment($findProfile, $request->file('profile_picture'), [
-                "folder_name" => "profiles/profile-$findProfile->id/profile_pictures",
-                "file_description" => "Profile Picture",
-            ]);
+        if ($findProfile) {
+            if ($request->hasFile("profile_picture")) {
+                $file = $request->file("profile_picture");
 
-            if ($create_attachment) {
+                $this->create_attachment($findProfile, $file, [
+                    'folder_name' => "profiles/profile-$findProfile->id/profile_picture",
+                    'file_description' => "Profile Picture",
+                ]);
+
                 $ret = [
                     "success" => true,
                     "message" => "Profile photo updated successfully",

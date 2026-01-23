@@ -18,8 +18,10 @@ export default function ModalUploadProfilePicture(props) {
     const {
         toggleModalUploadProfilePicture,
         setToggleModalUploadProfilePicture,
-        profile_id = "",
+        profile_id,
     } = props;
+
+    console.log("profile_id: ", profile_id);
 
     const webcamRef = useRef(null);
     const [fileImage, setFileImage] = useState({

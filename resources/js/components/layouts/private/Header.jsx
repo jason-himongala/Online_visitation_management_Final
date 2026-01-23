@@ -15,6 +15,7 @@ import {
     UserId,
 } from "../../providers/appConfig";
 import ModalMessage from "./components/ModalMessage";
+console.log("userData", userData());
 
 export default function Header(props) {
     const { width, sideMenuCollapse, setSideMenuCollapse } = props;
@@ -23,7 +24,28 @@ export default function Header(props) {
         data: null,
     });
 
-    const [profilePicture, setProfilePicture] = useState(defaultProfile);
+    // const [profilePicture, setProfilePicture] = useState(defaultProfile);
+    const [profileImage, setProfileImage] = useState(defaultProfile);
+    console.log("userData().profile_picture", userData().profile_picture);
+
+    useEffect(() => {
+        if (userData().profile_picture) {
+            let profile_picture = userData().profile_picture.split("//");
+
+            if (
+                profile_picture[0] === "http:" ||
+                profile_picture[0] === "https:"
+            ) {
+                setProfileImage(userData().profile_picture);
+            } else {
+                setProfileImage(apiUrl(userData().profile_picture));
+            }
+        }
+
+        return () => {};
+    }, []);
+
+    console.log("profileImage", userData());
 
     const { data: dataUserNotifications, refetch: refetchSource } = GET(
         `api/user_notifications`,
@@ -31,27 +53,16 @@ export default function Header(props) {
             "user_notifications_list",
             "visitation_information_submit",
             "visitation_forms",
-        ]
+        ],
     );
 
     const { mutate: mutateVisitorInfo } = POST(
         `api/user_notifications`,
-        "visitation_information_submit"
+        "visitation_information_submit",
     );
 
     useEffect(() => {
         refetchSource();
-    }, []);
-
-    useEffect(() => {
-        if (userData().profile_picture) {
-            const pic = userData().profile_picture.split("//");
-            if (pic[0] === "http:" || pic[0] === "https:") {
-                setProfilePicture(userData().profile_picture);
-            } else {
-                setProfilePicture(apiUrl(userData().profile_picture));
-            }
-        }
     }, []);
 
     const UserIds = UserId("");
@@ -59,7 +70,7 @@ export default function Header(props) {
         `api/users?id=${UserIds}`,
         "user_detail",
         () => {},
-        false
+        false,
     );
 
     const currentUser =
@@ -74,7 +85,7 @@ export default function Header(props) {
 
     const filterNotificationsByRole = (notifications) => {
         let filtered = notifications.filter(
-            (item) => item.read === 0 && item.status === 1
+            (item) => item.read === 0 && item.status === 1,
         );
 
         const userRole = role();
@@ -89,7 +100,7 @@ export default function Header(props) {
 
             filtered = filtered.filter((item) => {
                 const status = String(
-                    item.visitaion_information?.status || item.status || ""
+                    item.visitaion_information?.status || item.status || "",
                 ).toLowerCase();
                 return ["approved", "declined", "pending"].includes(status);
             });
@@ -97,7 +108,7 @@ export default function Header(props) {
         } else if (userRole === "OP") {
             filtered = filtered.filter((item) => {
                 const status = String(
-                    item.visitaion_information?.status || item.status || ""
+                    item.visitaion_information?.status || item.status || "",
                 ).toLowerCase();
                 return status === "pending";
             });
@@ -123,7 +134,7 @@ export default function Header(props) {
                         notification.read = 1;
                         refetchSource();
                     },
-                }
+                },
             );
         };
 
@@ -173,27 +184,27 @@ export default function Header(props) {
                                     color:
                                         String(
                                             notification.visitaion_information
-                                                ?.status || ""
+                                                ?.status || "",
                                         ).toLowerCase() === "pending"
                                             ? "#faad14"
                                             : String(
-                                                  notification
-                                                      .visitaion_information
-                                                      ?.status || ""
-                                              ).toLowerCase() === "approved"
-                                            ? "#52c41a"
-                                            : String(
-                                                  notification
-                                                      .visitaion_information
-                                                      ?.status || ""
-                                              ).toLowerCase() === "declined"
-                                            ? "#ff4d4f"
-                                            : undefined,
+                                                    notification
+                                                        .visitaion_information
+                                                        ?.status || "",
+                                                ).toLowerCase() === "approved"
+                                              ? "#52c41a"
+                                              : String(
+                                                      notification
+                                                          .visitaion_information
+                                                          ?.status || "",
+                                                  ).toLowerCase() === "declined"
+                                                ? "#ff4d4f"
+                                                : undefined,
                                 }}
                             >
                                 {String(
                                     notification.visitaion_information
-                                        ?.status || ""
+                                        ?.status || "",
                                 ).toUpperCase()}
                             </Typography.Text>
                         </div>
@@ -209,7 +220,7 @@ export default function Header(props) {
                             View All Notifications
                         </Typography.Link>
                     ),
-                }
+                },
             );
         } else {
             items.push({
@@ -231,7 +242,7 @@ export default function Header(props) {
                     <div className="menu-item-details-wrapper">
                         <Image
                             preview={false}
-                            src={profilePicture}
+                            src={profileImage}
                             alt={userData().firstname}
                         />
                         <div className="info-wrapper">
@@ -310,12 +321,12 @@ export default function Header(props) {
                             dataUserNotifications
                                 ? (() => {
                                       const notifications = Array.isArray(
-                                          dataUserNotifications
+                                          dataUserNotifications,
                                       )
                                           ? dataUserNotifications
                                           : dataUserNotifications.data || [];
                                       return filterNotificationsByRole(
-                                          notifications
+                                          notifications,
                                       ).length;
                                   })()
                                 : 0
@@ -341,9 +352,15 @@ export default function Header(props) {
                     <Image
                         preview={false}
                         rootClassName="menu-submenu-profile"
-                        src={profilePicture}
+                        src={profileImage}
                         alt={userData().firstname}
                     />
+                    {/* <Image
+                        preview={false}
+                        rootClassName="menu-submenu-profile"
+                        src={profileImage}
+                        alt={userData().username}
+                    /> */}
                 </Dropdown>
             </div>
 

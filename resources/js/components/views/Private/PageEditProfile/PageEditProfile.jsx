@@ -386,7 +386,6 @@ export default function PageEditProfile() {
                                                         />
                                                     }
                                                     className="btn-upload"
-                                                    disabled
                                                     onClick={() =>
                                                         setToggleModalUploadProfilePicture(
                                                             (ps) => ({
@@ -405,6 +404,7 @@ export default function PageEditProfile() {
                                                 setToggleModalUploadProfilePicture={
                                                     setToggleModalUploadProfilePicture
                                                 }
+                                                profile_id={userData().id}
                                             />
                                         </Col>
                                     </Row>

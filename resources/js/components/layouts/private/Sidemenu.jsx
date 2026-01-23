@@ -40,7 +40,7 @@ export default function Sidemenu(props) {
         setOpenKeys(
             menuItems
                 .filter((item) => item.path === pathname)
-                .map((item) => item.path)
+                .map((item) => item.path),
         );
     }, [pathname, menuItems]);
 
@@ -171,7 +171,17 @@ export default function Sidemenu(props) {
     };
 
     return (
-        <Layout.Sider trigger={null} collapsible collapsed={sideMenuCollapse}>
+        <Layout.Sider
+            trigger={null}
+            collapsible
+            collapsed={sideMenuCollapse}
+            style={{
+                overflow: "hidden",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
             <div className="ant-side-header">
                 <MenuUnfoldOutlined
                     id="btn_sidemenu_collapse_unfold"
@@ -181,7 +191,7 @@ export default function Sidemenu(props) {
                             setOpenKeys(
                                 menuItems
                                     .filter((item) => item.path === pathname)
-                                    .map((item) => item.path)
+                                    .map((item) => item.path),
                             );
                         }, 200);
                     }}

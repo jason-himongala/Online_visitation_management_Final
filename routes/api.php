@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('initial_registration', [App\Http\Controllers\UserController::class, "initial_registration"]);
 Route::post('profiles_signup', [App\Http\Controllers\ProfileController::class, 'profiles_signup']);
-Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, 'update_profile_photo']);
+// Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, 'update_profile_photo']);
 Route::get('export_visitation_information', [App\Http\Controllers\VisitaionInformationController::class, 'export_visitation_information']);
 
 
@@ -31,6 +31,8 @@ Route::get('export_visitation_information', [App\Http\Controllers\VisitaionInfor
 
 Route::middleware('auth:api')->group(function () {
     Route::get('check_auth_status', [App\Http\Controllers\AuthController::class, "check_auth_status"]);
+    Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, 'update_profile_photo']);
+
 
 
 

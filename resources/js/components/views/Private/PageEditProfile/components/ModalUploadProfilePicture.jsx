@@ -23,6 +23,7 @@ export default function ModalUploadProfilePicture(props) {
     const {
         toggleModalUploadProfilePicture,
         setToggleModalUploadProfilePicture,
+        profile_id,
     } = props;
 
     const webcamRef = useRef(null);
@@ -116,11 +117,11 @@ export default function ModalUploadProfilePicture(props) {
             isCapture: true,
             fileName: blob.size + "-camera.png",
         }));
-    }, [webcamRef]);
+    }, [webcamRef, profile_id]);
 
     const { mutate: mutateImage } = POST(
         `api/update_profile_photo`,
-        "update_profile_photo"
+        "update_profile_photo",
     );
 
     const onFinish = () => {
@@ -129,6 +130,7 @@ export default function ModalUploadProfilePicture(props) {
         let userDataCopy = userData();
 
         data.append("user_id", userDataCopy.id);
+        data.append("profile_id", profile_id);
 
         if (fileImage.file) {
             data.append("profile_picture", fileImage.file, fileImage.fileName);
@@ -145,19 +147,19 @@ export default function ModalUploadProfilePicture(props) {
                         fileName: fileImage.fileName,
                     });
                     let menuSubmenuProfile = document.querySelector(
-                        ".menu-submenu-profile"
+                        ".menu-submenu-profile",
                     );
                     if (menuSubmenuProfile) {
                         menuSubmenuProfile.querySelector("img").src =
                             fileImage.src;
                     }
                     let menuSubmenuProfilePopup = document.querySelector(
-                        ".menu-submenu-profile-popup"
+                        ".menu-submenu-profile-popup",
                     );
                     if (menuSubmenuProfilePopup) {
                         let menuItemProfileDetails =
                             menuSubmenuProfilePopup.querySelector(
-                                ".menu-item-profile-details"
+                                ".menu-item-profile-details",
                             );
                         if (menuItemProfileDetails) {
                             menuItemProfileDetails.querySelector("img").src =
@@ -167,17 +169,17 @@ export default function ModalUploadProfilePicture(props) {
 
                     let attachments = dataRes.attachments.filter(
                         (attachment) =>
-                            attachment.file_description === "Profile Picture"
+                            attachment.file_description === "Profile Picture",
                     );
 
                     if (attachments.length > 0) {
                         userDataCopy["profile_picture"] = apiUrl(
-                            attachments[0].file_path
+                            attachments[0].file_path,
                         );
                     }
 
                     localStorage.userdata = encrypt(
-                        JSON.stringify(userDataCopy)
+                        JSON.stringify(userDataCopy),
                     );
 
                     setFileImage({
