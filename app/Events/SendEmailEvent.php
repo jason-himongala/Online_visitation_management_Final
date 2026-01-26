@@ -31,6 +31,6 @@ class SendEmailEvent
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('fsuu-dsac-admin-channel');
+        return new PrivateChannel('channel-name');
     }
 }

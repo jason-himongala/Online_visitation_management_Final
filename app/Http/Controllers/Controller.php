@@ -172,9 +172,9 @@ abstract class Controller
         $to_email = array_key_exists("to_email", $options) ? $options["to_email"] : "";
 
 
-        $from_name = array_key_exists("from_name", $options) ? $options["from_name"] : "Father Saturnino Urios University";
+        $from_name = array_key_exists("from_name", $options) ? $options["from_name"] : "Csu Visitation System";
         $sender_name = array_key_exists("sender_name", $options) ? $options["sender_name"] : "";
-        $from_email = array_key_exists("from_email", $options) ? $options["from_email"] : "dsac@urios.edu.ph";
+        $from_email = array_key_exists("from_email", $options) ? $options["from_email"] : "csu.visitation.system@gmail.com";
         $link = array_key_exists("link", $options) ? $options["link"] : "";
         $link_name = array_key_exists("link_name", $options) ? $options["link_name"] : "";
         $code = array_key_exists("code", $options) ? $options["code"] : "";
@@ -185,8 +185,7 @@ abstract class Controller
         $account = array_key_exists("account", $options) ? $options["account"] : "";
         $password = array_key_exists("password", $options) ? $options["password"] : "";
         $monitored_by = array_key_exists("monitored_by", $options) ? $options["monitored_by"] : "";
-        $date_monitored = array_key_exists("date_monitored", $options) ? $options["monitored_by"] : "";
-        $time_monitored = array_key_exists("time_monitored", $options) ? $options["monitored_by"] : "";
+
 
         $template = array_key_exists("template", $options) ? $options["template"] : "emails.email-template";
         $position = array_key_exists("position", $options) ? $options["position"] : "position";
@@ -238,18 +237,6 @@ abstract class Controller
 
                     if ($password) {
                         $body = str_replace('[user:password]', $password, $body);
-                    }
-
-                    if ($monitored_by) {
-                        $body = str_replace('[user:monitored_by]', $monitored_by, $body);
-                    }
-
-                    if ($date_monitored) {
-                        $body = str_replace('[user:date_monitored]', $date_monitored, $body);
-                    }
-
-                    if ($time_monitored) {
-                        $body = str_replace('[user:time_monitored]', $time_monitored, $body);
                     }
                 }
 

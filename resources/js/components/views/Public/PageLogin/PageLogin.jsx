@@ -12,7 +12,7 @@ import {
     Typography,
 } from "antd";
 
-import { POST } from "../../../providers/useAxiosQuery";
+import { GET, POST } from "../../../providers/useAxiosQuery";
 import {
     appLogo,
     date,
@@ -26,6 +26,7 @@ import FloatInputPassword from "../../../providers/FloatInputPassword";
 export default function PageLogin() {
     const [errorMessage, setErrorMessage] = useState(null);
     const navigate = useNavigate();
+    const { data: userData } = GET("api/user-data", "user-data");
 
     const { mutate: mutateLogin, isLoading: isLoadingLogin } =
         POST("api/login");
@@ -34,6 +35,10 @@ export default function PageLogin() {
         mutateLogin(values, {
             onSuccess: (res) => {
                 if (res.data) {
+                    if (res.data.deactivated_at) {
+                        setErrorMessage("Your account has been deactivated");
+                        return;
+                    }
                     localStorage.userdata = encrypt(JSON.stringify(res.data));
                     localStorage.token = res.token;
                     if (res.data.role === "Visitor") {
@@ -46,7 +51,6 @@ export default function PageLogin() {
             },
             onError: (error) => {
                 console.log("Error: ", error);
-
                 setErrorMessage(error.response.data.message);
             },
         });
@@ -98,25 +102,24 @@ export default function PageLogin() {
                         </Flex>
 
                         <Typography.Paragraph className="mt-5 text-center">
+                            {errorMessage && (
+                                <Alert
+                                    className="mt-5!"
+                                    type="error"
+                                    message={
+                                        <span
+                                            dangerouslySetInnerHTML={{
+                                                __html: errorMessage,
+                                            }}
+                                        />
+                                    }
+                                />
+                            )}
                             Don't have an account?{" "}
                             <a href="/sign-up" className="font-semibold">
                                 Sign Up
                             </a>
                         </Typography.Paragraph>
-
-                        {errorMessage && (
-                            <Alert
-                                className="mt-5!"
-                                type="error"
-                                message={
-                                    <span
-                                        dangerouslySetInnerHTML={{
-                                            __html: errorMessage,
-                                        }}
-                                    />
-                                }
-                            />
-                        )}
                     </Form>
                 </Card>
             </Row>

@@ -25,4 +25,5 @@
     {!! $content !!}
 </body>
 
+
 </html>

@@ -11,7 +11,7 @@ use App\Models\VisitaionInformation;
 use App\Models\VisitorRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 
 class VisitorRequestController extends Controller
 {
@@ -87,12 +87,32 @@ class VisitorRequestController extends Controller
                                 'remarks' => $remark,
                             ]);
 
+
+                        $profileWithUser = Profile::with('user')->where('id', $profileId)->first();
+                        $user = $profileWithUser->user ?? null;
+                        if ($user) {
+                            $status = $request->status;
+                            $emailTitle = $status === 'approved' ? 'Visitor Request Approved' : 'Visitor Request Declined';
+
+
+                            $this->send_email([
+                                "title" => $emailTitle,
+                                "system_id" => 1,
+                                'to_name' => $profileWithUser->firstname . ' ' . $profileWithUser->lastname,
+                                "to_email" => $user->email,
+                                "from_name" => "CSU Visitation System",
+                                "from_email" => "no-reply@csuvisitation.com",
+                            ]);
+                        }
+
+                        Log::info("Email sent to user: " . $user->email);
+
+
+
                         $visitationInfo = VisitaionInformation::with('appointment_schedule')
                             ->find($visitationId);
 
                         if ($visitationInfo && $visitationInfo->status !== 'declined') {
-                            $profileWithUser = Profile::with('user')->where('id', $profileId)->first();
-
                             $departmentId = $visitationInfo->appointment_schedule->department_id ?? null;
 
                             if ($departmentId && $profileWithUser && $profileWithUser->user) {
