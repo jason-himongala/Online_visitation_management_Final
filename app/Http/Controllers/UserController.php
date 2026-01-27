@@ -88,6 +88,19 @@ class UserController extends Controller
             "lastname" => "required",
         ]);
 
+        $existingUser = \App\Models\User::where('department_id', $request->department_id)
+            ->when($request->id, function ($query) use ($request) {
+                $query->where('id', '!=', $request->id);
+            })
+            ->first();
+
+        if ($existingUser) {
+            return response()->json([
+                "success" => false,
+                "message" => "A user with this department already exists."
+            ], 422);
+        }
+
         $roleName = "";
         if ($request->user_role_id) {
             $findUserRole = UserRole::where('id', $request->user_role_id)->first();
@@ -620,7 +633,9 @@ class UserController extends Controller
             if ($findUser->save()) {
                 $ret = [
                     "success" => true,
-                    "message" => "Data $actionMsg successfully"
+                    "message" => "Data $actionMsg successfully",
+                    "status" => $findUser->status
+
                 ];
             }
 
@@ -870,5 +885,45 @@ class UserController extends Controller
         });
 
         return response()->json($ret);
+    }
+
+
+
+    public function user_toggle_status_update(Request $request)
+    {
+        $ret = [
+            "success" => false,
+            "message" => "Action failed"
+        ];
+
+        $findUser = User::find($request->id);
+
+        if ($findUser) {
+            // Always set to Deactivated
+            $findUser->status = 'Deactivated';
+            $findUser->deactivated_by = Auth::id();
+            $findUser->deactivated_at = now();
+            $actionMsg = 'deactivated';
+
+            // Soft delete the profile
+            $profile = \App\Models\Profile::where('user_id', $findUser->id)->first();
+            if ($profile) {
+                $profile->deleted_by = Auth::id();
+                $profile->deleted_at = now();
+                $profile->save();
+            }
+
+            if ($findUser->save()) {
+                $ret = [
+                    "success" => true,
+                    "message" => "Data $actionMsg successfully",
+                    "status" => $findUser->status
+                ];
+            }
+
+            return response()->json($ret, 200);
+        }
+
+        return response()->json($ret, 404);
     }
 }

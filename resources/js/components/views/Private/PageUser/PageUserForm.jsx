@@ -160,7 +160,13 @@ export default function PageUserForm() {
                     navigate("/user-profile");
                 }
             },
-            onError: notificationErrors,
+            onError: (err) => {
+                notification.error({
+                    message: "Error",
+                    description:
+                        err.response?.data?.message || "An error occurred",
+                });
+            },
         });
     };
 

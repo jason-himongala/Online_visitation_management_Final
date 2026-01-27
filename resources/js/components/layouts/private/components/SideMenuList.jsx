@@ -52,6 +52,12 @@ export const adminSideMenu = [
         path: "/departments",
         icon: <FontAwesomeIcon icon={faBook} />,
     },
+
+    {
+        title: "Contacts",
+        path: "/contacts",
+        icon: <FontAwesomeIcon icon={faUsersCog} />,
+    },
 ];
 
 export const OPSideMenu = [

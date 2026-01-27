@@ -25,7 +25,7 @@ Route::post('initial_registration', [App\Http\Controllers\UserController::class,
 Route::post('profiles_signup', [App\Http\Controllers\ProfileController::class, 'profiles_signup']);
 // Route::post('update_profile_photo', [App\Http\Controllers\ProfileController::class, 'update_profile_photo']);
 Route::get('export_visitation_information', [App\Http\Controllers\VisitaionInformationController::class, 'export_visitation_information']);
-
+Route::post('submit_contact', [App\Http\Controllers\ContactController::class, 'submit_contact']);
 
 
 
@@ -40,7 +40,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('existing_username', [App\Http\Controllers\UserController::class, "existing_username"]);
     Route::post('add_user', [App\Http\Controllers\UserController::class, "add_user"]);
     Route::post('user_toggle_status', [App\Http\Controllers\UserController::class, "user_toggle_status"]);
+    Route::post('user_toggle_status_update', [App\Http\Controllers\UserController::class, "user_toggle_status_update"]);
     Route::apiResource('users', App\Http\Controllers\UserController::class);
+    Route::apiResource('contacts', App\Http\Controllers\ContactController::class);
     // END UserController
 
     // UserPermissionController

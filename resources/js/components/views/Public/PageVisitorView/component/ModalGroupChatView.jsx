@@ -439,7 +439,7 @@ export default function ModalGroupChatView(props) {
                                     }}
                                     actions={[
                                         <Popconfirm
-                                            key="archive"
+                                            key="delete"
                                             title="Delete this chat?"
                                             onConfirm={(e) =>
                                                 handleArchive(group.chat_id, e)

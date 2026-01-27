@@ -5,6 +5,7 @@ import {
     faHome,
     faUserCircle,
     faUsers,
+    faUsersCog,
 } from "@fortawesome/pro-regular-svg-icons";
 
 import PublicRoute from "./PublicRoute";
@@ -35,6 +36,7 @@ import PageFeedBackForms from "../views/Private/PageFeedBack/PageFeedBackForms";
 import PagePermission from "../views/Private/PagePermission/PagePermission";
 import PageVisitorRequests from "../views/Private/PageVisitoRequest/PageVisitorRequests";
 import PageDepartment from "../views/Private/PageDepartment/PageDepartment";
+import PageContactUser from "../views/Private/PageContact/PageContactUser";
 
 // import PageEmailTemplate from "../views/Private/PageEmailTemplate.jsx/PageEmailTemplate";
 
@@ -437,6 +439,7 @@ export default function RouteList() {
                     />
                 }
             />
+
             <Route
                 path="/permissions"
                 element={
@@ -456,7 +459,25 @@ export default function RouteList() {
                     />
                 }
             />
-
+            <Route
+                path="/contacts"
+                element={
+                    <PrivateRoute
+                        moduleCode="M-13"
+                        moduleName="Page Contacts"
+                        title="Contacts"
+                        subtitle="EDIT"
+                        pageId="PageContacts"
+                        pageHeaderIcon={faUsersCog}
+                        breadcrumb={[
+                            {
+                                name: "Contacts",
+                            },
+                        ]}
+                        component={PageContactUser}
+                    />
+                }
+            />
             <Route
                 path="/request-permission"
                 element={<PageRequestPermission />}
