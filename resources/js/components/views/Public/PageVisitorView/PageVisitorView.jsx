@@ -67,7 +67,7 @@ export default function PageVisitorView() {
                     <br />
                     <div className="mt-[120px] flex justify-center">
                         <Button
-                            onClick={() => navigate("/my-status")}
+                            onClick={() => navigate("/visit-request")}
                             className="
                             group
                             !bg-gradient-to-r !from-green-700 !to-green-900 
