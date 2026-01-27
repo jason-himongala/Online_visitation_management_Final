@@ -43,3 +43,19 @@
 }
 
 $body-bg: var(--color-blue-800);
+
+.no-underline {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+.no-underline:active,
+.no-underline:focus,
+.no-underline:visited,
+.no-underline:hover {
+    text-decoration: none !important;
+}
+
+.custom-underline {
+    text-decoration: underline;
+    text-decoration-color: $body-bg;
+}

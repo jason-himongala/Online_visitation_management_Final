@@ -1,6 +1,6 @@
-import { use, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { Button, Layout, Menu, Typography } from "antd";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Layout, Menu, Typography } from "antd";
 import { appLogo } from "../../../../providers/appConfig";
 import ModalGroupChatView from "./ModalGroupChatView";
 
@@ -10,12 +10,7 @@ export default function VisitorHeader() {
         data: null,
     });
     const location = useLocation();
-    const navigate = useNavigate();
-
-    let pathname = location.pathname;
-    console.log("pathname", pathname);
-    pathname = pathname.split("/");
-    pathname = "/" + pathname[1];
+    const pathname = location.pathname;
 
     const handleLogout = (e) => {
         e.preventDefault();
@@ -23,10 +18,16 @@ export default function VisitorHeader() {
         localStorage.removeItem("userdata");
         window.location.reload();
     };
+
+    const getLinkClass = (route) =>
+        pathname === route
+            ? "border-b-2 border-white-600 font-bold text-white"
+            : "border-b-2 border-transparent text-white";
+
     const MenuVisitor = [
         {
             label: (
-                <Link to="/home" className="no-underline!">
+                <Link to="/home" className={getLinkClass("/home")}>
                     Home
                 </Link>
             ),
@@ -34,7 +35,10 @@ export default function VisitorHeader() {
         },
         {
             label: (
-                <Link to="/visit-request" className="no-underline!">
+                <Link
+                    to="/visit-request"
+                    className={getLinkClass("/visit-request")}
+                >
                     Visit Request
                 </Link>
             ),
@@ -42,7 +46,7 @@ export default function VisitorHeader() {
         },
         {
             label: (
-                <Link to="/my-status" className="no-underline!">
+                <Link to="/my-status" className={getLinkClass("/my-status")}>
                     My Status
                 </Link>
             ),
@@ -50,7 +54,10 @@ export default function VisitorHeader() {
         },
         {
             label: (
-                <Link to="/visitation-form" className="no-underline!">
+                <Link
+                    to="/visitation-form"
+                    className={getLinkClass("/visitation-form")}
+                >
                     Visitation Form
                 </Link>
             ),
@@ -58,7 +65,10 @@ export default function VisitorHeader() {
         },
         {
             label: (
-                <Link to="/feedback-form" className="no-underline!">
+                <Link
+                    to="/feedback-form"
+                    className={getLinkClass("/feedback-form")}
+                >
                     Feedback Form
                 </Link>
             ),
@@ -139,7 +149,6 @@ export default function VisitorHeader() {
                     </Typography.Title>
                 </div>
 
-                {/* Right side - Menu */}
                 <Menu
                     theme="light"
                     mode="horizontal"
@@ -149,7 +158,6 @@ export default function VisitorHeader() {
                         minWidth: 0,
                         border: "none",
                         flex: 1,
-
                         justifyContent: "flex-end",
                     }}
                     items={MenuVisitor}

@@ -159,14 +159,18 @@ export default function PageFeedbackContent(props) {
     };
 
     return (
-        <Col xs={24} md={14} lg={14} xl={14} xxl={12}>
+        <Col
+            xs={24}
+            md={14}
+            lg={14}
+            xl={14}
+            xxl={12}
+            style={{
+                marginTop: "80px",
+            }}
+        >
             <Card
                 className="rounded-tl-none rounded-bl-none rounded-br-lg rounded-tr-lg shadow-lg border-green-800"
-                title={
-                    <div className="text-center text-lg font-bold text-white">
-                        CLIENT SATISFACTION MEASUREMENT SURVEY
-                    </div>
-                }
                 headStyle={{
                     backgroundColor: "#0d5b10",
                     borderColor: "#0d5b10",

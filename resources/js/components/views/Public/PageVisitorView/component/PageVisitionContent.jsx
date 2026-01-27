@@ -87,14 +87,19 @@ export default function PageVisitationContent(props) {
     };
 
     return (
-        <Col xs={24} md={16} lg={12} xl={10} xxl={8} align="center">
+        <Col
+            xs={24}
+            md={16}
+            lg={12}
+            xl={10}
+            xxl={8}
+            align="center"
+            style={{
+                marginTop: "80px",
+            }}
+        >
             <Card
                 className="rounded-ss-none rounded-es-none rounded-se-lg rounded-ee-lg shadow-lg border-green-800"
-                title={
-                    <div className="text-center text-lg font-bold!">
-                        CLIENT SATISFACTION MEASUREMENT
-                    </div>
-                }
                 headStyle={{
                     backgroundColor: "#0d5b10",
                     borderColor: "#0d5b10",
