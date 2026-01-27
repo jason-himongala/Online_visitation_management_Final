@@ -3,6 +3,7 @@ import {
     faArrowLeft,
     faArchive,
     faInbox,
+    faTrash,
 } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -88,6 +89,8 @@ export default function ModalMessage(props) {
     const { mutate: mutateVisitorInfo } = POST(
         `api/conversations_chat`,
         "post_visitor_chat_message",
+        () => {},
+        false,
     );
 
     const { data: dataChatMessages, refetch: refetchChatMessages } = GET(
@@ -417,6 +420,7 @@ export default function ModalMessage(props) {
         : {};
 
     useEffect(() => {
+        if (!toggleModalOpenGroupChat.open) return;
         const interval = setInterval(() => {
             refetchAllMessages();
             if (selectedGroup) {
@@ -425,7 +429,12 @@ export default function ModalMessage(props) {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [selectedGroup, refetchAllMessages, refetchChatMessages]);
+    }, [
+        selectedGroup,
+        refetchAllMessages,
+        refetchChatMessages,
+        toggleModalOpenGroupChat.open,
+    ]);
 
     return (
         <Modal
@@ -489,7 +498,7 @@ export default function ModalMessage(props) {
                                         userRole === "Department"
                                             ? [
                                                   <Popconfirm
-                                                      title="Archive this chat?"
+                                                      title="Delete this chat?"
                                                       onConfirm={(e) =>
                                                           handleArchive(
                                                               group.chat_id,
@@ -503,12 +512,10 @@ export default function ModalMessage(props) {
                                                       cancelText="No"
                                                   >
                                                       <Button
-                                                          type="text"
+                                                          type="danger"
                                                           icon={
                                                               <FontAwesomeIcon
-                                                                  icon={
-                                                                      faArchive
-                                                                  }
+                                                                  icon={faTrash}
                                                               />
                                                           }
                                                           onClick={(e) =>
@@ -560,7 +567,7 @@ export default function ModalMessage(props) {
                                 </List.Item>
                             )}
                         />
-                        {(userRole === "Pico" ||
+                        {/* {(userRole === "Pico" ||
                             userRole === "Admin" ||
                             userRole === "Department") && (
                             <Collapse
@@ -708,7 +715,7 @@ export default function ModalMessage(props) {
                                     />
                                 </Panel>
                             </Collapse>
-                        )}
+                        )} */}
                     </div>
                 </div>
 

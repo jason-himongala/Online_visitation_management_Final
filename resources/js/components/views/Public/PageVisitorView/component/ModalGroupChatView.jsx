@@ -3,6 +3,7 @@ import {
     faArrowLeft,
     faArchive,
     faInbox,
+    faTrash,
 } from "@fortawesome/pro-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -439,7 +440,7 @@ export default function ModalGroupChatView(props) {
                                     actions={[
                                         <Popconfirm
                                             key="archive"
-                                            title="Archive this chat?"
+                                            title="Delete this chat?"
                                             onConfirm={(e) =>
                                                 handleArchive(group.chat_id, e)
                                             }
@@ -453,7 +454,7 @@ export default function ModalGroupChatView(props) {
                                                 type="text"
                                                 icon={
                                                     <FontAwesomeIcon
-                                                        icon={faArchive}
+                                                        icon={faTrash}
                                                     />
                                                 }
                                                 onClick={(e) =>
@@ -503,7 +504,7 @@ export default function ModalGroupChatView(props) {
                                 </List.Item>
                             )}
                         />
-                        <Collapse
+                        {/* <Collapse
                             bordered={false}
                             expandIcon={({ isActive }) => (
                                 <DownOutlined rotate={isActive ? 180 : 0} />
@@ -639,7 +640,7 @@ export default function ModalGroupChatView(props) {
                                     )}
                                 />
                             </Panel>
-                        </Collapse>
+                        </Collapse> */}
                     </div>
                 </div>
 
