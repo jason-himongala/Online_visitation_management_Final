@@ -118,61 +118,58 @@ export default function PageContactUser() {
                 </Flex>
             </Col>
 
-            <Col xs={24} sm={24} md={24}>
-                <Table
-                    id="tbl_profiles"
-                    dataSource={dataSource?.data?.data || []}
-                    rowKey={(record) => record.id}
-                    pagination={false}
-                    bordered
-                    scroll={{ x: "max-content" }}
-                    sticky
-                >
-                    <Table.Column
-                        title="Name"
-                        key="username"
-                        dataIndex="username"
-                        width={50}
-                    />
-                    <Table.Column
-                        title="Email"
-                        key="email"
-                        dataIndex="email"
-                        width={50}
-                    />
-                    <Table.Column
-                        title="Message"
-                        key="message"
-                        dataIndex="message"
-                        width={50}
-                    />
-
-                    <Table.Column
-                        title="Status"
-                        key="status"
-                        dataIndex="status"
-                        width={80}
-                        render={(status, record) => (
-                            <Switch
-                                checked={status === "Active"}
-                                checkedChildren="Active"
-                                unCheckedChildren="Deactivated"
-                                loading={loadingToggleUserStatus}
-                                style={getSwitchStyle(status === "Active")}
-                                onChange={() => {
-                                    handleToggleStatus({
-                                        id: record.user_id,
-                                        status:
-                                            status === "Active"
-                                                ? "Deactivated"
-                                                : "Active",
-                                    });
-                                }}
-                            />
-                        )}
-                    />
-                </Table>
-            </Col>
+            <Table
+                id="tbl_profiles"
+                dataSource={dataSource?.data?.data || dataSource?.data || []}
+                rowKey={(record) => record.id}
+                pagination={false}
+                bordered
+                scroll={{ x: "max-content" }}
+                sticky
+            >
+                <Table.Column
+                    title="Name"
+                    key="username"
+                    dataIndex="username"
+                    width={50}
+                />
+                <Table.Column
+                    title="Email"
+                    key="email"
+                    dataIndex="email"
+                    width={50}
+                />
+                <Table.Column
+                    title="Message"
+                    key="message"
+                    dataIndex="message"
+                    width={50}
+                />
+                <Table.Column
+                    title="Status"
+                    key="status"
+                    dataIndex="status"
+                    width={80}
+                    render={(status, record) => (
+                        <Switch
+                            checked={status === "Active"}
+                            checkedChildren="Active"
+                            unCheckedChildren="Deactivated"
+                            loading={loadingToggleUserStatus}
+                            style={getSwitchStyle(status === "Active")}
+                            onChange={() => {
+                                handleToggleStatus({
+                                    id: record.user_id,
+                                    status:
+                                        status === "Active"
+                                            ? "Deactivated"
+                                            : "Active",
+                                });
+                            }}
+                        />
+                    )}
+                />
+            </Table>
             <Col xs={24} sm={24} md={24}>
                 <Flex
                     className="tbl-bottom-filter"

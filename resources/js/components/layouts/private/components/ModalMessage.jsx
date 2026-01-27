@@ -26,7 +26,7 @@ import {
 } from "antd";
 
 import { GET, POST } from "../../../providers/useAxiosQuery";
-import { role, UserId } from "../../../providers/appConfig";
+import { role, UserId, userData } from "../../../providers/appConfig";
 import ModalChatRename from "./modalChatRename";
 
 const { Title, Text } = Typography;
@@ -35,6 +35,7 @@ const { Panel } = Collapse;
 export default function ModalMessage(props) {
     const userId = UserId();
     const userRole = role();
+    const userDepartment = userData()?.department_id;
 
     const { setToggleModalOpenGroupChat, toggleModalOpenGroupChat } = props;
 
@@ -249,18 +250,24 @@ export default function ModalMessage(props) {
     }, [dataChatMember]);
 
     const filteredGroupChats = useMemo(() => {
-        if (
-            userRole === "Pico" ||
-            userRole === "Admin" ||
-            userRole === "Department"
-        ) {
+        if (userRole === "Pico" || userRole === "Admin") {
             return groupChats;
         }
+
+        // if (userRole === "Department") {
+        //     return groupChats.filter((group) =>
+        //         group.members.some(
+        //             (m) =>
+        //                 m.profile?.department_id &&
+        //                 m.profile.department_id === userDepartment,
+        //         ),
+        //     );
+        // }
 
         return groupChats.filter((group) =>
             group.members.some((m) => m.profile?.user_id === userId),
         );
-    }, [groupChats, userId, userRole]);
+    }, [groupChats, userId, userRole, userDepartment]);
 
     const activeFilteredGroups = filteredGroupChats.filter(
         (g) =>

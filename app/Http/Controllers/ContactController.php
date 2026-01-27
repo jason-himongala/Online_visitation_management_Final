@@ -10,29 +10,20 @@ class ContactController extends Controller
 {
     public function index(Request $request)
     {
-
         $username = "SELECT username FROM users WHERE id=contacts.user_id LIMIT 1";
         $email = "SELECT email FROM users WHERE id=contacts.user_id LIMIT 1";
-
         $status = "SELECT status FROM users WHERE id=contacts.user_id LIMIT 1";
+
+        $sub = Contact::selectRaw('MAX(id) as id')->groupBy('user_id');
         $data = Contact::select([
             "*",
             DB::raw("({$username}) as username"),
             DB::raw("({$email}) as email"),
             DB::raw("({$status}) as status"),
         ])
-            ->search([
-                'search' => $request->search,
-                'rawFields' => [
-                    'username',
-                    'email',
-                    'message',
-                ]
-            ])
-            ->filter($request)
-            ->sortable($request)
-            ->pagination($request);
-
+            ->whereIn('id', $sub)
+            ->orderBy('id', 'desc')
+            ->get();
 
         $ret = [
             "success" => true,
@@ -59,23 +50,35 @@ class ContactController extends Controller
 
         try {
             DB::transaction(function () use ($request, $data, &$ret) {
-                $query = Contact::updateOrCreate(
-                    ["id" => $request->id ?? null],
-                    $data
-                );
-
-                if ($query) {
+                if ($request->id) {
+                    $contact = Contact::find($request->id);
+                    if ($contact) {
+                        $contact->user_id = $data['user_id'] ?? null;
+                        $contact->save();
+                        $ret = [
+                            "success" => true,
+                            "message" => "User ID updated successfully",
+                        ];
+                    } else {
+                        $ret = [
+                            "success" => false,
+                            "message" => "Contact not found",
+                        ];
+                    }
+                } else {
+                    $contact = Contact::create([
+                        'user_id' => $data['user_id'] ?? null,
+                        'message' => $data['message'],
+                    ]);
                     $ret = [
                         "success" => true,
-                        "message" => "Data " . ($request->id ? "updated" : "saved") . " successfully",
+                        "message" => "Contact created successfully",
                     ];
                 }
             });
         } catch (\Throwable $th) {
-            //throw $th;
             $ret['message'] = "An error occurred: " . $th->getMessage();
         }
-
         return response()->json($ret, 200);
     }
 }
