@@ -16,7 +16,7 @@ import { role } from "../../../../providers/appConfig";
 export default function ModalFormEvent({ currentUser }) {
     const UserRolle = role();
     const { toggleModalFormEvent, setToggleModalFormEvent } = useContext(
-        PageEventContextCalendar
+        PageEventContextCalendar,
     );
 
     const [form] = Form.useForm();
@@ -25,12 +25,12 @@ export default function ModalFormEvent({ currentUser }) {
         `api/departments`,
         "departments_list",
         () => {},
-        false
+        false,
     );
 
     const { mutate: mutateAppointmentSc, isLoading: isLoadingEvent } = POST(
         `api/appointment_schedule`,
-        "appointment_schedule_list"
+        "appointment_schedule_list",
     );
 
     const onFinish = (values) => {
@@ -209,16 +209,50 @@ export default function ModalFormEvent({ currentUser }) {
                                 required
                                 options={[
                                     {
-                                        label: "AM (Around 6:00 - 11:59am)",
-                                        value: "AM (Around 6:00 - 11:59am)",
+                                        label: "7:00  - 8:00 AM",
+                                        value: "7:00  - 8:00 AM",
                                     },
                                     {
-                                        label: "PM (Around 12:00 - 11:59pm)",
-                                        value: "PM (Around 12:00 - 11:59pm)",
+                                        label: "8:00 - 9:00 AM",
+                                        value: "8:00 - 9:00 AM",
                                     },
                                     {
-                                        label: "8:00am-12pm/1:00pm-5:00pm",
-                                        value: "8:00am-12pm/1:00pm-5:00pm",
+                                        label: "9:00 - 10:00 AM",
+                                        value: "9:00 - 10:00 AM",
+                                    },
+                                    {
+                                        label: "10:00 - 11:00 AM",
+                                        value: "10:00 - 11:00 AM",
+                                    },
+                                    {
+                                        label: "11:00 - 12:59 AM",
+                                        value: "11:00 - 12:59 AM",
+                                    },
+
+                                    {
+                                        label: "1:00 - 2:00 PM",
+                                        value: "1:00 - 2:00 PM",
+                                    },
+                                    {
+                                        label: "2:00 - 3:00 PM",
+                                        value: "2:00 - 3:00 PM",
+                                    },
+                                    {
+                                        label: "3:00 - 4:00 PM",
+                                        value: "3:00 - 4:00 PM",
+                                    },
+                                    {
+                                        label: "4:00 - 5:00 PM",
+                                        value: "4:00 - 5:00 PM",
+                                    },
+
+                                    {
+                                        label: "8:00 AM - 12:00 PM",
+                                        value: "8:00 AM - 12:00 PM",
+                                    },
+                                    {
+                                        label: "12:00 PM - 5:00 PM",
+                                        value: "12:00 PM - 5:00 PM",
                                     },
                                     {
                                         label: "Whole Day",
@@ -242,7 +276,7 @@ export default function ModalFormEvent({ currentUser }) {
                             name="important_visit"
                             valuePropName="checked"
                         >
-                            <Checkbox>Official visit</Checkbox>
+                            <Checkbox>Reminder</Checkbox>
                         </Form.Item>
                     </Col>
                     <Col xs={24}>
