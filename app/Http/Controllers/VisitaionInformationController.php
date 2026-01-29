@@ -59,6 +59,12 @@ class VisitaionInformationController extends Controller
                 ->whereMonth('visitaion_information.created_at', $month);
         }
 
+
+
+        if ($request->available_time) {
+            $query->where('appointment_schedules.available_time', 'like', '%' . $request->available_time . '%');
+        }
+
         if ($request->sort_field && $request->sort_order && $request->sort_field !== 'null' && $request->sort_order !== 'null') {
             $query->orderBy($request->sort_field, $request->sort_order);
         } else {

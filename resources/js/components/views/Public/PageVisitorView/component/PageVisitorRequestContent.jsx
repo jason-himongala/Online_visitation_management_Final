@@ -28,10 +28,13 @@ import { useTableScrollOnTop } from "../../../../providers/CustomTableFilter";
 import FloatSelect from "../../../../providers/FloatSelect";
 import ModalVisitorInformationForm from "./ModalVisitorInformationForm";
 import ModalApplicationList from "./ModalApplicationList";
+import { userData } from "../../../../providers/appConfig";
 
 export default function PageVisitorRequestContent(props) {
     const { width } = props;
     const location = useLocation();
+    const profileId = userData().profile_id;
+    console.log("profileId:", profileId);
 
     const [
         toggleModalVisitorInformationForm,
@@ -41,6 +44,28 @@ export default function PageVisitorRequestContent(props) {
         data: null,
         selectedAppointments: [],
     });
+
+    const [
+        tableFilterVisitationInformation,
+        setTableFilterVisitationInformation,
+    ] = useState({
+        available_time: "",
+    });
+
+    const {
+        data: dataAppointmentSchedulesVisitationInformation,
+        refetch: refetchAppointmentSchedulesVisitationInformation,
+    } = GET(
+        `api/visitation_information?${new URLSearchParams(tableFilterVisitationInformation)}`,
+        "visitation_information_list",
+        () => {},
+        false,
+    );
+
+    useEffect(() => {
+        refetchAppointmentSchedulesVisitationInformation();
+        return () => {};
+    }, [tableFilterVisitationInformation]);
 
     const [toggleModalApplicationList, setToggleModalApplicationList] =
         useState({
@@ -54,6 +79,7 @@ export default function PageVisitorRequestContent(props) {
 
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [selectedAppointments, setSelectedAppointments] = useState([]);
+    const [currentUserProfileId, setCurrentUserProfileId] = useState(null);
 
     const handlePrevMonth = (e) => {
         e.stopPropagation();
@@ -111,11 +137,264 @@ export default function PageVisitorRequestContent(props) {
         });
     };
 
+    const normalizeTime = (timeStr) => {
+        if (!timeStr) return "";
+
+        if (timeStr.toLowerCase().includes("whole")) {
+            return "Whole Day";
+        }
+
+        return timeStr
+            .trim()
+            .toUpperCase()
+            .replace(/\s+/g, " ")
+            .replace(/AM/g, "AM")
+            .replace(/PM/g, "PM")
+            .replace(/^(\d:\d\d)/, "0$1");
+    };
+
+    const isTimeSlotInRange = (timeSlot, timeRange) => {
+        if (timeRange === "Whole Day") {
+            return true;
+        }
+
+        const rangeParts = timeRange.split(" - ");
+        if (rangeParts.length !== 2) return false;
+
+        const [rangeStart, rangeEnd] = rangeParts;
+
+        const slotParts = timeSlot.split(" - ");
+        if (slotParts.length !== 2) return false;
+
+        const [slotStart, slotEndWithPeriod] = slotParts;
+
+        const slotEndMatch = slotEndWithPeriod.match(/(\d+:\d+)\s*([AP]M)/i);
+        if (!slotEndMatch) return false;
+
+        const slotEnd = slotEndMatch[1];
+        const slotPeriod = slotEndMatch[2].toUpperCase();
+
+        const convertToMinutes = (timeStr) => {
+            const time = timeStr.trim();
+            const isPM = time.toLowerCase().includes("pm");
+            const timeWithoutPeriod = time.replace(/[APMapm]/g, "").trim();
+
+            let [hours, minutes] = timeWithoutPeriod.split(":");
+            hours = parseInt(hours);
+            minutes = minutes ? parseInt(minutes) : 0;
+
+            if (isPM && hours < 12) hours += 12;
+            if (!isPM && hours === 12) hours = 0;
+
+            return hours * 60 + minutes;
+        };
+
+        const rangeStartMinutes = convertToMinutes(rangeStart);
+        const rangeEndMinutes = convertToMinutes(rangeEnd);
+
+        let slotStartMinutes = convertToMinutes(`${slotStart} ${slotPeriod}`);
+        let slotEndMinutes = convertToMinutes(`${slotEnd} ${slotPeriod}`);
+
+        return (
+            slotStartMinutes >= rangeStartMinutes &&
+            slotEndMinutes <= rangeEndMinutes
+        );
+    };
+
+    const hasAppointment = (appointmentSlot) => {
+        if (!dataAppointmentSchedulesVisitationInformation?.data) {
+            return false;
+        }
+
+        const appointmentDate = dayjs(appointmentSlot.date).format(
+            "YYYY-MM-DD",
+        );
+        const departmentId = appointmentSlot.department_id;
+        const slotTime = normalizeTime(appointmentSlot.available_time);
+
+        return dataAppointmentSchedulesVisitationInformation.data.some(
+            (appointment) => {
+                const appointmentBookingDate = dayjs(
+                    appointment.appointment_schedule?.date || appointment.date,
+                ).format("YYYY-MM-DD");
+
+                if (
+                    appointment.appointment_schedule?.department_id !==
+                        departmentId ||
+                    appointmentBookingDate !== appointmentDate
+                ) {
+                    return false;
+                }
+
+                const appointmentTimeRange = normalizeTime(
+                    appointment.appointment_schedule?.available_time ||
+                        appointment.available_time,
+                );
+
+                return isTimeSlotInRange(slotTime, appointmentTimeRange);
+            },
+        );
+    };
+
+    const hasAppointmentByCurrentUser = (appointmentSlot) => {
+        if (
+            !dataAppointmentSchedulesVisitationInformation?.data ||
+            !profileId
+        ) {
+            return false;
+        }
+
+        const appointmentDate = dayjs(appointmentSlot.date).format(
+            "YYYY-MM-DD",
+        );
+        const departmentId = appointmentSlot.department_id;
+        const slotTime = normalizeTime(appointmentSlot.available_time);
+
+        return dataAppointmentSchedulesVisitationInformation.data.some(
+            (appointment) => {
+                const appointmentBookingDate = dayjs(
+                    appointment.appointment_schedule?.date || appointment.date,
+                ).format("YYYY-MM-DD");
+
+                if (
+                    appointment.profile_id !== profileId ||
+                    appointment.appointment_schedule?.department_id !==
+                        departmentId ||
+                    appointmentBookingDate !== appointmentDate
+                ) {
+                    return false;
+                }
+
+                const appointmentTimeRange = normalizeTime(
+                    appointment.appointment_schedule?.available_time ||
+                        appointment.available_time,
+                );
+
+                return isTimeSlotInRange(slotTime, appointmentTimeRange);
+            },
+        );
+    };
+
+    const getAppointmentType = (departmentId, date) => {
+        if (!dataAppointmentSchedulesVisitationInformation?.data) {
+            return null;
+        }
+
+        const appointmentDate = dayjs(date).format("YYYY-MM-DD");
+
+        const appointments =
+            dataAppointmentSchedulesVisitationInformation.data.filter(
+                (appointment) => {
+                    const appointmentBookingDate = dayjs(
+                        appointment.appointment_schedule?.date ||
+                            appointment.date,
+                    ).format("YYYY-MM-DD");
+
+                    return (
+                        appointment.appointment_schedule?.department_id ===
+                            departmentId &&
+                        appointmentBookingDate === appointmentDate
+                    );
+                },
+            );
+
+        if (appointments.length === 0) return null;
+
+        const appointmentTimeRanges = appointments.map((appointment) =>
+            normalizeTime(
+                appointment.appointment_schedule?.available_time ||
+                    appointment.available_time,
+            ),
+        );
+
+        if (appointmentTimeRanges.includes("Whole Day")) {
+            return { type: "Whole Day", appointments };
+        }
+
+        const timeRangeAppointments = appointmentTimeRanges.filter(
+            (range) => range.includes(" - ") && range !== "Whole Day",
+        );
+
+        if (timeRangeAppointments.length > 0) {
+            return {
+                type: "Time Range",
+                timeRanges: timeRangeAppointments,
+                appointments,
+            };
+        }
+
+        return { type: "Individual Slots", appointments };
+    };
+
     const handleCellClick = (item) => {
         if (item.appointment_type === "Not Available") {
             notification.error({
                 message: "Unavailable",
                 description: "This appointment slot is not available.",
+            });
+            return;
+        }
+
+        const hasExistingAppointment = hasAppointment(item);
+
+        if (hasExistingAppointment) {
+            const hasCurrentUserAppointment = hasAppointmentByCurrentUser(item);
+            const appointmentType = getAppointmentType(
+                item.department_id,
+                item.date,
+            );
+
+            if (appointmentType?.type === "Whole Day") {
+                if (hasCurrentUserAppointment) {
+                    notification.error({
+                        message: "Already Have Appointment (Whole Day)",
+                        description:
+                            "You already have a Whole Day appointment for this department on this date.",
+                    });
+                } else {
+                    notification.error({
+                        message: "Slot Unavailable (Whole Day)",
+                        description:
+                            "There is a Whole Day appointment for this department on this date.",
+                    });
+                }
+            } else if (appointmentType?.type === "Time Range") {
+                if (hasCurrentUserAppointment) {
+                    notification.error({
+                        message: "Already Have Appointment",
+                        description: `You already have an appointment that includes ${item.available_time}.`,
+                    });
+                } else {
+                    notification.error({
+                        message: "Slot Unavailable",
+                        description: `This time slot is within an existing appointment range.`,
+                    });
+                }
+            } else {
+                if (hasCurrentUserAppointment) {
+                    notification.error({
+                        message: "Already Have Appointment",
+                        description: `You already have an appointment for ${item.available_time}.`,
+                    });
+                } else {
+                    notification.error({
+                        message: "Slot Unavailable",
+                        description: `The ${item.available_time} time slot already has an appointment.`,
+                    });
+                }
+            }
+            return;
+        }
+
+        const hasConflict = hasAppointmentByCurrentUser(item);
+
+        // console.log("hasConflict:", hasConflict);
+
+        if (hasConflict) {
+            notification.error({
+                message: "Appointment Conflict",
+                description:
+                    "You already have an appointment that includes this time slot.",
             });
             return;
         }
@@ -133,18 +412,25 @@ export default function PageVisitorRequestContent(props) {
                 description: `Removed ${item.department_name} - ${item.available_time}`,
             });
         } else {
-            const sameDeptTime = selectedAppointments.find(
-                (selected) =>
-                    selected.department_id === item.department_id &&
-                    selected.available_time === item.available_time &&
-                    selected.date === item.date,
-            );
+            const hasOverlappingSlot = selectedAppointments.some((selected) => {
+                if (
+                    selected.department_id !== item.department_id ||
+                    selected.date !== item.date
+                ) {
+                    return false;
+                }
 
-            if (sameDeptTime) {
+                const selectedTime = normalizeTime(selected.available_time);
+                const itemTime = normalizeTime(item.available_time);
+
+                return selectedTime === itemTime;
+            });
+
+            if (hasOverlappingSlot) {
                 notification.warning({
-                    message: "Already Selected",
+                    message: "Duplicate Selection",
                     description:
-                        "You have already selected this time slot for this department.",
+                        "You have already selected this exact time slot for this department and date.",
                 });
                 return;
             }
@@ -155,6 +441,75 @@ export default function PageVisitorRequestContent(props) {
                 description: `Added ${item.department_name} - ${item.available_time}`,
             });
         }
+    };
+
+    const checkForConflicts = (appointments) => {
+        if (
+            !profileId ||
+            !dataAppointmentSchedulesVisitationInformation?.data
+        ) {
+            return [];
+        }
+
+        const conflicts = [];
+
+        appointments.forEach((appointment) => {
+            const hasExistingAppointment = hasAppointment(appointment);
+            // console.log("hasExistingAppointment:", hasExistingAppointment);
+
+            if (hasExistingAppointment) {
+                conflicts.push({
+                    ...appointment,
+                    reason: "already_has_appointment",
+                });
+                return;
+            }
+
+            const hasConflict = hasAppointmentByCurrentUser(appointment);
+
+            if (hasConflict) {
+                conflicts.push({
+                    ...appointment,
+                    reason: "user_appointment_conflict",
+                });
+            }
+        });
+
+        return conflicts;
+    };
+
+    const handlePreviewRequest = () => {
+        if (selectedAppointments.length === 0) {
+            notification.warning({
+                message: "No appointments selected",
+                description: "Please select at least one appointment slot.",
+            });
+            return;
+        }
+
+        const conflicts = checkForConflicts(selectedAppointments);
+
+        if (conflicts.length > 0) {
+            notification.error({
+                message: "Appointment Conflict",
+                description: `Some selected appointments are no longer available. Please remove them and try again.`,
+            });
+
+            const conflictIds = conflicts.map((c) => c.id);
+            setSelectedAppointments((prev) =>
+                prev.filter(
+                    (appointment) => !conflictIds.includes(appointment.id),
+                ),
+            );
+
+            return;
+        }
+
+        setToggleModalVisitorInformationForm({
+            open: true,
+            data: selectedAppointments[0],
+            selectedAppointments: selectedAppointments,
+        });
     };
 
     const dateCellRender = (value) => {
@@ -175,41 +530,102 @@ export default function PageVisitorRequestContent(props) {
                     const isSelected = selectedAppointments.some(
                         (selected) => selected.id === item.id,
                     );
+
+                    const hasExistingAppointment = hasAppointment(item);
+
+                    const hasCurrentUserAppointment =
+                        hasAppointmentByCurrentUser(item);
+                    const appointmentType = getAppointmentType(
+                        item.department_id,
+                        item.date,
+                    );
+
                     const isImportant =
                         item.important_visit === 1 && item.important_notes;
+
+                    const isDisabled = hasExistingAppointment;
+
+                    let appointmentLabel = "Appointment";
+                    if (appointmentType?.type === "Whole Day") {
+                        appointmentLabel = "Whole Day Appointment";
+                    } else if (appointmentType?.type === "Time Range") {
+                        appointmentLabel = "Has Appointment";
+                    }
 
                     return (
                         <li
                             key={index}
                             style={{
-                                cursor: "pointer",
+                                cursor: isDisabled ? "not-allowed" : "pointer",
                                 marginBottom: 6,
                                 padding: 6,
                                 borderRadius: 6,
-                                // backgroundColor: isSelected
-                                //     ? "#e6f7ff"
-                                //     : "transparent",
-                                // border: isSelected
-                                //     ? "2px solid #1890ff"
-                                //     : "1px solid #f0f0f0",
+                                backgroundColor: isDisabled
+                                    ? hasCurrentUserAppointment
+                                        ? "#fff7e6"
+                                        : "#ffe6e6"
+                                    : isSelected
+                                      ? "#e6f7ff"
+                                      : "transparent",
+                                border: isDisabled
+                                    ? hasCurrentUserAppointment
+                                        ? "1px dashed #faad14"
+                                        : "1px dashed #ff4d4f"
+                                    : isSelected
+                                      ? "2px solid #1890ff"
+                                      : "1px solid #f0f0f0",
+                                opacity: isDisabled ? 0.7 : 1,
                                 transition: "all 0.3s ease",
                             }}
-                            onClick={() => handleCellClick(item)}
+                            onClick={() => {
+                                if (isDisabled) {
+                                    if (hasCurrentUserAppointment) {
+                                        notification.warning({
+                                            message: "Your Appointment",
+                                            description:
+                                                appointmentType?.type ===
+                                                "Whole Day"
+                                                    ? "You have a Whole Day appointment for this department."
+                                                    : appointmentType?.type ===
+                                                        "Time Range"
+                                                      ? "You have an appointment that includes this slot."
+                                                      : `You have an appointment for ${item.available_time}.`,
+                                        });
+                                    } else {
+                                        notification.warning({
+                                            message: "Has Appointment",
+                                            description:
+                                                appointmentType?.type ===
+                                                "Whole Day"
+                                                    ? "There is a Whole Day appointment for this department."
+                                                    : appointmentType?.type ===
+                                                        "Time Range"
+                                                      ? "This slot is within an appointment range."
+                                                      : `The ${item.available_time} time slot has an appointment.`,
+                                        });
+                                    }
+                                    return;
+                                }
+                                handleCellClick(item);
+                            }}
                         >
                             <Typography.Text
                                 className="text-sm font-semibold"
                                 style={{
-                                    color:
-                                        item.appointment_type ===
-                                        "Not Available"
-                                            ? "#ff4d4f"
-                                            : item.appointment_type ===
-                                                "Available"
-                                              ? "#52c41a"
-                                              : "#1890ff",
+                                    color: isDisabled
+                                        ? "#bfbfbf"
+                                        : item.appointment_type ===
+                                            "Not Available"
+                                          ? "#ff4d4f"
+                                          : item.appointment_type ===
+                                              "Available"
+                                            ? "#52c41a"
+                                            : "#1890ff",
                                 }}
                             >
-                                {item.appointment_type}
+                                {hasExistingAppointment
+                                    ? appointmentLabel
+                                    : item.appointment_type}
                                 <br />
                                 <Typography.Text className="text-xs">
                                     {item.available_time}
@@ -229,7 +645,49 @@ export default function PageVisitorRequestContent(props) {
                                 </div>
                             )}
 
-                            {isSelected && (
+                            {hasExistingAppointment &&
+                                hasCurrentUserAppointment && (
+                                    <div className="mt-2">
+                                        <Tag
+                                            color="orange"
+                                            className="text-xs"
+                                            style={{
+                                                fontSize: "x-small",
+                                            }}
+                                        >
+                                            {appointmentType?.type ===
+                                            "Whole Day"
+                                                ? "Your Whole Day"
+                                                : appointmentType?.type ===
+                                                    "Time Range"
+                                                  ? "Your Appointment "
+                                                  : "Your Appointment"}
+                                        </Tag>
+                                    </div>
+                                )}
+
+                            {hasExistingAppointment &&
+                                !hasCurrentUserAppointment && (
+                                    <div className="mt-2">
+                                        <Tag
+                                            color="red"
+                                            className="text-xm"
+                                            style={{
+                                                fontSize: "x-small",
+                                            }}
+                                        >
+                                            {appointmentType?.type ===
+                                            "Whole Day"
+                                                ? "Whole Day Appointment"
+                                                : appointmentType?.type ===
+                                                    "Time Range"
+                                                  ? "Has Appointment"
+                                                  : "Has Appointment"}
+                                        </Tag>
+                                    </div>
+                                )}
+
+                            {isSelected && !hasExistingAppointment && (
                                 <div className="mt-2">
                                     <Tag color="blue" className="text-xs">
                                         Selected
@@ -249,7 +707,24 @@ export default function PageVisitorRequestContent(props) {
         <>
             <Row gutter={[25, 40]}>
                 <Col span={24}>
-                    <Card></Card>
+                    <Card>
+                        <Typography.Text type="secondary">
+                            Note:
+                            <strong>
+                                {" "}
+                                • "Whole Day" appointments make ALL time slots
+                                unavailable.
+                                <br />
+                                • Time range appointments (e.g., "8:00 AM -
+                                12:00 PM") make all time slots within that range
+                                unavailable.
+                                <br />• Individual time slots have appointments
+                                independently if not within a Whole Day or time
+                                range appointment.
+                            </strong>
+                            Your own appointments are highlighted in orange.
+                        </Typography.Text>
+                    </Card>
                 </Col>
                 <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                     <Form>
@@ -317,24 +792,86 @@ export default function PageVisitorRequestContent(props) {
                                         dataIndex="available_time"
                                     />
                                     <Table.Column
+                                        title="Status"
+                                        render={(record) => {
+                                            const hasExistingAppointment =
+                                                hasAppointment(record);
+                                            const hasCurrentUserAppointment =
+                                                hasAppointmentByCurrentUser(
+                                                    record,
+                                                );
+                                            const appointmentType =
+                                                getAppointmentType(
+                                                    record.department_id,
+                                                    record.date,
+                                                );
+
+                                            if (hasCurrentUserAppointment) {
+                                                return (
+                                                    <Tag color="orange">
+                                                        {appointmentType?.type ===
+                                                        "Whole Day"
+                                                            ? "Your Whole Day"
+                                                            : appointmentType?.type ===
+                                                                "Time Range"
+                                                              ? "Your Appointment Range"
+                                                              : "Your Appointment"}
+                                                    </Tag>
+                                                );
+                                            }
+
+                                            return hasExistingAppointment ? (
+                                                <Tag color="red">
+                                                    {appointmentType?.type ===
+                                                    "Whole Day"
+                                                        ? "Whole Day Appointment"
+                                                        : appointmentType?.type ===
+                                                            "Time Range"
+                                                          ? "Has Appointment"
+                                                          : "Has Appointment"}
+                                                </Tag>
+                                            ) : (
+                                                <Tag color="green">
+                                                    Available
+                                                </Tag>
+                                            );
+                                        }}
+                                    />
+                                    <Table.Column
                                         title="Action"
-                                        render={(_, record) => (
-                                            <Button
-                                                type="text"
-                                                danger
-                                                size="small"
-                                                icon={
-                                                    <FontAwesomeIcon
-                                                        icon={faTimes}
-                                                    />
-                                                }
-                                                onClick={() =>
-                                                    handleCellClick(record)
-                                                }
-                                            >
-                                                Remove
-                                            </Button>
-                                        )}
+                                        render={(_, record) => {
+                                            const hasExistingAppointment =
+                                                hasAppointment(record);
+                                            const hasCurrentUserAppointment =
+                                                hasAppointmentByCurrentUser(
+                                                    record,
+                                                );
+
+                                            return (
+                                                <Button
+                                                    type="text"
+                                                    danger
+                                                    size="small"
+                                                    icon={
+                                                        <FontAwesomeIcon
+                                                            icon={faTimes}
+                                                        />
+                                                    }
+                                                    onClick={() =>
+                                                        handleCellClick(record)
+                                                    }
+                                                    disabled={
+                                                        hasExistingAppointment
+                                                    }
+                                                >
+                                                    {hasCurrentUserAppointment
+                                                        ? "Your Appointment"
+                                                        : hasExistingAppointment
+                                                          ? "Has Appointment"
+                                                          : "Remove"}
+                                                </Button>
+                                            );
+                                        }}
                                     />
                                 </Table>
 
@@ -351,30 +888,13 @@ export default function PageVisitorRequestContent(props) {
 
                                     <Button
                                         type="primary"
-                                        onClick={() => {
-                                            if (
-                                                selectedAppointments.length ===
-                                                0
-                                            ) {
-                                                notification.warning({
-                                                    message:
-                                                        "No appointments selected",
-                                                    description:
-                                                        "Please select at least one appointment slot.",
-                                                });
-                                                return;
-                                            }
-                                            setToggleModalVisitorInformationForm(
-                                                {
-                                                    open: true,
-                                                    data: selectedAppointments[0],
-                                                    selectedAppointments:
-                                                        selectedAppointments,
-                                                },
-                                            );
-                                        }}
+                                        onClick={handlePreviewRequest}
+                                        disabled={
+                                            selectedAppointments.length === 0
+                                        }
                                     >
-                                        Preview Request
+                                        Preview Request (
+                                        {selectedAppointments.length})
                                     </Button>
                                 </Flex>
                             </>
@@ -447,6 +967,10 @@ export default function PageVisitorRequestContent(props) {
                 }
                 selectedAppointments={selectedAppointments}
                 setSelectedAppointments={setSelectedAppointments}
+                dataAppointmentSchedulesVisitationInformation={
+                    dataAppointmentSchedulesVisitationInformation
+                }
+                currentUserProfileId={currentUserProfileId}
             />
 
             <ModalApplicationList

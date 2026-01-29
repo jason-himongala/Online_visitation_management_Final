@@ -12,15 +12,13 @@ class VisitaionInformation extends Model
 
     protected $guarded = [];
 
-
     public function scopeFilter($query, $request)
     {
-
-
+        $query->join('appointment_schedules', 'visitaion_information.appointment_schedule_id', '=', 'appointment_schedules.id')
+            ->select('visitaion_information.*', 'appointment_schedules.date', 'appointment_schedules.available_time');
 
         if ($request->status) {
             $status = explode(",", $request->status);
-
             $query->whereIn('visitaion_information.status', $status);
         }
 
@@ -39,16 +37,26 @@ class VisitaionInformation extends Model
                 ->whereMonth('visitaion_information.created_at', $month);
         }
 
+        if ($request->check_schedule_booked && $request->appointment_schedule_id) {
+            $query->where('visitaion_information.appointment_schedule_id', $request->appointment_schedule_id);
+        }
+        if ($request->available_time) {
+            $query->where('appointment_schedules.available_time', 'like', '%' . $request->available_time . '%');
+        }
 
         return $query;
     }
 
+    public function scopeWithAppointmentSchedule($query)
+    {
+        return $query->join('appointment_schedules', 'visitaion_information.appointment_schedule_id', '=', 'appointment_schedules.id')
+            ->select('visitaion_information.*', 'appointment_schedules.date', 'appointment_schedules.available_time');
+    }
 
     public function appointment_schedule()
     {
         return $this->belongsTo(AppointmentSchedule::class, 'appointment_schedule_id');
     }
-
 
     public function visitation_information()
     {
@@ -60,12 +68,10 @@ class VisitaionInformation extends Model
         return $this->belongsTo(Profile::class, 'profile_id');
     }
 
-
     public function user()
     {
         return $this->hasOneThrough(User::class, Profile::class, 'id', 'id', 'profile_id', 'user_id');
     }
-
 
     public function user_notification()
     {

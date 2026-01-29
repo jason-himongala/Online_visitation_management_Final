@@ -100,6 +100,17 @@ class VisitationFormController extends Controller
                     $dataProfileVisitationForm
                 );
 
+                $visitationInformationId = $profileVisitationForm->visitation_information_id
+                    ?? $dataProfileVisitationForm['visitation_information_id']
+                    ?? null;
+
+                if ($request->id && $visitationInformationId) {
+                    $vi = \App\Models\VisitaionInformation::find($visitationInformationId);
+                    if ($vi && strtolower($vi->status) === 'approved') {
+                        $vi->update(['remarks' => 'Completed']);
+                    }
+                }
+
                 $profileVisitationFormId = $profileVisitationForm->id;
 
                 if ($dataProfileDelegates) {

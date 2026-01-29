@@ -8,6 +8,8 @@ import {
     Typography,
     Divider,
     Popconfirm,
+    message,
+    Flex,
 } from "antd";
 
 import { GET } from "../../../../providers/useAxiosQuery";
@@ -48,8 +50,9 @@ export default function PageMyStatusContent() {
     };
 
     const handleRemove = (id) => {
-        setRemovedIds((prev) => [...prev, id]);
+        // setRemovedIds((prev) => [...prev, id]);
         setOpenModal(false);
+        // message.success("Item removed successfully");
     };
 
     const navigate = useNavigate();
@@ -87,6 +90,7 @@ export default function PageMyStatusContent() {
             );
         }
     };
+
     const { data: dataFeedback } = GET(`api/feedback`, "feedback_form");
 
     const handleFeedbackFormClick = () => {
@@ -108,6 +112,10 @@ export default function PageMyStatusContent() {
                 }`,
             );
         }
+    };
+
+    const handleRequestNewVisit = () => {
+        navigate("/visit-request");
     };
 
     return (
@@ -205,12 +213,20 @@ export default function PageMyStatusContent() {
                 onCancel={() => setOpenModal(false)}
                 footer={
                     selectedItem && !removedIds.includes(selectedItem.id) ? (
-                        <Button
-                            danger
-                            onClick={() => handleRemove(selectedItem.id)}
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                width: "100%",
+                            }}
                         >
-                            Close
-                        </Button>
+                            <Button
+                                danger
+                                onClick={() => handleRemove(selectedItem.id)}
+                            >
+                                Close
+                            </Button>
+                        </div>
                     ) : null
                 }
             >
@@ -251,54 +267,104 @@ export default function PageMyStatusContent() {
 
                         <Divider />
 
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                background: "#f6ffed",
-                                padding: "12px 16px",
-                                borderRadius: 4,
-                                marginBottom: "12px",
-                            }}
-                        >
-                            <span>
-                                You can now fill out the visitation form.
-                            </span>
-                            <Button
-                                type="primary"
-                                style={{
-                                    background: "#0d5b10",
-                                    borderColor: "#0d5b10",
-                                }}
-                                onClick={handleVisitationFormClick}
-                            >
-                                Go to Visitation form
-                            </Button>
-                        </div>
+                        {selectedItem.status?.toLowerCase() !== "declined" ? (
+                            <>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        background: "#f6ffed",
+                                        padding: "12px 16px",
+                                        borderRadius: 4,
+                                        marginBottom: "12px",
+                                    }}
+                                >
+                                    <span>
+                                        You can now fill out the visitation
+                                        form.
+                                    </span>
+                                    <Button
+                                        type="primary"
+                                        style={{
+                                            background: "#0d5b10",
+                                            borderColor: "#0d5b10",
+                                        }}
+                                        disabled={
+                                            (
+                                                selectedItem.status ?? ""
+                                            ).toLowerCase() !== "approved"
+                                        }
+                                        onClick={handleVisitationFormClick}
+                                    >
+                                        Go to Visitation form
+                                    </Button>
+                                </div>
 
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                background: "#f6ffed",
-                                padding: "12px 16px",
-                                borderRadius: 4,
-                            }}
-                        >
-                            <span>You can now fill out the feedback form.</span>
-                            <Button
-                                type="primary"
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        background: "#f6ffed",
+                                        padding: "12px 16px",
+                                        borderRadius: 4,
+                                    }}
+                                >
+                                    <span>
+                                        You can now fill out the feedback form.
+                                    </span>
+                                    <Button
+                                        type="primary"
+                                        style={{
+                                            background: "#0d5b10",
+                                            borderColor: "#0d5b10",
+                                        }}
+                                        disabled={
+                                            (
+                                                selectedItem.status ?? ""
+                                            ).toLowerCase() !== "approved" ||
+                                            (
+                                                selectedItem.remarks ?? ""
+                                            ).toLowerCase() !== "completed"
+                                        }
+                                        onClick={handleFeedbackFormClick}
+                                    >
+                                        Go to Feedback form
+                                    </Button>
+                                </div>
+                            </>
+                        ) : (
+                            <div
                                 style={{
-                                    background: "#0d5b10",
-                                    borderColor: "#0d5b10",
+                                    background: "#fff2e8",
+                                    padding: "16px",
+                                    borderRadius: "4px",
+                                    border: "1px solid #ffbb96",
+                                    marginBottom: "12px",
                                 }}
-                                onClick={handleFeedbackFormClick}
                             >
-                                Go to Feedback form
-                            </Button>
-                        </div>
+                                <Flex align="center" gap={16}>
+                                    <Typography.Paragraph
+                                        style={{ margin: 0, flex: 1 }}
+                                    >
+                                        Your visit request has been declined.
+                                        You may submit a new request.
+                                    </Typography.Paragraph>
+
+                                    <Button
+                                        type="primary"
+                                        style={{
+                                            background: "#0d5b10",
+                                            borderColor: "#0d5b10",
+                                        }}
+                                        onClick={handleRequestNewVisit}
+                                    >
+                                        Submit New Request
+                                    </Button>
+                                </Flex>
+                            </div>
+                        )}
                     </>
                 )}
 

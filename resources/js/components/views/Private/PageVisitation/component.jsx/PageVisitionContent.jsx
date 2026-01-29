@@ -26,30 +26,93 @@ export default function PageVisitationContent(props) {
         toggleModalVisitationForm,
         setToggleModalVisitationForm,
         userRole,
+        tableFilter,
     } = props;
-    // console.log("toggleModalVisitationForm", toggleModalVisitationForm);
+    console.log("toggleModalVisitationForm", toggleModalVisitationForm);
     const { status, id } = props;
+
     // console.log("statusssss", status);
 
     const [form] = Form.useForm();
+
+    const canPrintForm =
+        toggleModalVisitationForm?.data?.visitation_information?.status?.toLowerCase() ===
+        "approved";
+
+    useEffect(() => {}, [toggleModalVisitationForm]);
+
+    const { mutate: mutateVisitorForm, loading: isLoadingChat } = POST(
+        `api/visitation_forms`,
+        [
+            "visitation_forms_submit",
+            "user_notifications",
+            "user_notifications_list",
+        ],
+    );
+    const handleSubmit = (values) => {
+        let data = {
+            ...values,
+            preferred_date_of_visit: dayjs(
+                values.preferred_date_of_visit,
+            ).format("YYYY-MM-DD"),
+            preferred_time_of_visit: dayjs(
+                values.preferred_time_of_visit,
+            ).format("HH:mm:ss"),
+            alternate_date_of_visit: dayjs(
+                values.alternate_date_of_visit,
+            ).format("YYYY-MM-DD"),
+            alternate_time_of_visit: dayjs(
+                values.alternate_time_of_visit,
+            ).format("HH:mm:ss"),
+            id:
+                toggleModalVisitationForm.data &&
+                toggleModalVisitationForm.data.id
+                    ? toggleModalVisitationForm.data.id
+                    : "",
+        };
+
+        mutateVisitorForm(data, {
+            onSuccess: (res) => {
+                if (res.success) {
+                    setToggleModalVisitationForm({
+                        open: false,
+                        data: null,
+                    });
+                    form.resetFields();
+                    notification.success({
+                        message: "Visitation Form Completed",
+                        description: res.message,
+                    });
+                } else {
+                    notification.error({
+                        message: "Visitation Form Completed",
+                        description: res.message,
+                    });
+                }
+            },
+            onError: (err) => {
+                notificationErrors(err);
+            },
+        });
+    };
 
     useEffect(() => {
         if (toggleModalVisitationForm && toggleModalVisitationForm.data) {
             form.setFieldsValue({
                 ...toggleModalVisitationForm.data,
                 preferred_date_of_visit: dayjs(
-                    toggleModalVisitationForm.data.preferred_date_of_visit
+                    toggleModalVisitationForm.data.preferred_date_of_visit,
                 ),
                 preferred_time_of_visit: dayjs(
                     toggleModalVisitationForm.data.preferred_time_of_visit,
-                    "HH:mm:ss"
+                    "HH:mm:ss",
                 ),
                 alternate_date_of_visit: dayjs(
-                    toggleModalVisitationForm.data.alternate_date_of_visit
+                    toggleModalVisitationForm.data.alternate_date_of_visit,
                 ),
                 alternate_time_of_visit: dayjs(
                     toggleModalVisitationForm.data.alternate_time_of_visit,
-                    "HH:mm:ss"
+                    "HH:mm:ss",
                 ),
                 purpose_of_visit:
                     toggleModalVisitationForm.data.purpose_of_visit,
@@ -72,7 +135,7 @@ export default function PageVisitationContent(props) {
                               lastname: delegate.lastname,
                               middlename: delegate.middlename,
                               position: delegate.position,
-                          })
+                          }),
                       )
                     : [],
             });
@@ -89,21 +152,36 @@ export default function PageVisitationContent(props) {
                 });
             }}
             footer={[
-                <Button
-                    className="btn-main-primary outlined"
-                    size="large"
-                    shape="round"
-                    key={1}
-                    onClick={() => {
-                        setToggleModalVisitationForm({
-                            open: false,
-                            data: null,
-                        });
-                        form.resetFields();
-                    }}
-                >
-                    CLOSE
-                </Button>,
+                <>
+                    <Button
+                        size="large"
+                        shape="round"
+                        key={1}
+                        onClick={() => {
+                            setToggleModalVisitationForm({
+                                open: false,
+                                data: null,
+                            });
+                            form.resetFields();
+                        }}
+                    >
+                        CLOSE
+                    </Button>
+                    {toggleModalVisitationForm?.data?.visitation_information?.status?.toLowerCase() ===
+                        "approved" && (
+                        <Button
+                            size="large"
+                            type="primary"
+                            shape="round"
+                            key={1}
+                            onClick={() => {
+                                handleSubmit(form.getFieldsValue());
+                            }}
+                        >
+                            Completed
+                        </Button>
+                    )}
+                </>,
             ]}
         >
             <Col xs={24} md={24} lg={24} xl={24} xxl={24} align="center">
@@ -146,7 +224,7 @@ export default function PageVisitationContent(props) {
                                 label="Preferred Date of Visit"
                                 name="preferred_date_of_visit"
                             >
-                                <FloatDatePicker format="YYYY-MM-DD" />
+                                <FloatDatePicker format="YYYY-MM-DD" disabled />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -154,7 +232,11 @@ export default function PageVisitationContent(props) {
                                 label="Preferred Time of Visit"
                                 name="preferred_time_of_visit"
                             >
-                                <FloatTimePicker format="h:mm a" use12Hours />
+                                <FloatTimePicker
+                                    format="h:mm a"
+                                    use12Hours
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -163,7 +245,7 @@ export default function PageVisitationContent(props) {
                                 label="Alternate Date of Visit"
                                 name="alternate_date_of_visit"
                             >
-                                <FloatDatePicker format="YYYY-MM-DD" />
+                                <FloatDatePicker format="YYYY-MM-DD" disabled />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -171,7 +253,11 @@ export default function PageVisitationContent(props) {
                                 label="Alternate Time of Visit"
                                 name="alternate_time_of_visit"
                             >
-                                <FloatTimePicker format="h:mm a" use12Hours />
+                                <FloatTimePicker
+                                    format="h:mm a"
+                                    use12Hours
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -180,7 +266,10 @@ export default function PageVisitationContent(props) {
                                 label="Purpose of Visit"
                                 name="purpose_of_visit"
                             >
-                                <FloatInput placeholder="Purpose of Visit" />
+                                <FloatInput
+                                    placeholder="Purpose of Visit"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -189,7 +278,10 @@ export default function PageVisitationContent(props) {
                                 label="Selected Faculty Centered Office/Organization to Visit"
                                 name="selected_faculty_centered_office_organization_to_visit"
                             >
-                                <FloatInput placeholder="Selected Faculty Centered Office Organization to Visit" />
+                                <FloatInput
+                                    placeholder="Selected Faculty Centered Office Organization to Visit"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -198,7 +290,10 @@ export default function PageVisitationContent(props) {
                                 label="Manner of Engagement (in-person or virtual)"
                                 name="manner_of_engagement"
                             >
-                                <FloatInput placeholder="Manner of Engagement (in-person or virtual)" />
+                                <FloatInput
+                                    placeholder="Manner of Engagement (in-person or virtual)"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -219,7 +314,10 @@ export default function PageVisitationContent(props) {
                                 label="Name of Institution/Agency"
                                 name="name_of_institution_agency"
                             >
-                                <FloatInput placeholder="Name of Institution Agency" />
+                                <FloatInput
+                                    placeholder="Name of Institution Agency"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -275,7 +373,10 @@ export default function PageVisitationContent(props) {
                                                                 "firstname",
                                                             ]}
                                                         >
-                                                            <FloatInput placeholder="First Name" />
+                                                            <FloatInput
+                                                                placeholder="First Name"
+                                                                disabled
+                                                            />
                                                         </Form.Item>
                                                     </Col>
                                                     <Col
@@ -293,7 +394,10 @@ export default function PageVisitationContent(props) {
                                                                 "lastname",
                                                             ]}
                                                         >
-                                                            <FloatInput placeholder="Last Name" />
+                                                            <FloatInput
+                                                                placeholder="Last Name"
+                                                                disabled
+                                                            />
                                                         </Form.Item>
                                                     </Col>
 
@@ -312,7 +416,10 @@ export default function PageVisitationContent(props) {
                                                                 "middlename",
                                                             ]}
                                                         >
-                                                            <FloatInput placeholder="Middle Name" />
+                                                            <FloatInput
+                                                                placeholder="Middle Name"
+                                                                disabled
+                                                            />
                                                         </Form.Item>
                                                     </Col>
                                                     <Col
@@ -330,11 +437,14 @@ export default function PageVisitationContent(props) {
                                                                 "position",
                                                             ]}
                                                         >
-                                                            <FloatInput placeholder="Position" />
+                                                            <FloatInput
+                                                                placeholder="Position"
+                                                                disabled
+                                                            />
                                                         </Form.Item>
                                                     </Col>
                                                 </Row>
-                                            )
+                                            ),
                                         )}
                                         <Form.Item>
                                             <Button
@@ -343,6 +453,7 @@ export default function PageVisitationContent(props) {
                                                 block
                                                 hidden={userRole === "Pico"}
                                                 shape="round"
+                                                disabled
                                                 icon={
                                                     <FontAwesomeIcon
                                                         icon={faPlus}
@@ -362,7 +473,10 @@ export default function PageVisitationContent(props) {
                                 label="Topics for Discussion"
                                 name="topics_for_discussion"
                             >
-                                <FloatInput placeholder="Topics for Discussion" />
+                                <FloatInput
+                                    placeholder="Topics for Discussion"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -371,7 +485,10 @@ export default function PageVisitationContent(props) {
                                 label="Other Information/Concerns"
                                 name="other_information_concern"
                             >
-                                <FloatInput placeholder="Other Information Concern" />
+                                <FloatInput
+                                    placeholder="Other Information Concern"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
                     </Row>

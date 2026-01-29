@@ -47,6 +47,7 @@ export default function PageVisitation() {
         sort_field: "id",
         sort_order: "desc",
         isTrash: 0,
+        status: "",
     });
 
     const [toggleModalVisitationForm, setToggleModalVisitationForm] = useState({
@@ -56,7 +57,7 @@ export default function PageVisitation() {
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/visitation_forms?${new URLSearchParams(tableFilter)}`,
-        "profile_list"
+        "profile_list",
     );
 
     const onChangeTable = (pagination, filters, sorter) => {
@@ -213,6 +214,7 @@ export default function PageVisitation() {
                 toggleModalVisitationForm={toggleModalVisitationForm}
                 setToggleModalVisitationForm={setToggleModalVisitationForm}
                 userRole={userRole}
+                tableFilter={tableFilter}
             />
         </Card>
     );

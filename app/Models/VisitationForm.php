@@ -11,9 +11,13 @@ class VisitationForm extends Model
     use ModelTrait, SoftDeletes;
 
 
-
     public function scopeFilter($query, $request)
     {
+        if ($request->status) {
+            $query->whereHas('visitation_information', function ($q) {
+                $q->whereRaw('LOWER(status) = ?', ['approved']);
+            });
+        }
 
         return $query;
     }

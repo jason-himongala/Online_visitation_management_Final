@@ -254,6 +254,7 @@ export default function ModalFormEvent({ currentUser }) {
                                         label: "12:00 PM - 5:00 PM",
                                         value: "12:00 PM - 5:00 PM",
                                     },
+
                                     {
                                         label: "Whole Day",
                                         value: "Whole Day",
