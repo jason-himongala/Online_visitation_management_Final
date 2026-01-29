@@ -75,6 +75,18 @@ class UserController extends Controller
             "message" => "Data not " . ($request->id ? "updated" : "saved")
         ];
 
+        $departmentRule = Rule::unique('users')->where(function ($query) use ($request) {
+            return $query->where('department_id', $request->department_id);
+        });
+
+        $UserRole = Rule::unique('users')->where(function ($query) use ($request) {
+            return $query->where('user_role_id', $request->user_role_id);
+        });
+
+
+
+        $department_role = 2;
+
         $request->validate([
             'username' => [
                 'required',
@@ -86,28 +98,18 @@ class UserController extends Controller
             ],
             "firstname" => "required",
             "lastname" => "required",
+            "department_id" => [
+                'nullable',
+                $departmentRule->ignore($request->id),
+            ],
+            'user_role_id' => [
+                'required',
+                Rule::when(
+                    $request->user_role_id != $department_role,
+                    Rule::unique('users', 'user_role_id')->ignore($request->id)
+                ),
+            ],
         ]);
-
-        $existingUser = \App\Models\User::where('department_id', $request->department_id)
-            ->when($request->id, function ($query) use ($request) {
-                $query->where('id', '!=', $request->id);
-            })
-            ->first();
-
-        if ($existingUser) {
-            return response()->json([
-                "success" => false,
-                "message" => "A user with this department already exists."
-            ], 422);
-        }
-
-        $roleName = "";
-        if ($request->user_role_id) {
-            $findUserRole = UserRole::where('id', $request->user_role_id)->first();
-            if ($findUserRole) {
-                $roleName = $findUserRole->role;
-            }
-        }
 
         $data = [
             "user_role_id" => $request->user_role_id,
