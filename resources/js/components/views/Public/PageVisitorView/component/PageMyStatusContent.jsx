@@ -50,9 +50,9 @@ export default function PageMyStatusContent() {
     };
 
     const handleRemove = (id) => {
-        // setRemovedIds((prev) => [...prev, id]);
+        setRemovedIds((prev) => [...prev, id]);
         setOpenModal(false);
-        // message.success("Item removed successfully");
+        message.success("Item removed successfully");
     };
 
     const navigate = useNavigate();
@@ -222,7 +222,7 @@ export default function PageMyStatusContent() {
                         >
                             <Button
                                 danger
-                                onClick={() => handleRemove(selectedItem.id)}
+                                onClick={() => setOpenModal(false)}
                             >
                                 Close
                             </Button>

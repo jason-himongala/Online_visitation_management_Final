@@ -10,9 +10,18 @@ import {
     notification,
     Modal,
     Input,
+    Tag,
+    Tooltip,
 } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFile } from "@fortawesome/pro-regular-svg-icons";
+import {
+    faFile,
+    faEye,
+    faFilePdf,
+    faFileWord,
+    faFileImage,
+    faFileAlt,
+} from "@fortawesome/pro-regular-svg-icons";
 
 import ModalFileReview from "./ModalFileReview";
 import { GET, POST } from "../../../../providers/useAxiosQuery";
@@ -47,9 +56,9 @@ export default function PageStatusRequest(props) {
     });
 
     const statusColors = {
-        pending: "#faad14", // Orange/Yellow for pending
-        approved: "#52c41a", // Green for approved
-        declined: "#ff4d4f", // Red for declined
+        pending: "#faad14",
+        approved: "#52c41a",
+        declined: "#ff4d4f",
     };
 
     const handleDeclineClick = () => {
@@ -73,13 +82,85 @@ export default function PageStatusRequest(props) {
         handleUpdateStatus(
             declineModal.selectedKeys,
             "declined",
-            declineModal.remarks
+            declineModal.remarks,
         );
         setDeclineModal({ open: false, remarks: "", selectedKeys: [] });
     };
 
     const handleDeclineCancel = () => {
         setDeclineModal({ open: false, remarks: "", selectedKeys: [] });
+    };
+
+    // Function to check if record has a file
+    const hasFile = (record) => {
+        return !!(
+            record.file_path ||
+            record.file_url ||
+            record.file ||
+            record.visitation_form?.file_path ||
+            record.visitor_request?.file_path
+        );
+    };
+
+    // Function to get file icon based on file type
+    const getFileIcon = (record) => {
+        const filePath =
+            record.file_path ||
+            record.file ||
+            record.visitation_form?.file_path ||
+            record.visitor_request?.file_path;
+
+        if (!filePath) return faFileAlt;
+
+        const fileName = filePath.toLowerCase();
+
+        if (fileName.endsWith(".pdf")) {
+            return faFilePdf;
+        }
+        if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
+            return faFileWord;
+        }
+        if (
+            fileName.endsWith(".png") ||
+            fileName.endsWith(".jpg") ||
+            fileName.endsWith(".jpeg") ||
+            fileName.endsWith(".gif")
+        ) {
+            return faFileImage;
+        }
+
+        return faFileAlt;
+    };
+
+    // Function to get file icon color
+    const getFileIconColor = (record) => {
+        const icon = getFileIcon(record);
+
+        if (icon === faFilePdf) return "#ff4d4f"; // Red for PDF
+        if (icon === faFileWord) return "#1890ff"; // Blue for Word
+        if (icon === faFileImage) return "#52c41a"; // Green for images
+        return "#666"; // Gray for other files
+    };
+
+    // Function to get file name
+    const getFileName = (record) => {
+        if (record.file_name) return record.file_name;
+        if (record.visitation_form?.file_name)
+            return record.visitation_form.file_name;
+        if (record.visitor_request?.file_name)
+            return record.visitor_request.file_name;
+
+        const filePath =
+            record.file_path ||
+            record.file ||
+            record.visitation_form?.file_path ||
+            record.visitor_request?.file_path;
+
+        if (filePath) {
+            return filePath.split("/").pop() || "Document";
+        }
+
+        return "No file";
     };
 
     return (
@@ -106,7 +187,7 @@ export default function PageStatusRequest(props) {
                                                     onClick={() =>
                                                         handleUpdateStatus(
                                                             selectedRowKeys,
-                                                            "approved"
+                                                            "approved",
                                                         )
                                                     }
                                                 >
@@ -156,32 +237,62 @@ export default function PageStatusRequest(props) {
                     >
                         {userRole === "OP" && (
                             <Table.Column
-                                title="Action"
+                                title="File"
                                 key="action"
                                 align="center"
-                                width={50}
-                                render={(_, record) => (
-                                    <Flex
-                                        align="center"
-                                        justify="center"
-                                        gap={5}
-                                    >
-                                        <Button
-                                            type="link"
-                                            onClick={() =>
-                                                setOpenModalFileReview({
-                                                    open: true,
-                                                    data: record.file,
-                                                })
-                                            }
-                                            icon={
-                                                <FontAwesomeIcon
-                                                    icon={faFile}
-                                                />
-                                            }
-                                        />
-                                    </Flex>
-                                )}
+                                width={70}
+                                render={(_, record) => {
+                                    const hasAttachment = hasFile(record);
+                                    const fileName = getFileName(record);
+                                    const icon = getFileIcon(record);
+                                    const iconColor = getFileIconColor(record);
+
+                                    return (
+                                        <Flex
+                                            align="center"
+                                            justify="center"
+                                            gap={5}
+                                        >
+                                            {hasAttachment ? (
+                                                <Tooltip
+                                                    title={`View ${fileName}`}
+                                                >
+                                                    <Button
+                                                        type="link"
+                                                        onClick={() =>
+                                                            setOpenModalFileReview(
+                                                                {
+                                                                    open: true,
+                                                                    data: record, // Pass the entire record
+                                                                },
+                                                            )
+                                                        }
+                                                        icon={
+                                                            <FontAwesomeIcon
+                                                                icon={icon}
+                                                                style={{
+                                                                    fontSize:
+                                                                        "18px",
+                                                                    color: iconColor,
+                                                                }}
+                                                            />
+                                                        }
+                                                    />
+                                                </Tooltip>
+                                            ) : (
+                                                <span
+                                                    style={{
+                                                        color: "#999",
+                                                        fontStyle: "italic",
+                                                        fontSize: "12px",
+                                                    }}
+                                                >
+                                                    No file
+                                                </span>
+                                            )}
+                                        </Flex>
+                                    );
+                                }}
                             />
                         )}
 

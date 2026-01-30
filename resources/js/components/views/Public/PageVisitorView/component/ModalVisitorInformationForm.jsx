@@ -1,26 +1,44 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+    Modal,
+    Form,
+    Row,
+    Col,
+    Button,
+    Upload,
+    notification,
+    Spin,
+    Typography,
+    Card,
+    Divider,
+    Input,
+    Tag,
+    Space,
+    Progress,
+    List,
+} from "antd";
+import {
+    InboxOutlined,
+    PaperClipOutlined,
+    FileOutlined,
+} from "@ant-design/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faXmark,
     faBuilding,
     faClock,
+    faPaperPlane,
+    faTimes,
+    faXmark,
 } from "@fortawesome/pro-regular-svg-icons";
-import {
-    Button,
-    Col,
-    Form,
-    Modal,
-    notification,
-    Row,
-    List,
-    Tag,
-    Typography,
-} from "antd";
-import dayjs from "dayjs";
 
+import FloatInput from "../../../../providers/FloatInput";
 import { GET, POST } from "../../../../providers/useAxiosQuery";
 import { UserId } from "../../../../providers/appConfig";
-import FloatInput from "../../../../providers/FloatInput";
+import dayjs from "dayjs";
+
+const { Dragger } = Upload;
+const { Text } = Typography;
+const { TextArea } = Input;
 
 export default function ModalVisitorInformationForm(props) {
     const userId = UserId();
@@ -33,81 +51,30 @@ export default function ModalVisitorInformationForm(props) {
     } = props;
 
     const [form] = Form.useForm();
+    const [fileList, setFileList] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadPercent, setUploadPercent] = useState(0);
 
-    const { data: userData } = GET(`api/profiles/${userId}`, "profile_user");
+    const { data: userData } = GET(`api/profiles/${userId}`, [
+        "profile_user",
+        toggleModalVisitorInformationForm.open,
+    ]);
 
     const { mutate: mutateVisitorInfo, loading: isLoadingSubmit } = POST(
         `api/visitation_information`,
-        "visitation_information_submit"
+        "visitation_information_submit",
     );
 
-    const handleSubmit = (values) => {
-        const appointmentsData = selectedAppointments.map((appointment) => {
-            const appointmentScheduleId =
-                appointment.appointment_schedule_id ||
-                appointment.schedule_id ||
-                appointment.appointmentScheduleId ||
-                appointment.id;
-
-            return {
-                appointment_schedule_id: appointmentScheduleId,
-                department_id: appointment.department_id,
-                date: appointment.date,
-                time: appointment.time || appointment.available_time,
-                department_name:
-                    appointment.department_name || appointment.department,
-                important_notes: appointment.important_notes || null,
-            };
-        });
-
-        let data = {
-            ...values,
-            profile_id: userId ?? null,
-            appointments: appointmentsData,
-            purpose_of_visit: values.purpose_of_visit || null,
-            total_appointments: selectedAppointments.length,
-        };
-
-        mutateVisitorInfo(data, {
-            onSuccess: (res) => {
-                if (res.success) {
-                    notification.success({
-                        message: "Application Submitted",
-                        description:
-                            res.message ||
-                            `Successfully submitted ${selectedAppointments.length} appointment(s)`,
-                    });
-
-                    setToggleModalVisitorInformationForm({
-                        open: false,
-                        data: null,
-                        selectedAppointments: [],
-                    });
-
-                    setSelectedAppointments([]);
-
-                    form.resetFields();
-                } else {
-                    notification.error({
-                        message: "Something went wrong",
-                        description: res.message,
-                    });
-                }
-            },
-            onError: (err) => {
-                notification.error({
-                    message: "Error",
-                    description:
-                        err.message ||
-                        "Something went wrong while submitting the request",
-                });
-            },
-        });
-    };
+    useEffect(() => {
+        if (toggleModalVisitorInformationForm.open) {
+            setFileList([]);
+            form.resetFields();
+        }
+    }, [toggleModalVisitorInformationForm.open, form]);
 
     const handleRemoveAppointment = (appointmentId) => {
         const updatedAppointments = selectedAppointments.filter(
-            (app) => app.id !== appointmentId
+            (app) => app.id !== appointmentId,
         );
 
         if (updatedAppointments.length === 0) {
@@ -142,12 +109,14 @@ export default function ModalVisitorInformationForm(props) {
     };
 
     useEffect(() => {
-        if (userData && !form.getFieldValue("email")) {
-            form.setFieldsValue({
-                email: userData?.data?.user?.email || "",
-            });
+        if (toggleModalVisitorInformationForm.open) {
+            form.resetFields(["email"]);
+            const email = userData?.data?.user?.email || "";
+            if (email) {
+                form.setFieldsValue({ email });
+            }
         }
-    }, [userData, form]);
+    }, [toggleModalVisitorInformationForm.open, userData, form]);
 
     const getModalTitle = () => {
         if (!toggleModalVisitorInformationForm.data) {
@@ -160,6 +129,231 @@ export default function ModalVisitorInformationForm(props) {
         return `Visitor Information - ${totalSelected} Appointment${
             totalSelected > 1 ? "s" : ""
         } Selected`;
+    };
+
+    const beforeUpload = (file) => {
+        console.log("Before upload check:", file);
+
+        const isPDF = file.type === "application/pdf";
+        const isWord =
+            file.type === "application/msword" ||
+            file.type ===
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        const hasValidExtension =
+            file.name.toLowerCase().endsWith(".pdf") ||
+            file.name.toLowerCase().endsWith(".doc") ||
+            file.name.toLowerCase().endsWith(".docx");
+
+        if (!(isPDF || isWord || hasValidExtension)) {
+            notification.error({
+                message: "Invalid file type",
+                description:
+                    "Only PDF (.pdf) and Word (.doc, .docx) files are allowed.",
+            });
+            return Upload.LIST_IGNORE;
+        }
+
+        const isLt5M = file.size / 1024 / 1024 < 5;
+        if (!isLt5M) {
+            notification.error({
+                message: "File too large",
+                description: "File must be smaller than 5MB.",
+            });
+            return Upload.LIST_IGNORE;
+        }
+
+        return false;
+    };
+
+    const handleSubmit = (values) => {
+        const appointmentsData = selectedAppointments.map((appointment) => {
+            const appointmentScheduleId =
+                appointment.appointment_schedule_id ||
+                appointment.schedule_id ||
+                appointment.appointmentScheduleId ||
+                appointment.id;
+
+            return {
+                appointment_schedule_id: appointmentScheduleId,
+                department_id: appointment.department_id,
+                date: appointment.date,
+                time: appointment.time || appointment.available_time,
+                department_name:
+                    appointment.department_name || appointment.department,
+                important_notes: appointment.important_notes || null,
+            };
+        });
+
+        if (fileList.length === 0) {
+            notification.error({
+                message: "File Required",
+                description: "Please upload a PDF or Word document",
+            });
+            return;
+        }
+
+        const fileEntry = fileList[0];
+        const file = fileEntry.originFileObj || fileEntry;
+
+        if (!file || !(file instanceof File)) {
+            notification.error({
+                message: "Invalid File",
+                description: "Please select a valid file",
+            });
+            return;
+        }
+
+        const formData = new FormData();
+
+        appointmentsData.forEach((appt, idx) => {
+            formData.append(
+                `appointments[${idx}][appointment_schedule_id]`,
+                appt.appointment_schedule_id,
+            );
+            formData.append(
+                `appointments[${idx}][department_id]`,
+                appt.department_id,
+            );
+            formData.append(`appointments[${idx}][date]`, appt.date);
+            formData.append(`appointments[${idx}][time]`, appt.time);
+            formData.append(
+                `appointments[${idx}][department_name]`,
+                appt.department_name,
+            );
+            formData.append(
+                `appointments[${idx}][important_notes]`,
+                appt.important_notes ?? "",
+            );
+        });
+
+        formData.append("profile_id", userId);
+
+        formData.append(
+            "purpose_of_visit",
+            values.purpose_of_visit || "Visitor Request",
+        );
+
+        formData.append("email", values.email);
+
+        formData.append("status", "pending");
+
+        formData.append("file_upload", file, file.name);
+
+        selectedAppointments.forEach((appointment, index) => {
+            // Use the correct field names expected by your controller
+            formData.append(`profile_id_array[]`, userId);
+
+            // For visitation_information_id, you might need to generate or get this
+            // If you don't have it, you might need to create visitation_information first
+            // Let's assume we use appointment_schedule_id for now
+            formData.append(
+                `visitaion_information_id_array[]`,
+                appointment.id || appointment.appointment_schedule_id,
+            );
+
+            // Add department_id if available
+            if (appointment.department_id) {
+                formData.append(`department_id[]`, appointment.department_id);
+            }
+        });
+
+        console.log("=== FormData Contents ===");
+        for (let pair of formData.entries()) {
+            const key = pair[0];
+            const value =
+                key === "file_upload"
+                    ? `File: ${pair[1].name} (${pair[1].size} bytes)`
+                    : pair[1];
+            console.log(key + ":", value);
+        }
+
+        setIsUploading(true);
+        setUploadPercent(0);
+
+        mutateVisitorInfo(formData, {
+            onSuccess: (response) => {
+                setIsUploading(false);
+                setUploadPercent(100);
+
+                console.log("Server response:", response);
+
+                if (response.success) {
+                    notification.success({
+                        message: "Success!",
+                        description:
+                            response.message ||
+                            "Visitor request submitted successfully",
+                        duration: 5,
+                    });
+
+                    form.resetFields();
+                    setFileList([]);
+                    setSelectedAppointments([]);
+
+                    setTimeout(() => {
+                        setToggleModalVisitorInformationForm({
+                            open: false,
+                            data: null,
+                            selectedAppointments: [],
+                        });
+                    }, 1500);
+                } else {
+                    notification.error({
+                        message: "Submission Failed",
+                        description:
+                            response.message || "Failed to submit request",
+                        duration: 5,
+                    });
+
+                    if (response.errors) {
+                        Object.entries(response.errors).forEach(
+                            ([field, messages]) => {
+                                messages.forEach((message) => {
+                                    notification.error({
+                                        message: `Validation Error: ${field}`,
+                                        description: message,
+                                    });
+                                });
+                            },
+                        );
+                    }
+                }
+            },
+            onError: (error) => {
+                setIsUploading(false);
+                console.error("Submission error:", error);
+
+                let errorMessage =
+                    "Failed to submit request. Please try again.";
+
+                if (error.response) {
+                    const serverError = error.response.data;
+                    console.error("Server error response:", serverError);
+                    errorMessage = serverError.message || errorMessage;
+                } else if (error.request) {
+                    console.error("No response received:", error.request);
+                    errorMessage =
+                        "No response from server. Please check your connection.";
+                } else {
+                    console.error("Error setting up request:", error.message);
+                    errorMessage = error.message || errorMessage;
+                }
+
+                notification.error({
+                    message: "Submission Error",
+                    description: errorMessage,
+                });
+            },
+        });
+    };
+
+    const handleFileChange = (info) => {
+        console.log("File change info:", info);
+        setFileList(info.fileList || []);
+    };
+
+    const handleRemoveFile = () => {
+        setFileList([]);
     };
 
     return (
@@ -193,7 +387,7 @@ export default function ModalVisitorInformationForm(props) {
                     shape="round"
                     type="primary"
                     key="submit"
-                    loading={isLoadingSubmit}
+                    loading={isLoadingSubmit || isUploading}
                     onClick={() => form.submit()}
                 >
                     Submit {selectedAppointments.length} Appointment
@@ -221,7 +415,7 @@ export default function ModalVisitorInformationForm(props) {
                                             size="small"
                                             onClick={() =>
                                                 handleRemoveAppointment(
-                                                    appointment.id
+                                                    appointment.id,
                                                 )
                                             }
                                         >
@@ -263,9 +457,9 @@ export default function ModalVisitorInformationForm(props) {
                                                     </Typography.Text>
                                                     <Typography.Text strong>
                                                         {dayjs(
-                                                            appointment.date
+                                                            appointment.date,
                                                         ).format(
-                                                            "MMM DD, YYYY"
+                                                            "MMM DD, YYYY",
                                                         )}
                                                     </Typography.Text>
                                                 </div>
@@ -352,6 +546,154 @@ export default function ModalVisitorInformationForm(props) {
                                 rows={3}
                             />
                         </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                        <div style={{ marginBottom: 24 }}>
+                            <Text
+                                strong
+                                style={{ display: "block", marginBottom: 8 }}
+                            >
+                                Attachment (Required) *
+                            </Text>
+                            <Text
+                                type="secondary"
+                                style={{
+                                    display: "block",
+                                    marginBottom: 16,
+                                    fontSize: "12px",
+                                }}
+                            >
+                                Upload a PDF or Word document. Maximum file
+                                size: 5MB.
+                            </Text>
+
+                            {isUploading ? (
+                                <Card
+                                    style={{
+                                        textAlign: "center",
+                                        padding: "20px",
+                                    }}
+                                >
+                                    <Spin size="large" />
+                                    <div style={{ marginTop: 16 }}>
+                                        <Progress
+                                            percent={uploadPercent}
+                                            status="active"
+                                            strokeColor={{
+                                                "0%": "#108ee9",
+                                                "100%": "#87d068",
+                                            }}
+                                        />
+                                    </div>
+                                    <Text
+                                        type="secondary"
+                                        style={{
+                                            display: "block",
+                                            marginTop: 8,
+                                        }}
+                                    >
+                                        Uploading your file... Please wait.
+                                    </Text>
+                                </Card>
+                            ) : fileList.length > 0 ? (
+                                <Card
+                                    style={{
+                                        backgroundColor: "#e6f7ff",
+                                        border: "1px solid #91d5ff",
+                                        position: "relative",
+                                    }}
+                                >
+                                    <Space style={{ width: "100%" }}>
+                                        <FileOutlined
+                                            style={{
+                                                fontSize: "24px",
+                                                color: "#1890ff",
+                                            }}
+                                        />
+                                        <div style={{ flex: 1 }}>
+                                            <Text
+                                                strong
+                                                style={{ display: "block" }}
+                                            >
+                                                {fileList[0].name}
+                                            </Text>
+                                            <Text
+                                                type="secondary"
+                                                style={{ fontSize: "12px" }}
+                                            >
+                                                {(
+                                                    fileList[0].size / 1024
+                                                ).toFixed(2)}{" "}
+                                                KB •{" "}
+                                                {fileList[0].type ===
+                                                "application/pdf"
+                                                    ? "PDF Document"
+                                                    : fileList[0].type.includes(
+                                                            "word",
+                                                        )
+                                                      ? "Word Document"
+                                                      : "Document"}
+                                            </Text>
+                                        </div>
+                                        <Button
+                                            type="text"
+                                            danger
+                                            size="small"
+                                            icon={
+                                                <FontAwesomeIcon
+                                                    icon={faTimes}
+                                                />
+                                            }
+                                            onClick={handleRemoveFile}
+                                            disabled={isUploading}
+                                        />
+                                    </Space>
+                                </Card>
+                            ) : (
+                                <Dragger
+                                    name="file_upload"
+                                    multiple={false}
+                                    maxCount={1}
+                                    fileList={fileList}
+                                    accept=".pdf,.doc,.docx"
+                                    beforeUpload={beforeUpload}
+                                    onChange={handleFileChange}
+                                    showUploadList={false}
+                                    disabled={isUploading}
+                                >
+                                    <div style={{ padding: "40px 20px" }}>
+                                        <p className="ant-upload-drag-icon">
+                                            <InboxOutlined
+                                                style={{
+                                                    fontSize: "48px",
+                                                    color: "#1890ff",
+                                                }}
+                                            />
+                                        </p>
+                                        <p
+                                            className="ant-upload-text"
+                                            style={{
+                                                fontSize: "16px",
+                                                marginBottom: 8,
+                                            }}
+                                        >
+                                            Click or drag file to upload
+                                        </p>
+                                        <p
+                                            className="ant-upload-hint"
+                                            style={{
+                                                fontSize: "12px",
+                                                color: "#666",
+                                            }}
+                                        >
+                                            Supports PDF, DOC, DOCX files.
+                                            Maximum 5MB.
+                                        </p>
+                                    </div>
+                                </Dragger>
+                            )}
+                        </div>
                     </Col>
 
                     <Col span={24}>

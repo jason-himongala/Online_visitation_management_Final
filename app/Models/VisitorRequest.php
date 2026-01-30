@@ -6,6 +6,8 @@ use App\Traits\ModelTrait;
 use Illuminate\Container\Attributes\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB as FacadesDB;
+use Illuminate\Support\Facades\Storage;
+
 
 class VisitorRequest extends Model
 {
@@ -14,6 +16,10 @@ class VisitorRequest extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+
+        'file_size' => 'integer',
+    ];
 
     public function scopeFilter($query, $request)
     {
@@ -59,7 +65,7 @@ class VisitorRequest extends Model
         return $query;
     }
 
-  
+
 
     public function profile()
     {
@@ -68,5 +74,30 @@ class VisitorRequest extends Model
     public function visitation_information()
     {
         return $this->belongsTo(VisitaionInformation::class, 'visitaion_information_id');
+    }
+
+
+    public function getFileUrlAttribute()
+    {
+        if ($this->file_path && Storage::disk('public')->exists($this->file_path)) {
+            return Storage::disk('public')->url($this->file_path);
+        }
+        return null;
+    }
+
+    public function getFormattedFileSizeAttribute()
+    {
+        if (!$this->file_size) return null;
+
+        $size = $this->file_size;
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $i = 0;
+
+        while ($size >= 1024 && $i < count($units) - 1) {
+            $size /= 1024;
+            $i++;
+        }
+
+        return round($size, 2) . ' ' . $units[$i];
     }
 }

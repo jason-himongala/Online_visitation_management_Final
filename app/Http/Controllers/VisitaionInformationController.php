@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
 
 class VisitaionInformationController extends Controller
 {
@@ -101,33 +105,69 @@ class VisitaionInformationController extends Controller
             "message" => "Visitation Information created successfully."
         ];
 
-        $request->validate([
+
+        $validated = $request->validate([
             'profile_id' => 'required|exists:profiles,id',
             'purpose_of_visit' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
             'appointments' => 'required|array|min:1',
             'appointments.*.appointment_schedule_id' => 'required|exists:appointment_schedules,id',
             'appointments.*.department_id' => 'nullable|exists:departments,id',
             'appointments.*.date' => 'nullable|date',
             'appointments.*.time' => 'nullable|string',
+            'file_upload' => 'required|file|mimes:pdf,doc,docx|max:5120', // 5MB
+        ], [
+            'file_upload.required' => 'Please upload a file',
+            'file_upload.mimes' => 'Only PDF, DOC, and DOCX files are allowed',
+            'file_upload.max' => 'File size must be less than 5MB',
+            'appointments.required' => 'Please select at least one appointment',
+            'appointments.min' => 'Please select at least one appointment',
         ]);
 
         try {
             DB::transaction(function () use ($request, &$ret) {
                 $createdVisitations = [];
+                $fileInfo = null;
 
-                foreach ($request->appointments as $appointment) {
+                if ($request->hasFile('file_upload')) {
+                    $file = $request->file('file_upload');
+
+                    $originalName = $file->getClientOriginalName();
+                    $safeName = preg_replace('/[^A-Za-z0-9\.\-]/', '_', $originalName);
+                    $filename = time() . '_' . $request->profile_id . '_' . $safeName;
+
+                    $folder = 'visitation-files/' . $request->profile_id;
+                    $path = $file->storeAs($folder, $filename, 'public');
+
+                    $fileInfo = [
+                        'original_name' => $originalName,
+                        'stored_name' => $filename,
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'type' => $file->getMimeType(),
+                        'url' => Storage::url($path),
+                    ];
+                }
+
+                foreach ($request->appointments as $index => $appointment) {
+
                     $visitation = VisitaionInformation::create([
                         'profile_id' => $request->profile_id,
-                        'remarks' => $request->remarks,
+                        'remarks' => $request->remarks ?? 'Submitted',
                         'appointment_schedule_id' => $appointment['appointment_schedule_id'],
                         'purpose_of_visit' => $request->purpose_of_visit,
+                        'status' => 'pending',
+                        'file_path' => $fileInfo['path'] ?? null,
+                        'file_name' => $fileInfo['original_name'] ?? null,
+                        'file_size' => $fileInfo['size'] ?? null,
+                        'file_type' => $fileInfo['type'] ?? null,
                     ]);
-
                     UserNotification::create([
-                        "user_id" => 1, // Or get from auth
+                        "user_id" => $request->profile_id,
                         "visitation_information_id" => $visitation->id,
                         "read" => false,
                         "status" => true,
+
                     ]);
 
                     $createdVisitations[] = $visitation;
@@ -136,14 +176,19 @@ class VisitaionInformationController extends Controller
                 $ret['success'] = true;
                 $ret['message'] = "Successfully created " . count($createdVisitations) . " visitation(s)";
                 $ret['data'] = $createdVisitations;
+                $ret['file_info'] = $fileInfo ?? null;
+                $ret['appointments_count'] = count($request->appointments);
             });
         } catch (\Throwable $th) {
+
+
             $ret['success'] = false;
             $ret['message'] = "An error occurred: " . $th->getMessage();
         }
 
         return response()->json($ret, $ret['success'] ? 200 : 500);
     }
+
 
     /**
      * Display the specified resource.
