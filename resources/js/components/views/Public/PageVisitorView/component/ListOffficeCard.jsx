@@ -73,7 +73,8 @@ export default function ListOffficeCard() {
     const [selectedDept, setSelectedDept] = useState(null);
 
     const scrollingList = useMemo(() => {
-        return [...departments, ...departments];
+        const doubled = [...departments, ...departments];
+        return doubled;
     }, []);
 
     const openModal = (dept) => {
@@ -137,27 +138,29 @@ export default function ListOffficeCard() {
                             </div>
                         </Card>
 
-                        {/* Always-visible helpful note overlay */}
-                        <div
-                            style={{
-                                position: "absolute",
-                                left: 10,
-                                right: 10,
-                                bottom: 8,
-                                background: "rgba(13, 91, 16, 0.6)",
-                                color: "#fff",
-                                padding: "6px 10px",
-                                fontSize: 12,
-                                borderRadius: 12,
-                                textAlign: "center",
-                                lineHeight: 1.3,
-                                backdropFilter: "blur(6px)",
-                                WebkitBackdropFilter: "blur(6px)",
-                                pointerEvents: "none", // keep image clicks working
-                            }}
-                        >
-                            You may click these offices for other information
-                        </div>
+                        {hoveredIndex === idx && (
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    left: 10,
+                                    right: 10,
+                                    bottom: 8,
+                                    background: "rgba(13, 91, 16, 0.6)",
+                                    color: "#fff",
+                                    padding: "6px 10px",
+                                    fontSize: 12,
+                                    borderRadius: 12,
+                                    textAlign: "center",
+                                    lineHeight: 1.3,
+                                    backdropFilter: "blur(6px)",
+                                    WebkitBackdropFilter: "blur(6px)",
+                                    pointerEvents: "none", // allow underlying image clicks
+                                }}
+                            >
+                                You may click these offices for other
+                                information
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
