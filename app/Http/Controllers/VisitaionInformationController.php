@@ -54,6 +54,10 @@ class VisitaionInformationController extends Controller
             $query->where('profiles.user_id', $request->user_id);
         }
 
+        if ($request->visitation_information_id) {
+            $query->where('visitaion_information.id', $request->visitation_information_id);
+        }
+
         if ($request->year_and_month_range) {
             $yearAndMonth = explode("-", $request->year_and_month_range);
             $year = $yearAndMonth[0];

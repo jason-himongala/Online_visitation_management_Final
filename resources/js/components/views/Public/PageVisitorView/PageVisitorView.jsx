@@ -108,6 +108,7 @@ export default function PageVisitorView() {
                     className="!text-[#0d5b10] !text-center !text-[25px]"
                 >
                     Offices
+                    <br /> (You may click these offices for other information)
                 </Typography.Title>
                 <ListOffficeCard />
             </Card>

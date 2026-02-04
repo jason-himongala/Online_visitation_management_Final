@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Card, Modal, Button } from "antd";
 import { apiUrl } from "../../../../providers/appConfig";
 
-export default function ListOfficeCard() {
+export default function ListOffficeCard() {
     const departments = [
         {
             name: "GS",
@@ -32,7 +32,6 @@ export default function ListOfficeCard() {
                             The College of Agriculture and Agri-Industries (CAA) equips students with technical 
                             knowledge and hands-on skills in crop and livestock production and sustainable 
                             agricultural practices.`,
-
             link: `https://www.carsu.edu.ph/ovpaa/college-of-agriculture-and-agri-industries/`,
         },
         {
@@ -47,7 +46,6 @@ export default function ListOfficeCard() {
             logo: "CEd-2.webp",
             description: `ONE CED, ONE GOAL
                         The College of Education (CED) shapes future educators who inspire, lead, and transform lives.`,
-
             link: `https://www.carsu.edu.ph/ovpaa/college-of-education/`,
         },
         {
@@ -57,7 +55,6 @@ export default function ListOfficeCard() {
                             The College of Engineering and Geosciences (CEGS) shapes future engineers and
                             geoscientists with the skills, knowledge, and innovation to solve real-world
                             challenges and drive sustainable progress.`,
-
             link: `https://www.carsu.edu.ph/ovpaa/college-of-engineering-and-geosciences/`,
         },
         {
@@ -76,8 +73,7 @@ export default function ListOfficeCard() {
     const [selectedDept, setSelectedDept] = useState(null);
 
     const scrollingList = useMemo(() => {
-        const doubled = [...departments, ...departments];
-        return doubled;
+        return [...departments, ...departments];
     }, []);
 
     const openModal = (dept) => {
@@ -95,13 +91,6 @@ export default function ListOfficeCard() {
             window.open(item.link, "_blank", "noopener,noreferrer");
         }
     };
-
-    // const trackAnimationStyle = modalOpen
-    //     ? { animationPlayState: "paused", WebkitAnimationPlayState: "paused" }
-    //     : {
-    //           animationPlayState: "running",
-    //           WebkitAnimationPlayState: "running",
-    //       };
 
     return (
         <div style={{ overflow: "hidden", width: "100%" }}>
@@ -137,67 +126,42 @@ export default function ListOfficeCard() {
                                         maxWidth: "200px",
                                         margin: "0 auto",
                                         display: "block",
+                                        transition: "filter 200ms ease",
+                                        filter:
+                                            hoveredIndex === idx
+                                                ? "blur(2px) brightness(0.95)"
+                                                : "none",
                                     }}
                                     alt={item.name}
                                 />
                             </div>
                         </Card>
 
-                        {/* {hoveredIndex === idx && (
-                            <div
-                                style={{
-                                    position: "absolute",
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
-                                    background: "rgba(0,0,0,0.65)",
-                                    color: "#fff",
-                                    padding: 12,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 8,
-                                    borderTopLeftRadius: 8,
-                                    borderTopRightRadius: 8,
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        fontWeight: 700,
-                                        fontSize: 14,
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    {item.name}
-                                </div>
-                                <div
-                                    style={{
-                                        fontSize: 12,
-                                        overflow: "hidden",
-                                        display: "-webkit-box",
-                                        WebkitLineClamp: 3,
-                                        WebkitBoxOrient: "vertical",
-                                        whiteSpace: "pre-line",
-                                    }}
-                                >
-                                    {item.description || ""}
-                                </div>
-                                <Button
-                                    type="link"
-                                    size="small"
-                                    onClick={() => openModal(item)}
-                                    style={{
-                                        padding: 0,
-                                        alignSelf: "center",
-                                        color: "#91d5ff",
-                                    }}
-                                >
-                                    See more
-                                </Button>
-                            </div>
-                        )} */}
+                        {/* Always-visible helpful note overlay */}
+                        <div
+                            style={{
+                                position: "absolute",
+                                left: 10,
+                                right: 10,
+                                bottom: 8,
+                                background: "rgba(13, 91, 16, 0.6)",
+                                color: "#fff",
+                                padding: "6px 10px",
+                                fontSize: 12,
+                                borderRadius: 12,
+                                textAlign: "center",
+                                lineHeight: 1.3,
+                                backdropFilter: "blur(6px)",
+                                WebkitBackdropFilter: "blur(6px)",
+                                pointerEvents: "none", // keep image clicks working
+                            }}
+                        >
+                            You may click these offices for other information
+                        </div>
                     </div>
                 ))}
             </div>
+
             <Modal
                 centered
                 open={modalOpen}
@@ -222,9 +186,7 @@ export default function ListOfficeCard() {
                     WebkitBackdropFilter: "blur(6px)",
                     backgroundColor: "rgba(0, 0, 0, 0.25)",
                 }}
-                bodyStyle={{
-                    textAlign: "center",
-                }}
+                bodyStyle={{ textAlign: "center" }}
             >
                 <div style={{ textAlign: "center", whiteSpace: "pre-line" }}>
                     {selectedDept?.description || ""}

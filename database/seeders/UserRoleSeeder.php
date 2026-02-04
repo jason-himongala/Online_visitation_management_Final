@@ -15,10 +15,11 @@ class UserRoleSeeder extends Seeder
     public function run()
     {
         $data = [
+
             [
                 'id' => 1,
-                'type' => 'Super Admin',
-                'role' => 'Super Admin',
+                'type' => 'Pico',
+                'role' => 'Pico',
                 'created_by' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -31,16 +32,9 @@ class UserRoleSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+
             [
                 'id' => 3,
-                'type' => 'Pico',
-                'role' => 'Pico',
-                'created_by' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'id' => 4,
                 'type' => 'Visitor',
                 'role' => 'Visitor',
                 'created_by' => 1,
@@ -48,7 +42,7 @@ class UserRoleSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'id' => 5,
+                'id' => 4,
                 'type' => 'OP',
                 'role' => 'OP',
                 'created_by' => 1,

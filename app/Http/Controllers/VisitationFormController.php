@@ -119,13 +119,24 @@ class VisitationFormController extends Controller
                     }
 
                     if (is_array($dataProfileDelegates)) {
+                        $keepIds = [];
+
                         foreach ($dataProfileDelegates as $delegates) {
                             $delegates['visitation_form_id'] = $profileVisitationFormId;
-                            ProfileDelegates::create($delegates);
+
+                            $record = ProfileDelegates::updateOrCreate(
+                                ['id' => $delegates['id'] ?? null],
+                                $delegates
+                            );
+
+                            $keepIds[] = $record->id;
                         }
+
+                        ProfileDelegates::where('visitation_form_id', $profileVisitationFormId)
+                            ->whereNotIn('id', $keepIds)
+                            ->delete();
                     }
                 }
-
                 $ret['success'] = true;
                 $ret['message'] = "Data " . ($request->id ? "updated" : "saved") . " successfully";
             });

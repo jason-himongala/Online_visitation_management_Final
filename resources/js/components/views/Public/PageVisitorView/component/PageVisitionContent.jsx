@@ -11,6 +11,7 @@ import FloatTimePicker from "../../../../providers/FloatTimePicker";
 import notificationErrors from "../../../../providers/notificationErrors";
 import FloatInput from "../../../../providers/FloatInput";
 import FloatSelect from "../../../../providers/FloatSelect";
+import { useEffect, useMemo } from "react";
 
 export default function PageVisitationContent(props) {
     const { status, id } = props;
@@ -24,6 +25,29 @@ export default function PageVisitationContent(props) {
         () => {},
         false,
     );
+
+    const { data: dataForm } = GET(
+        `api/visitation_information?visitation_information_id=${id}`,
+        "visitation_information_submit",
+    );
+    console.log("dataForm", dataForm);
+    useEffect(() => {
+        const rows = dataForm?.data || dataForm;
+        if (!Array.isArray(rows) || !rows.length) return;
+
+        const v = rows[0];
+        form.setFieldsValue({
+            purpose_of_visit: v?.purpose_of_visit ?? "",
+            alternate_date_of_visit: v.appointment_schedule?.date
+                ? dayjs(v.appointment_schedule.date)
+                : null,
+
+            alternate_time_of_visit: v?.appointment_schedule?.available_time,
+
+            selected_faculty_centered_office_organization_to_visit:
+                v?.department_name ?? null,
+        });
+    }, [dataForm, form]);
     const { mutate: mutateVisitorForm, loading: isLoadingChat } = POST(
         `api/visitation_forms`,
         [
@@ -163,7 +187,7 @@ export default function PageVisitationContent(props) {
                                 label="Alternate Date of Visit"
                                 name="alternate_date_of_visit"
                             >
-                                <FloatDatePicker format="YYYY-MM-DD" />
+                                <FloatDatePicker format="YYYY-MM-DD" disabled />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -171,7 +195,7 @@ export default function PageVisitationContent(props) {
                                 label="Alternate Time of Visit"
                                 name="alternate_time_of_visit"
                             >
-                                <FloatTimePicker format="h:mm a" use12Hours />
+                                <FloatInput disabled />
                             </Form.Item>
                         </Col>
 
@@ -179,8 +203,12 @@ export default function PageVisitationContent(props) {
                             <Form.Item
                                 label="Purpose of Visit"
                                 name="purpose_of_visit"
+                                disabled
                             >
-                                <FloatInput placeholder="Purpose of Visit" />
+                                <FloatInput
+                                    placeholder="Purpose of Visit"
+                                    disabled
+                                />
                             </Form.Item>
                         </Col>
 
@@ -188,18 +216,12 @@ export default function PageVisitationContent(props) {
                             <Form.Item
                                 label="Selected Faculty Centered Office/Organization to Visit"
                                 name="selected_faculty_centered_office_organization_to_visit"
-                                style={{ textAlign: "left" }}
+                                disabled
                             >
-                                <FloatSelect
+                                <FloatInput
                                     layout="vertical"
+                                    disabled
                                     placeholder="Selected Faculty Centered Office Organization to Visit"
-                                    allowClear
-                                    options={
-                                        departments?.data?.map((dept) => ({
-                                            label: dept.department_name,
-                                            value: dept.id,
-                                        })) || []
-                                    }
                                 />
                             </Form.Item>
                         </Col>
@@ -209,7 +231,18 @@ export default function PageVisitationContent(props) {
                                 label="Manner of Engagement (in-person or virtual)"
                                 name="manner_of_engagement"
                             >
-                                <FloatInput placeholder="Manner of Engagement (in-person or virtual)" />
+                                <FloatSelect
+                                    placeholder="Manner of Engagement (in-person or virtual)"
+                                    layout="vertical"
+                                    align="left"
+                                    options={[
+                                        {
+                                            label: "In-Person",
+                                            value: "In-Person",
+                                        },
+                                        { label: "Virtual", value: "Virtual" },
+                                    ]}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>

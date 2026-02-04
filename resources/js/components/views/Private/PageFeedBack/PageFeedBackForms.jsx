@@ -52,7 +52,7 @@ export default function PageFeedBackForms() {
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/feedback?${new URLSearchParams(tableFilter)}`,
-        "profile_list"
+        "profile_list",
     );
 
     const onChangeTable = (pagination, filters, sorter) => {
@@ -120,7 +120,7 @@ export default function PageFeedBackForms() {
                         sticky
                     >
                         <Table.Column
-                            title="Action"
+                            title="View"
                             key="action"
                             dataIndex="action"
                             align="center"

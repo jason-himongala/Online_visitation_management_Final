@@ -708,7 +708,7 @@ export default function PageVisitorRequestContent(props) {
             <Row gutter={[25, 40]}>
                 <Col span={24}>
                     <Card>
-                        <Typography.Text type="secondary">
+                        {/* <Typography.Text type="secondary">
                             Note:
                             <strong>
                                 {" "}
@@ -723,15 +723,15 @@ export default function PageVisitorRequestContent(props) {
                                 range appointment.
                             </strong>
                             Your own appointments are highlighted in orange.
-                        </Typography.Text>
+                        </Typography.Text> */}
                     </Card>
                 </Col>
                 <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                     <Form>
                         <Form.Item name="department_id">
                             <FloatSelect
-                                label="Select Office(s)"
-                                placeholder="Select Office(s)"
+                                label="Select Office to Visit"
+                                placeholder="Select Office to Visit"
                                 options={
                                     Usersdepartments?.data
                                         ? Usersdepartments.data
@@ -893,8 +893,7 @@ export default function PageVisitorRequestContent(props) {
                                             selectedAppointments.length === 0
                                         }
                                     >
-                                        Preview Request (
-                                        {selectedAppointments.length})
+                                        Next
                                     </Button>
                                 </Flex>
                             </>

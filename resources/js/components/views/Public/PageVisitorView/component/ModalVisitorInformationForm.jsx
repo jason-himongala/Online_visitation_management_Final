@@ -356,6 +356,9 @@ export default function ModalVisitorInformationForm(props) {
         setFileList([]);
     };
 
+
+
+
     return (
         <Modal
             title={getModalTitle()}
@@ -389,6 +392,7 @@ export default function ModalVisitorInformationForm(props) {
                     key="submit"
                     loading={isLoadingSubmit || isUploading}
                     onClick={() => form.submit()}
+                    
                 >
                     Submit {selectedAppointments.length} Appointment
                     {selectedAppointments.length !== 1 ? "s" : ""}
