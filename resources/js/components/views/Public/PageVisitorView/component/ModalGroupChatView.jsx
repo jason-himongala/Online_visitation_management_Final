@@ -242,7 +242,7 @@ export default function ModalGroupChatView(props) {
     const activeFilteredGroups = filteredGroupChats.filter(
         (g) =>
             !archivedGroups.includes(g.chat_id) &&
-            (g.chat?.title_of_groupchat || "Group Chat")
+            (g.chat?.title_of_groupchat || "Messages")
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase()),
     );
@@ -250,7 +250,7 @@ export default function ModalGroupChatView(props) {
     const archivedFilteredGroups = filteredGroupChats.filter(
         (g) =>
             archivedGroups.includes(g.chat_id) &&
-            (g.chat?.title_of_groupchat || "Group Chat")
+            (g.chat?.title_of_groupchat || "Messages")
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase()),
     );
@@ -383,7 +383,7 @@ export default function ModalGroupChatView(props) {
 
     return (
         <Modal
-            title="Group Chat"
+            title="Messages"
             className="custom-blur-modal"
             open={toggleModalOpenGroupChat.open}
             onCancel={() => {
@@ -479,7 +479,7 @@ export default function ModalGroupChatView(props) {
                                                 <span style={{ flex: 1 }}>
                                                     {group.chat
                                                         ?.title_of_groupchat ||
-                                                        "Group Chat"}
+                                                        "Messages"}
                                                 </span>
                                                 {unreadCounts[group.chat_id] >
                                                     0 && (
@@ -611,7 +611,7 @@ export default function ModalGroupChatView(props) {
                                                         >
                                                             {group.chat
                                                                 ?.title_of_groupchat ||
-                                                                "Group Chat"}
+                                                                "Messages"}
                                                         </span>
                                                         {unreadCounts[
                                                             group.chat_id
@@ -683,7 +683,7 @@ export default function ModalGroupChatView(props) {
                                         <b style={{ display: "block" }}>
                                             {selectedGroup.chat
                                                 ?.title_of_groupchat ||
-                                                "Group Chat"}
+                                                "Messages"}
                                         </b>
                                         <div
                                             style={{
@@ -738,7 +738,7 @@ export default function ModalGroupChatView(props) {
                                             )}
                                         </div>
                                         <p className="mt-4 text-gray-700 text-sm font-medium text-center">
-                                            Group Chat Created{" "}
+                                            Messages Created{" "}
                                             <span className="ml-1">
                                                 You can now contact each other.
                                             </span>
