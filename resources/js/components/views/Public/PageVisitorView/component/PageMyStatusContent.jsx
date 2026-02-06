@@ -97,7 +97,7 @@ export default function PageMyStatusContent() {
         const formSubmitted = dataFeedback?.data.find(
             (form) =>
                 form.visitation_information_id === selectedItem.id &&
-                form.remarks === "Submitted",
+                form.remarks === "Completed",
         );
 
         if (formSubmitted) {
@@ -220,10 +220,7 @@ export default function PageMyStatusContent() {
                                 width: "100%",
                             }}
                         >
-                            <Button
-                                danger
-                                onClick={() => setOpenModal(false)}
-                            >
+                            <Button danger onClick={() => setOpenModal(false)}>
                                 Close
                             </Button>
                         </div>
