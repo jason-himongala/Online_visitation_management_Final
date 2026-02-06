@@ -23,11 +23,13 @@ class UserSeeder extends Seeder
 
         $data = [
             [
+
+                'id' => 1,
                 'username' => 'pico',
                 'email' => 'pico@test.com',
                 'email_verified_at' => now(),
                 'password' => Hash::make('Pico123!'),
-                'user_role_id' => 3,
+                'user_role_id' => 1,
                 'status' => 'Active',
                 'remember_token' => Str::random(10),
                 'created_by' => 1,
