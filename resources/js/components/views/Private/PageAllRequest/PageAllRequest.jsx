@@ -37,12 +37,12 @@ export default function PageAllRequest() {
         status: location.pathname.includes("approved")
             ? "Approved"
             : location.pathname.includes("declined")
-            ? "Declined"
-            : location.pathname.includes("all-requests")
-            ? "Pending"
-            : location.pathname.includes("available-schedules")
-            ? "Pending"
-            : "",
+              ? "Declined"
+              : location.pathname.includes("all-requests")
+                ? "Pending"
+                : location.pathname.includes("available-schedules")
+                  ? "Pending"
+                  : "",
     });
 
     useEffect(() => {
@@ -54,12 +54,12 @@ export default function PageAllRequest() {
             status: location.pathname.includes("approved")
                 ? "Approved"
                 : location.pathname.includes("declined")
-                ? "Declined"
-                : location.pathname.includes("all-requests")
-                ? "Pending"
-                : location.pathname.includes("available-schedules")
-                ? "Pending"
-                : "",
+                  ? "Declined"
+                  : location.pathname.includes("all-requests")
+                    ? "Pending"
+                    : location.pathname.includes("available-schedules")
+                      ? "Pending"
+                      : "",
             sort_field: "created_at",
             sort_order: "desc",
         });
@@ -67,7 +67,7 @@ export default function PageAllRequest() {
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/visitation_information?${new URLSearchParams(tableFilter)}`,
-        "visitation_information_submit"
+        "visitation_information_submit",
     );
 
     const currentUser =
@@ -91,7 +91,7 @@ export default function PageAllRequest() {
 
     const handleUpdateStatus = (ids, status) => {
         const selectedRecords = dataSource?.data?.data.filter((item) =>
-            ids.includes(item.id)
+            ids.includes(item.id),
         );
 
         let profile_id = selectedRecords.map((item) => item.profile_id);
@@ -127,7 +127,7 @@ export default function PageAllRequest() {
                         description: "Something went wrong.",
                     });
                 },
-            }
+            },
         );
     };
 
@@ -164,7 +164,7 @@ export default function PageAllRequest() {
                                                     onClick={() =>
                                                         handleUpdateStatus(
                                                             selectedRowKeys,
-                                                            "approved"
+                                                            "approved",
                                                         )
                                                     }
                                                 >
@@ -178,7 +178,7 @@ export default function PageAllRequest() {
                                                     onClick={() =>
                                                         handleUpdateStatus(
                                                             selectedRowKeys,
-                                                            "declined"
+                                                            "declined",
                                                         )
                                                     }
                                                 >
@@ -217,7 +217,7 @@ export default function PageAllRequest() {
                     >
                         {userRole === "OP" && (
                             <Table.Column
-                                title="Action"
+                                title="View"
                                 key="action"
                                 align="center"
                                 width={50}

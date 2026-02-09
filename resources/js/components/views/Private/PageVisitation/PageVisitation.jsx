@@ -125,7 +125,7 @@ export default function PageVisitation() {
                         sticky
                     >
                         <Table.Column
-                            title="Action"
+                            title="View"
                             key="action"
                             dataIndex="action"
                             align="center"

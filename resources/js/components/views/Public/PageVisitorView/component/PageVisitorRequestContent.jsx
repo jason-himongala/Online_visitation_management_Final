@@ -838,7 +838,7 @@ export default function PageVisitorRequestContent(props) {
                                         }}
                                     />
                                     <Table.Column
-                                        title="Action"
+                                        title="View"
                                         render={(_, record) => {
                                             const hasExistingAppointment =
                                                 hasAppointment(record);

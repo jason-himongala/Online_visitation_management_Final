@@ -75,34 +75,50 @@
 
     <h1>CERTIFICATE OF APPEARANCE</h1>
 
-    <p>This is to certify that the following personnel has attended the<br>
-        __________________________ at <b>CARAGA STATE UNIVERSITY (CSU)</b><br>
-        on _______________, and actively participated in the proceedings.</p>
+   <p>
 
-    <table>
-        <thead>
-            <tr>
-                <th>NAME</th>
-                <th>AGENCY</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($data as $delegate)
-            <tr>
-                <td style="height:30px; min-height:30px;">
+    This is to certify that the following personnel has attended the<br>
+    <span style="border-bottom:1px solid #000; display:inline-block; min-width:200px;">
+        <b>{{ $data->first()->visitation_forms->selected_faculty_centered_office_organization_to_visit ?? '' }},</b>
+    </span>
+    at CARAGA STATE UNIVERSITY (CSU)<br>
+    on <span style="border-bottom:1px solid #000; display:inline-block; min-width:200px;">
+      <b>
+        </b>
+    </span>, and actively participated in the proceedings.
+
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th style="width:70%;">VISITOR NAME</th>
+            <th>DELEGATES NAME</th>
+            <th>AGENCY</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($data as $delegate)
+
+          <tr>
+              <td>{{ $delegate->visitation_forms->visitation_information->profile->lastname ?? 'N/A' }}, {{ $delegate->visitation_forms->visitation_information->profile->firstname ?? 'N/A' }} </td>
+                <td>
                     {{ $delegate->fullname ?? 'N/A' }}
                 </td>
                 <td>
                     {{ $delegate->visitation_forms->name_of_institution_agency ?? 'N/A' }}
                 </td>
             </tr>
-            @empty
+          
+
+        @empty
             <tr>
                 <td colspan="2" style="text-align:center;">No delegates found</td>
             </tr>
-            @endforelse
-        </tbody>
-    </table>
+        @endforelse
+    </tbody>
+</table>
+
 
     <p>This certificate is hereby provided in adherence to government accounting regulations,<br>
         and for any legal purposes, it may be utilized for.</p>

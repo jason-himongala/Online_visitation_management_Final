@@ -38,11 +38,11 @@ export default function PageVisitationContent(props) {
         const v = rows[0];
         form.setFieldsValue({
             purpose_of_visit: v?.purpose_of_visit ?? "",
-            alternate_date_of_visit: v.appointment_schedule?.date
+            preferred_date_of_visit: v.appointment_schedule?.date
                 ? dayjs(v.appointment_schedule.date)
                 : null,
 
-            alternate_time_of_visit: v?.appointment_schedule?.available_time,
+            prepreferred_time_of_visit: v?.appointment_schedule?.available_time,
 
             selected_faculty_centered_office_organization_to_visit:
                 v?.department_name ?? null,
@@ -170,7 +170,7 @@ export default function PageVisitationContent(props) {
                                 label="Preferred Date of Visit"
                                 name="preferred_date_of_visit"
                             >
-                                <FloatDatePicker format="YYYY-MM-DD" />
+                                <FloatDatePicker format="YYYY-MM-DD" disabled />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -178,7 +178,7 @@ export default function PageVisitationContent(props) {
                                 label="Preferred Time of Visit"
                                 name="preferred_time_of_visit"
                             >
-                                <FloatTimePicker format="h:mm a" use12Hours />
+                                <FloatInput disabled />
                             </Form.Item>
                         </Col>
 
@@ -187,7 +187,7 @@ export default function PageVisitationContent(props) {
                                 label="Alternate Date of Visit"
                                 name="alternate_date_of_visit"
                             >
-                                <FloatDatePicker format="YYYY-MM-DD" disabled />
+                                <FloatDatePicker format="YYYY-MM-DD" />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -195,7 +195,7 @@ export default function PageVisitationContent(props) {
                                 label="Alternate Time of Visit"
                                 name="alternate_time_of_visit"
                             >
-                                <FloatInput disabled />
+                                <FloatTimePicker format="h:mm a" use12Hours />
                             </Form.Item>
                         </Col>
 

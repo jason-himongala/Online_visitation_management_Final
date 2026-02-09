@@ -93,11 +93,15 @@ class ProfileDelegatesController extends Controller
         $visitation_information_id = $request->visitation_information_id;
         $fullname = $this->fullname;
 
+
         $data = ProfileDelegates::with(['visitation_forms'])
-            ->where('visitation_form_id', $visitation_information_id)
+            ->whereHas('visitation_forms', function ($query) use ($visitation_information_id) {
+                $query->where('visitation_information_id', $visitation_information_id);
+            })
             ->select([
                 '*',
                 DB::raw("($fullname) AS fullname"),
+
             ])
             ->get();
 

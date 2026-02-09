@@ -173,7 +173,7 @@ export default function PageDeclined() {
                         sticky
                     >
                         <Table.Column
-                            title="Action"
+                            title="View"
                             key="action"
                             dataIndex="action"
                             align="center"

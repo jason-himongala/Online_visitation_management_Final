@@ -41,10 +41,10 @@ export default function PageApproved() {
         status: location.pathname.includes("approved")
             ? "Approved"
             : location.pathname.includes("declined")
-            ? "Declined"
-            : location.pathname.includes("all-requests")
-            ? "Pending"
-            : "",
+              ? "Declined"
+              : location.pathname.includes("all-requests")
+                ? "Pending"
+                : "",
         // from: location.pathname,
     });
     useEffect(() => {
@@ -56,10 +56,10 @@ export default function PageApproved() {
             status: location.pathname.includes("approved")
                 ? "Approved"
                 : location.pathname.includes("declined")
-                ? "Declined"
-                : location.pathname.includes("all-requests")
-                ? "Pending"
-                : "",
+                  ? "Declined"
+                  : location.pathname.includes("all-requests")
+                    ? "Pending"
+                    : "",
         });
 
         return () => {};
@@ -69,7 +69,7 @@ export default function PageApproved() {
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/visitation_information?${new URLSearchParams(tableFilter)}`,
-        ["visitation_information_submit", "visitation_information_submit"]
+        ["visitation_information_submit", "visitation_information_submit"],
     );
 
     useEffect(() => {
@@ -181,7 +181,7 @@ export default function PageApproved() {
                         sticky
                     >
                         <Table.Column
-                            title="Action"
+                            title="View"
                             key="action"
                             dataIndex="action"
                             align="center"

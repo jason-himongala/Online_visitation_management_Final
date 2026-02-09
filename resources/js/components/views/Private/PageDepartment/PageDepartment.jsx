@@ -44,7 +44,7 @@ export default function PageDepartment() {
 
     const { data: dataSource, refetch: refetchSource } = GET(
         `api/department?${new URLSearchParams(tableFilter)}`,
-        "department_list"
+        "department_list",
     );
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -285,7 +285,7 @@ export default function PageDepartment() {
                                 }}
                             >
                                 <Table.Column
-                                    title="Action"
+                                    title="View"
                                     key="action"
                                     dataIndex="action"
                                     align="center"
@@ -300,7 +300,7 @@ export default function PageDepartment() {
                                                             {
                                                                 open: true,
                                                                 data: record,
-                                                            }
+                                                            },
                                                         )
                                                     }
                                                 >

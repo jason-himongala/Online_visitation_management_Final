@@ -30,12 +30,19 @@ import { role, UserId } from "../../../../providers/appConfig";
 export default function PageEventContentCalendar() {
     const UserIds = UserId("");
     const userRole = role("");
+    const width = window.innerWidth;
+    console.log("width", width);
+
+    const columnWidths =
+        width > 1200
+            ? { type: 256, date: 256, time: 256, official: 256 }
+            : { type: 256, date: 256, time: 256, official: 256 };
 
     const { data: dataUser } = GET(
         `api/users?id=${UserIds}`,
         "user_detail",
         () => {},
-        false
+        false,
     );
 
     const currentUser =
@@ -59,14 +66,14 @@ export default function PageEventContentCalendar() {
         `api/appointment_schedule`,
         "appointment_schedule_list",
         () => {},
-        false
+        false,
     );
 
     const { data: departments } = GET(
         `api/departments`,
         "department_list",
         () => {},
-        false
+        false,
     );
 
     const getEventData = (date, events) => {
@@ -84,7 +91,7 @@ export default function PageEventContentCalendar() {
     const dateCellRender = (value) => {
         const eventData = getEventData(
             value,
-            dataAppointmentSchedules?.data || []
+            dataAppointmentSchedules?.data || [],
         );
 
         return (
@@ -121,9 +128,9 @@ export default function PageEventContentCalendar() {
                                     color: isImportant
                                         ? "#fa8c16"
                                         : item.appointment_type ===
-                                          "Not Available"
-                                        ? "red"
-                                        : "green",
+                                            "Not Available"
+                                          ? "red"
+                                          : "green",
                                 }}
                             >
                                 {item.appointment_type}
@@ -221,12 +228,13 @@ export default function PageEventContentCalendar() {
                         size="small"
                         pagination={false}
                         rowKey="id"
+                        width={columnWidths.type}
                         dataSource={
                             dataAppointmentSchedules?.data?.filter(
                                 (item) =>
                                     !tableFilter.department_id ||
                                     item.department_id ===
-                                        tableFilter.department_id
+                                        tableFilter.department_id,
                             ) || []
                         }
                         rowClassName={(record) =>
@@ -259,6 +267,7 @@ export default function PageEventContentCalendar() {
                         />
                         <Table.Column title="Time" dataIndex="available_time" />
                         <Table.Column
+                            width={columnWidths}
                             title="Official visit"
                             render={(_, record) =>
                                 record.important_visit === 1 &&
@@ -287,7 +296,7 @@ export default function PageEventContentCalendar() {
                                 icon={faChevronLeft}
                                 onClick={() =>
                                     setCurrentDate(
-                                        currentDate.subtract(1, "month")
+                                        currentDate.subtract(1, "month"),
                                     )
                                 }
                                 className="mr-3 cursor-pointer"
@@ -304,6 +313,13 @@ export default function PageEventContentCalendar() {
 
                     <Card>
                         <Calendar
+                            width={
+                                columnWidths.type +
+                                columnWidths.date +
+                                columnWidths.time +
+                                columnWidths.official +
+                                100
+                            }
                             value={currentDate}
                             onChange={setCurrentDate}
                             cellRender={dateCellRender}
