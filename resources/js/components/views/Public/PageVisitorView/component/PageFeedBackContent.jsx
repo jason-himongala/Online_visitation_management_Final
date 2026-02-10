@@ -25,6 +25,7 @@ import FloatSelect from "../../../../providers/FloatSelect";
 
 export default function PageFeedbackContent(props) {
     const { status, id } = props;
+
     const [form] = Form.useForm();
     const location = window.location;
     const navigate = useNavigate();
@@ -638,39 +639,40 @@ export default function PageFeedbackContent(props) {
                         </Col>
                     </Row>
                 </Form>
-                {isSubmitted && dataDelegates?.data && (
-                    <>
-                        <Table
-                            dataSource={dataDelegates && dataDelegates.data}
-                            pagination={false}
-                            rowKey={(record) => record.id}
-                            className="mt-4"
-                        >
-                            <Table.Column
-                                title="Delegates Name"
-                                dataIndex="fullname"
-                                key="fullname"
-                            />
-                        </Table>
+                {/* {isSubmitted && dataDelegates?.data && ( */}
+                <>
+                    <Table
+                        dataSource={dataDelegates && dataDelegates.data}
+                        pagination={false}
+                        rowKey={(record) => record.id}
+                        className="mt-4"
+                    >
+                        <Table.Column
+                            title="Delegates Name"
+                            dataIndex="fullname"
+                            key="fullname"
+                        />
+                    </Table>
 
-                        <br />
-                        <div className="text-center mt-4">
-                            <Button
-                                type="primary"
-                                size="large"
-                                onClick={() =>
-                                    setToggleModalPreviewPdf({
-                                        open: true,
-                                        url: `api/generate_visitation_certificates?visitation_information_id=${id}`,
-                                    })
-                                }
-                                className="bg-green-700 border-green-800 hover:bg-green-800"
-                            >
-                                Download Certificate of Appearance
-                            </Button>
-                        </div>
-                    </>
-                )}
+                    <br />
+                    <div className="text-center mt-4">
+                        <Button
+                            type="primary"
+                            size="large"
+                            onClick={() =>
+                                setToggleModalPreviewPdf({
+                                    open: true,
+                                    url: `api/generate_visitation_certificates?visitation_information_id=${id}`,
+                                    
+                                })
+                            }
+                            className="bg-green-700 border-green-800 hover:bg-green-800"
+                        >
+                            Download Certificate of Appearance
+                        </Button>
+                    </div>
+                </>
+                {/* )} */}
                 <ModalPreviewPdf
                     setToggleModalPreviewPdf={setToggleModalPreviewPdf}
                     toggleModalPreviewPdf={toggleModalPreviewPdf}

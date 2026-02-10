@@ -92,28 +92,27 @@
 <table>
     <thead>
         <tr>
-            <th style="width:70%;">VISITOR NAME</th>
+            <th>VISITOR NAME</th>
             <th>DELEGATES NAME</th>
             <th>AGENCY</th>
         </tr>
     </thead>
     <tbody>
         @forelse($data as $delegate)
+            <tr>
+                @if ($loop->first)
+                    <td rowspan="{{ $data->count() }}">
+                        {{ $delegate->visitation_forms->visitation_information->profile->lastname ?? 'N/A' }},
+                        {{ $delegate->visitation_forms->visitation_information->profile->firstname ?? '' }}
+                    </td>
+                @endif
+                <td>{{ $delegate->fullname ?? 'N/A' }}</td>
 
-          <tr>
-              <td>{{ $delegate->visitation_forms->visitation_information->profile->lastname ?? 'N/A' }}, {{ $delegate->visitation_forms->visitation_information->profile->firstname ?? 'N/A' }} </td>
-                <td>
-                    {{ $delegate->fullname ?? 'N/A' }}
-                </td>
-                <td>
-                    {{ $delegate->visitation_forms->name_of_institution_agency ?? 'N/A' }}
-                </td>
+                <td>{{ $delegate->visitation_forms->name_of_institution_agency ?? 'N/A' }}</td>
             </tr>
-          
-
         @empty
             <tr>
-                <td colspan="2" style="text-align:center;">No delegates found</td>
+                <td colspan="3" style="text-align:center;">No delegates found</td>
             </tr>
         @endforelse
     </tbody>

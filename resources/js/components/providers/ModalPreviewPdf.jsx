@@ -26,7 +26,7 @@ export default function ModalPreviewPdf(props) {
                                 Authorization: token(),
                             },
                             responseType: "blob",
-                        }
+                        },
                     );
 
                     let pdfBlob = new Blob([fetchPdf.data], {

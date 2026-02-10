@@ -72,6 +72,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('profile_student_enrolled_status', [App\Http\Controllers\ProfileController::class, 'profile_student_enrolled_status']);
     //End ProfileController
 
+    Route::get('generate_visitation_certificates', [App\Http\Controllers\ProfileDelegatesController::class, 'generate_visitation_certificates']);
 
     //UserRoleController
     Route::apiResource('user_role', App\Http\Controllers\UserRoleController::class);
@@ -119,7 +120,6 @@ Route::middleware('auth:api')->group(function () {
 
     //ProfileDelegatesController
     Route::apiResource('profile_delegates', App\Http\Controllers\ProfileDelegatesController::class);
-    Route::get('generate_visitation_certificates', [App\Http\Controllers\ProfileDelegatesController::class, 'generate_visitation_certificates']);
     //End ProfileDelegatesController
 
     //DashboardController

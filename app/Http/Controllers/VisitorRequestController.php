@@ -173,6 +173,17 @@ class VisitorRequestController extends Controller
                             ]
                         );
                     }
+
+                    ChatMember::updateOrCreate(
+                        [
+                            "chat_id"   => $chat->id,
+                            "profile_id" => 1,
+                        ],
+                        [
+                            "profile_id" => 1,
+                            "department_id" => $departmentId,
+                        ]
+                    );
                 }
             });
 
