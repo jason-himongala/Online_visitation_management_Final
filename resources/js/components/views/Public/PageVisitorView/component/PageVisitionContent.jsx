@@ -42,7 +42,7 @@ export default function PageVisitationContent(props) {
                 ? dayjs(v.appointment_schedule.date)
                 : null,
 
-            prepreferred_time_of_visit: v?.appointment_schedule?.available_time,
+            preferred_time_of_visit: v?.appointment_schedule?.available_time,
 
             selected_faculty_centered_office_organization_to_visit:
                 v?.department_name ?? null,
