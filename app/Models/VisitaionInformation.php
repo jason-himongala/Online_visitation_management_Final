@@ -62,6 +62,10 @@ class VisitaionInformation extends Model
     {
         return $this->belongsTo(VisitaionInformation::class, 'visitation_information_id');
     }
+    public function purpose_of_visit()
+    {
+        return $this->belongsTo(PurposeOfVisti::class, 'purpose_of_visit_id');
+    }
 
     public function profile()
     {

@@ -91,7 +91,6 @@ export default function PageStatusRequest(props) {
         setDeclineModal({ open: false, remarks: "", selectedKeys: [] });
     };
 
-    // Function to check if record has a file
     const hasFile = (record) => {
         return !!(
             record.file_path ||
@@ -102,7 +101,6 @@ export default function PageStatusRequest(props) {
         );
     };
 
-    // Function to get file icon based on file type
     const getFileIcon = (record) => {
         const filePath =
             record.file_path ||
@@ -132,7 +130,6 @@ export default function PageStatusRequest(props) {
         return faFileAlt;
     };
 
-    // Function to get file icon color
     const getFileIconColor = (record) => {
         const icon = getFileIcon(record);
 
@@ -142,7 +139,6 @@ export default function PageStatusRequest(props) {
         return "#666"; // Gray for other files
     };
 
-    // Function to get file name
     const getFileName = (record) => {
         if (record.file_name) return record.file_name;
         if (record.visitation_form?.file_name)
@@ -166,7 +162,7 @@ export default function PageStatusRequest(props) {
     return (
         <Card>
             <Row gutter={[20, 20]} id="tbl_wrapper">
-                <Col xs={24}>
+                <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                     <div className="tbl-top-filter">
                         <Flex justify="space-between" align="center">
                             <Flex gap={15}>
@@ -343,6 +339,7 @@ export default function PageStatusRequest(props) {
                                 width={150}
                             />
                         )}
+
                         <Table.Column
                             title="Status"
                             key="status"

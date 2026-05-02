@@ -29,6 +29,7 @@ export default function PageDashboard() {
         sort_field: "created_at",
         sort_order: "desc",
         year_and_month_range: "",
+        school_purpose_id: "",
     });
 
     const { data: dataSource, refetch: refetchSource } = GET(

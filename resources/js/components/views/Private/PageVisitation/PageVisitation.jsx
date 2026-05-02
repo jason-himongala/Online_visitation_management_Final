@@ -20,6 +20,7 @@ import {
     Table,
     Tag,
     notification,
+    Form,
 } from "antd";
 import dayjs from "dayjs";
 
@@ -33,10 +34,12 @@ import {
 } from "../../../providers/CustomTableFilter";
 import PageVisitationContent from "./component.jsx/PageVisitionContent";
 import { role } from "../../../providers/appConfig";
+import FloatSelect from "../../../providers/FloatSelect";
 
 export default function PageVisitation() {
     const navigate = useNavigate();
     const location = useLocation();
+    const [fomr] = Form.useForm();
 
     const userRole = role();
 
@@ -78,6 +81,23 @@ export default function PageVisitation() {
     return (
         <Card>
             <Row gutter={[20, 20]} id="tbl_wrapper">
+                <Col xs={6} sm={6} md={6}>
+                    <Form>
+                        <Form.Item name="school_purpose_id">
+                            <FloatSelect
+                                label="Filter by School Purpose"
+                                name="school_purpose_id"
+                                placeholder="Select School Purpose"
+                                options={[
+                                    { value: "1", label: "Enrollment" },
+                                    { value: "2", label: "Transferee" },
+                                    { value: "3", label: "General Inquiry" },
+                                    { value: "4", label: "Other" },
+                                ]}
+                            ></FloatSelect>
+                        </Form.Item>
+                    </Form>
+                </Col>
                 <Col xs={24} sm={24} md={24}>
                     <Flex
                         className="tbl-top-filter"
@@ -174,6 +194,13 @@ export default function PageVisitation() {
                                     </span>
                                 );
                             }}
+                        />
+                        <Table.Column
+                            title="School Purpose"
+                            key="school_purpose"
+                            dataIndex="school_purpose"
+                            sorter
+                            width={150}
                         />
                         <Table.Column
                             title="Date"

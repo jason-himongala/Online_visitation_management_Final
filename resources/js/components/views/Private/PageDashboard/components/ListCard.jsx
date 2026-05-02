@@ -30,6 +30,8 @@ import {
 import { apiUrl } from "../../../../providers/appConfig";
 import { useState } from "react";
 import notificationErrors from "../../../../providers/notificationErrors";
+import { GET } from "../../../../providers/useAxiosQuery";
+import FloatSelect from "../../../../providers/FloatSelect";
 
 const { RangePicker } = DatePicker;
 
@@ -95,6 +97,10 @@ export default function ListCard(props) {
         }));
     };
 
+    const { data: dataSchoolPurpose } = GET(
+        `api/school_purposes`,
+        "school_purposes_lisrt",
+    );
     return (
         <Row gutter={[20, 20]}>
             <Col xs={24} sm={24} md={7} lg={7} xl={7} xxl={7}>
@@ -194,6 +200,32 @@ export default function ListCard(props) {
                                     Export to Excel
                                 </Button>
                             </Col>
+
+                            <Col xs={8} sm={8} md={8} lg={8} xl={8} xxl={8}>
+                                <Form.Item name="school_purpose_id">
+                                    <FloatSelect
+                                        label="School Purpose"
+                                        placeholder="School Purpose"
+                                        value={tableFilter.school_purpose_id}
+                                        alowClear
+                                        options={
+                                            dataSchoolPurpose?.data?.map(
+                                                (purpose) => ({
+                                                    value: purpose.id,
+                                                    label: purpose.school_purpose,
+                                                }),
+                                            ) || []
+                                        }
+                                        onChange={(value) => {
+                                            setTableFilter((prev) => ({
+                                                ...prev,
+                                                page: 1,
+                                                school_purpose_id: value,
+                                            }));
+                                        }}
+                                    />
+                                </Form.Item>
+                            </Col>
                         </Row>
                     </Col>
 
@@ -284,9 +316,15 @@ export default function ListCard(props) {
                                         />
 
                                         <Table.Column
+                                            title="School Purpose"
+                                            key="school_purpose"
+                                            dataIndex="school_purpose"
+                                            width={150}
+                                        />
+                                        <Table.Column
                                             title="Purpose of Visit"
-                                            key="purpose_of_visit"
-                                            dataIndex="purpose_of_visit"
+                                            key="purpose_of_visits"
+                                            dataIndex="purpose_of_visits"
                                             width={150}
                                         />
                                         <Table.Column
@@ -295,7 +333,6 @@ export default function ListCard(props) {
                                             dataIndex="remarks"
                                             width={150}
                                         />
-
                                         <Table.Column
                                             title="Status"
                                             key="status"

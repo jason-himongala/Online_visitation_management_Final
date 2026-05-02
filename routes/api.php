@@ -108,6 +108,13 @@ Route::middleware('auth:api')->group(function () {
     //ConversationController
     Route::apiResource('conversations_chat', App\Http\Controllers\ConversationController::class);
     //End ConversationController
+    //SchoolPurposeController
+    Route::apiResource('school_purposes', App\Http\Controllers\SchoolPurposeController::class);
+    //End SchoolPurposeController
+    
+    //PurposeOfVistiController
+    Route::apiResource('purpose_of_visits', App\Http\Controllers\PurposeOfVistiController::class);
+    //End PurposeOfVistiController
 
 
     //VisitationFormController

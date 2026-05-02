@@ -26,7 +26,8 @@ class VisitaionInformationController extends Controller
         $email = 'SELECT email FROM users WHERE id = (SELECT user_id FROM profiles WHERE id = visitaion_information.profile_id)';
         $available_time = "(SELECT CONCAT(DATE_FORMAT(date, '%M %d, %Y'), ' - ', available_time) FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id)";
         $department_name = "(SELECT department_name FROM departments WHERE id = (SELECT department_id FROM appointment_schedules WHERE id = visitaion_information.appointment_schedule_id))";
-
+        $school_purpose = "(SELECT school_purpose FROM school_purposes WHERE id = (SELECT school_purpose_id FROM purpose_of_vistis WHERE id = visitaion_information.purpose_of_visit_id))";
+        $purpose_of_visits = "(SELECT purpose_of_visit FROM purpose_of_vistis WHERE id = visitaion_information.purpose_of_visit_id)";
         $query = VisitaionInformation::query()
             ->with(['profile', 'appointment_schedule', 'profile.user', 'appointment_schedule.department'])
             ->select([
@@ -34,6 +35,8 @@ class VisitaionInformationController extends Controller
                 DB::raw("($email) AS email"),
                 DB::raw("($available_time) AS available_time"),
                 DB::raw("($department_name) AS department_name"),
+                DB::raw("($school_purpose) AS school_purpose"),
+                DB::raw("($purpose_of_visits) AS purpose_of_visits"),
             ])
             ->leftJoin('profiles', 'profiles.id', '=', 'visitaion_information.profile_id');
 
@@ -52,6 +55,13 @@ class VisitaionInformationController extends Controller
 
         if ($request->user_id) {
             $query->where('profiles.user_id', $request->user_id);
+        }
+        if($request->school_purpose_id) {
+            $query->whereIn('purpose_of_visit_id', function($subQuery) use ($request) {
+                $subQuery->select('id')
+                    ->from('purpose_of_vistis')
+                    ->where('school_purpose_id', $request->school_purpose_id);
+            });
         }
 
         if ($request->visitation_information_id) {
@@ -159,6 +169,7 @@ class VisitaionInformationController extends Controller
                         'profile_id' => $request->profile_id,
                         'remarks' => $request->remarks ?? 'Submitted',
                         'appointment_schedule_id' => $appointment['appointment_schedule_id'],
+                        'purpose_of_visit_id' => $request->purpose_of_visit_id,
                         'purpose_of_visit' => $request->purpose_of_visit,
                         'status' => 'pending',
                         'file_path' => $fileInfo['path'] ?? null,

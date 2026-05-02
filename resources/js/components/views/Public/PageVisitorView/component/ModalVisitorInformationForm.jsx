@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
     Modal,
     Form,
@@ -35,6 +35,7 @@ import FloatInput from "../../../../providers/FloatInput";
 import { GET, POST } from "../../../../providers/useAxiosQuery";
 import { UserId } from "../../../../providers/appConfig";
 import dayjs from "dayjs";
+import FloatSelect from "../../../../providers/FloatSelect";
 
 const { Dragger } = Upload;
 const { Text } = Typography;
@@ -227,6 +228,7 @@ export default function ModalVisitorInformationForm(props) {
         });
 
         formData.append("profile_id", userId);
+        formData.append("purpose_of_visit_id", values.purpose_of_visit_id);
 
         formData.append(
             "purpose_of_visit",
@@ -356,8 +358,16 @@ export default function ModalVisitorInformationForm(props) {
         setFileList([]);
     };
 
-
-
+    const { data: dataPurpose } = GET(
+        `api/purpose_of_visits`,
+        "purpose_of_visits_list",
+    );
+    const { data: dataSchoolPurpose } = GET(
+        `api/school_purposes`,
+        "school_purposes_lisrt",
+    );
+    const [selectedSchoolPurposeId, setSelectedSchoolPurposeId] =
+        useState(null);
 
     return (
         <Modal
@@ -392,7 +402,6 @@ export default function ModalVisitorInformationForm(props) {
                     key="submit"
                     loading={isLoadingSubmit || isUploading}
                     onClick={() => form.submit()}
-                    
                 >
                     Submit {selectedAppointments.length} Appointment
                     {selectedAppointments.length !== 1 ? "s" : ""}
@@ -526,28 +535,44 @@ export default function ModalVisitorInformationForm(props) {
                     </Col>
 
                     <Col span={24}>
-                        <Form.Item
-                            name="purpose_of_visit"
-                            label="Purpose of Visit"
-                            rules={[
-                                {
-                                    required: true,
-                                    message:
-                                        "Please enter the purpose of visit",
-                                },
-                                {
-                                    min: 10,
-                                    message:
-                                        "Purpose should be at least 10 characters",
-                                },
-                            ]}
-                        >
-                            <FloatInput
+                        <Form.Item name="school_purpose_id">
+                            <FloatSelect
+                                label="School Purpose"
+                                placeholder="School Purpose"
+                                options={
+                                    dataSchoolPurpose?.data?.map((purpose) => ({
+                                        value: purpose.id,
+                                        label: purpose.school_purpose,
+                                    })) || []
+                                }
+                                onChange={(value) => {
+                                    setSelectedSchoolPurposeId(value);
+                                    form.setFieldsValue({
+                                        purpose_of_visit_id: undefined,
+                                    });
+                                }}
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col span={24}>
+                        <Form.Item name="purpose_of_visit_id">
+                            <FloatSelect
                                 label="Purpose of Visit"
+                                placeholder="Purpose of Visit"
                                 required
-                                placeholder="Please describe the purpose of your visit in detail"
-                                textArea
-                                rows={3}
+                                options={
+                                    dataPurpose?.data
+                                        ?.filter(
+                                            (purpose) =>
+                                                purpose.school_purpose_id ===
+                                                selectedSchoolPurposeId,
+                                        )
+                                        .map((purpose) => ({
+                                            value: purpose.id,
+                                            label: purpose.purpose_of_visit,
+                                        })) || []
+                                }
                             />
                         </Form.Item>
                     </Col>
