@@ -66,9 +66,11 @@ class VisitorRequestController extends Controller
         ]);
 
         $departmentGroups = [];
+        $allChatProfileIds = [];
+        $memberDepartmentMap = [];
 
         try {
-            DB::transaction(function () use ($dataValidated, $request, &$departmentGroups) {
+            DB::transaction(function () use ($dataValidated, $request, &$departmentGroups, &$allChatProfileIds, &$memberDepartmentMap) {
                 foreach ($dataValidated['profile_id'] as $index => $profileId) {
                     $visitationId = $dataValidated['visitaion_information_id'][$index] ?? null;
                     $remark = $request->remarks[$index] ?? null;
@@ -124,35 +126,45 @@ class VisitorRequestController extends Controller
                                     $departmentGroups[$departmentId] = [];
                                 }
 
-                                $departmentGroups[$departmentId][] = $profileId;
+                                if (!in_array($profileId, $departmentGroups[$departmentId])) {
+                                    $departmentGroups[$departmentId][] = $profileId;
+                                }
+                                $allChatProfileIds[$profileId] = true;
 
                                 foreach ($sameDepProfileIds as $sameDepProfileId) {
                                     if (!in_array($sameDepProfileId, $departmentGroups[$departmentId])) {
                                         $departmentGroups[$departmentId][] = $sameDepProfileId;
                                     }
+                                    $allChatProfileIds[$sameDepProfileId] = true;
+                                    $memberDepartmentMap[$sameDepProfileId] = $departmentId;
                                 }
                             }
                         }
                     }
                 }
 
-                foreach ($departmentGroups as $departmentId => $profileIds) {
-                    $department = Department::find($departmentId);
-                    $departmentName = $department ? $department->department_name : "Unknown Department";
+                if (count($departmentGroups) > 0) {
+                    $departmentNames = Department::whereIn('id', array_keys($departmentGroups))
+                        ->pluck('department_name')
+                        ->toArray();
+
+                    $chatTitle = count($departmentNames) > 0
+                        ? implode(', ', $departmentNames) . ' Group Chat'
+                        : 'Visitation Group Chat';
 
                     $chat = Chat::create([
-                        "title_of_groupchat" => "{$departmentName} Group Chat",
+                        'title_of_groupchat' => $chatTitle,
                     ]);
 
-                    foreach ($profileIds as $profileId) {
+                    foreach (array_keys($allChatProfileIds) as $profileId) {
                         ChatMember::updateOrCreate(
                             [
-                                "chat_id"   => $chat->id,
-                                "profile_id" => $profileId,
+                                'chat_id'   => $chat->id,
+                                'profile_id' => $profileId,
                             ],
                             [
-                                "profile_id" => $profileId,
-                                "department_id" => $departmentId,
+                                'profile_id' => $profileId,
+                                'department_id' => $memberDepartmentMap[$profileId] ?? null,
                             ]
                         );
                     }
@@ -164,37 +176,38 @@ class VisitorRequestController extends Controller
                     foreach ($profileIdsRole3 as $pid) {
                         ChatMember::updateOrCreate(
                             [
-                                "chat_id"   => $chat->id,
-                                "profile_id" => $pid,
+                                'chat_id'   => $chat->id,
+                                'profile_id' => $pid,
                             ],
                             [
-                                "profile_id" => $pid,
-                                "department_id" => $departmentId,
+                                'profile_id' => $pid,
+                                'department_id' => null,
                             ]
                         );
                     }
 
                     ChatMember::updateOrCreate(
                         [
-                            "chat_id"   => $chat->id,
-                            "profile_id" => 1,
+                            'chat_id'   => $chat->id,
+                            'profile_id' => 1,
                         ],
                         [
-                            "profile_id" => 1,
-                            "department_id" => $departmentId,
+                            'profile_id' => 1,
+                            'department_id' => null,
                         ]
                     );
                 }
             });
 
             $message = count($departmentGroups) > 0
-                ? "Chat groups created and visitor requests processed successfully"
-                : "Visitor requests processed successfully (no chat groups created for declined requests)";
+                ? "Unified group chat created and visitor requests processed successfully"
+                : "Visitor requests processed successfully (no group chat created for declined requests)";
 
             return response()->json([
                 "success" => true,
                 "message" => $message,
-                "chat_groups_created" => count($departmentGroups)
+                "chat_groups_created" => count($departmentGroups) > 0 ? 1 : 0,
+                "departments_included" => count($departmentGroups)
             ]);
         } catch (\Throwable $th) {
             return response()->json([
