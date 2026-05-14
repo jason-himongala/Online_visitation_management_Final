@@ -204,8 +204,8 @@ export default function ListCard(props) {
                             <Col xs={8} sm={8} md={8} lg={8} xl={8} xxl={8}>
                                 <Form.Item name="school_purpose_id">
                                     <FloatSelect
-                                        label="School Purpose"
-                                        placeholder="School Purpose"
+                                        label="Categories"
+                                        placeholder="Select Category"
                                         value={tableFilter.school_purpose_id}
                                         alowClear
                                         options={
@@ -316,7 +316,7 @@ export default function ListCard(props) {
                                         />
 
                                         <Table.Column
-                                            title="School Purpose"
+                                            title="Categories"
                                             key="school_purpose"
                                             dataIndex="school_purpose"
                                             width={150}

@@ -36,6 +36,7 @@ import { GET, POST } from "../../../../providers/useAxiosQuery";
 import { UserId } from "../../../../providers/appConfig";
 import dayjs from "dayjs";
 import FloatSelect from "../../../../providers/FloatSelect";
+import ArrivalTimePickerModal from "./ArrivalTimePickerModal";
 
 const { Dragger } = Upload;
 const { Text } = Typography;
@@ -49,6 +50,10 @@ export default function ModalVisitorInformationForm(props) {
         setToggleModalVisitorInformationForm,
         selectedAppointments,
         setSelectedAppointments,
+        pickerOpen,
+        setPickerOpen,
+        pendingAppointmentForPicker,
+        handleConfirmArrivalTime,
     } = props;
 
     const [form] = Form.useForm();
@@ -167,6 +172,12 @@ export default function ModalVisitorInformationForm(props) {
     };
 
     const handleSubmit = (values) => {
+        const selectedPurpose =
+            dataPurpose?.data?.find(
+                (purpose) =>
+                    String(purpose.id) === String(values.purpose_of_visit_id),
+            )?.purpose_of_visit || "Visitor Request";
+
         const appointmentsData = selectedAppointments.map((appointment) => {
             const appointmentScheduleId =
                 appointment.appointment_schedule_id ||
@@ -230,10 +241,7 @@ export default function ModalVisitorInformationForm(props) {
         formData.append("profile_id", userId);
         formData.append("purpose_of_visit_id", values.purpose_of_visit_id);
 
-        formData.append(
-            "purpose_of_visit",
-            values.purpose_of_visit || "Visitor Request",
-        );
+        formData.append("purpose_of_visit", selectedPurpose);
 
         formData.append("email", values.email);
 
@@ -482,9 +490,8 @@ export default function ModalVisitorInformationForm(props) {
                                                         className="text-gray-400"
                                                     />
                                                     <Typography.Text strong>
-                                                        {
-                                                            appointment.available_time
-                                                        }
+                                                        {appointment.time ||
+                                                            appointment.available_time}
                                                     </Typography.Text>
                                                 </div>
                                                 {appointment.important_notes && (
@@ -537,8 +544,8 @@ export default function ModalVisitorInformationForm(props) {
                     <Col span={24}>
                         <Form.Item name="school_purpose_id">
                             <FloatSelect
-                                label="School Purpose"
-                                placeholder="School Purpose"
+                                label="Categories"
+                                placeholder="Select Category"
                                 options={
                                     dataSchoolPurpose?.data?.map((purpose) => ({
                                         value: purpose.id,
@@ -593,8 +600,11 @@ export default function ModalVisitorInformationForm(props) {
                                     fontSize: "12px",
                                 }}
                             >
-                                Upload a PDF or Word document. Maximum file
-                                size: 5MB.
+                                <b>
+                                    Upload a formal request letter (PDF or Word
+                                    format, max 5MB) addressed to the university
+                                    for visitation approval.
+                                </b>
                             </Text>
 
                             {isUploading ? (
@@ -756,6 +766,14 @@ export default function ModalVisitorInformationForm(props) {
                     </Col>
                 </Row>
             </Form>
+            <ArrivalTimePickerModal
+                isOpen={pickerOpen}
+                availableTime={
+                    pendingAppointmentForPicker?.available_time || ""
+                }
+                onClose={() => setPickerOpen(false)}
+                onConfirm={handleConfirmArrivalTime}
+            />
         </Modal>
     );
 }

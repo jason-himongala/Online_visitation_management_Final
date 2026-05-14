@@ -26,9 +26,11 @@ import {
 import { GET } from "../../../../providers/useAxiosQuery";
 import { useTableScrollOnTop } from "../../../../providers/CustomTableFilter";
 import FloatSelect from "../../../../providers/FloatSelect";
+import ArrivalTimePickerModal from "./ArrivalTimePickerModal";
 import ModalVisitorInformationForm from "./ModalVisitorInformationForm";
 import ModalApplicationList from "./ModalApplicationList";
 import { userData } from "../../../../providers/appConfig";
+import parseAvailableTime from "../../../../../utils/parseTimeSlots";
 
 export default function PageVisitorRequestContent(props) {
     const { width } = props;
@@ -80,6 +82,9 @@ export default function PageVisitorRequestContent(props) {
     const [currentDate, setCurrentDate] = useState(dayjs());
     const [selectedAppointments, setSelectedAppointments] = useState([]);
     const [currentUserProfileId, setCurrentUserProfileId] = useState(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [pendingAppointmentForPicker, setPendingAppointmentForPicker] =
+        useState(null);
 
     const handlePrevMonth = (e) => {
         e.stopPropagation();
@@ -131,8 +136,9 @@ export default function PageVisitorRequestContent(props) {
             const matchDate =
                 dayjs(event.date).format("YYYY-MM-DD") === dateStr;
             const matchDept =
-                !tableFilter.department_id.length ||
-                tableFilter.department_id.includes(event.department_id);
+                !tableFilter.department_id ||
+                String(event.department_id) ===
+                    String(tableFilter.department_id);
             return matchDate && matchDept;
         });
     };
@@ -201,18 +207,20 @@ export default function PageVisitorRequestContent(props) {
         );
     };
 
-    const hasAppointment = (appointmentSlot) => {
+    // Count bookings for a specific time slot to check capacity
+    const countSlotBookings = (appointmentSlot, specificTime = null) => {
         if (!dataAppointmentSchedulesVisitationInformation?.data) {
-            return false;
+            return 0;
         }
 
         const appointmentDate = dayjs(appointmentSlot.date).format(
             "YYYY-MM-DD",
         );
         const departmentId = appointmentSlot.department_id;
-        const slotTime = normalizeTime(appointmentSlot.available_time);
+        const timeToCheck =
+            specificTime || normalizeTime(appointmentSlot.available_time);
 
-        return dataAppointmentSchedulesVisitationInformation.data.some(
+        return dataAppointmentSchedulesVisitationInformation.data.filter(
             (appointment) => {
                 const appointmentBookingDate = dayjs(
                     appointment.appointment_schedule?.date || appointment.date,
@@ -231,8 +239,47 @@ export default function PageVisitorRequestContent(props) {
                         appointment.available_time,
                 );
 
-                return isTimeSlotInRange(slotTime, appointmentTimeRange);
+                const selectedTime = appointment.selected_time
+                    ?.trim()
+                    .toLowerCase();
+
+                if (specificTime) {
+                    const specificTimeLower = specificTime.trim().toLowerCase();
+
+                    if (selectedTime && selectedTime === specificTimeLower) {
+                        return true;
+                    }
+
+                    if (selectedTime) {
+                        return false;
+                    }
+
+                    return isTimeSlotInRange(
+                        specificTime,
+                        appointmentTimeRange,
+                    );
+                }
+
+                if (selectedTime) {
+                    return selectedTime === timeToCheck.trim().toLowerCase();
+                }
+
+                return isTimeSlotInRange(timeToCheck, appointmentTimeRange);
             },
+        ).length;
+    };
+
+    const hasAppointment = (appointmentSlot) => {
+        const slots = parseAvailableTime(appointmentSlot.available_time || "");
+
+        if (slots.length === 0) {
+            return false;
+        }
+
+        const maxSlots = Number(appointmentSlot.max_slots || 1);
+
+        return slots.every(
+            (slot) => countSlotBookings(appointmentSlot, slot) >= maxSlots,
         );
     };
 
@@ -435,12 +482,43 @@ export default function PageVisitorRequestContent(props) {
                 return;
             }
 
-            setSelectedAppointments((prev) => [...prev, item]);
+            // Open picker first so user selects exact arrival time before adding
+            setPendingAppointmentForPicker(item);
+            setPickerOpen(true);
+        }
+    };
+
+    const handleConfirmArrivalTime = (time) => {
+        if (!pendingAppointmentForPicker) return;
+
+        // Prevent duplicates: check if already selected
+        const exists = selectedAppointments.some(
+            (a) => a.id === pendingAppointmentForPicker.id,
+        );
+
+        const apptWithTime = { ...pendingAppointmentForPicker, time };
+
+        if (!exists) {
+            setSelectedAppointments((prev) => [...prev, apptWithTime]);
             notification.success({
                 message: "Added",
-                description: `Added ${item.department_name} - ${item.available_time}`,
+                description: `Added ${apptWithTime.department_name} - ${time}`,
+            });
+        } else {
+            // If appointment already selected, update its time
+            setSelectedAppointments((prev) =>
+                prev.map((appt) =>
+                    appt.id === apptWithTime.id ? apptWithTime : appt,
+                ),
+            );
+            notification.info({
+                message: "Updated",
+                description: `Updated ${apptWithTime.department_name} time to ${time}`,
             });
         }
+
+        setPickerOpen(false);
+        setPendingAppointmentForPicker(null);
     };
 
     const checkForConflicts = (appointments) => {
@@ -578,6 +656,10 @@ export default function PageVisitorRequestContent(props) {
                                 transition: "all 0.3s ease",
                             }}
                             onClick={() => {
+                                console.log(
+                                    "PageVisitorRequestContent: clicked item",
+                                    item,
+                                );
                                 if (isDisabled) {
                                     if (hasCurrentUserAppointment) {
                                         notification.warning({
@@ -601,7 +683,7 @@ export default function PageVisitorRequestContent(props) {
                                                     : appointmentType?.type ===
                                                         "Time Range"
                                                       ? "This slot is within an appointment range."
-                                                      : `The ${item.available_time} time slot has an appointment.`,
+                                                      : `The ${item.available_time} schedule is fully booked.`,
                                         });
                                     }
                                     return;
@@ -749,7 +831,7 @@ export default function PageVisitorRequestContent(props) {
                                 allowClear
                                 onChange={(values) =>
                                     setTableFilter({
-                                        department_id: values || [],
+                                        department_id: values || "",
                                     })
                                 }
                             />
@@ -789,7 +871,9 @@ export default function PageVisitorRequestContent(props) {
                                     />
                                     <Table.Column
                                         title="Time"
-                                        dataIndex="available_time"
+                                        render={(record) =>
+                                            record.time || record.available_time
+                                        }
                                     />
                                     <Table.Column
                                         title="Status"
@@ -970,6 +1054,23 @@ export default function PageVisitorRequestContent(props) {
                     dataAppointmentSchedulesVisitationInformation
                 }
                 currentUserProfileId={currentUserProfileId}
+            />
+
+            <ArrivalTimePickerModal
+                isOpen={pickerOpen}
+                availableTime={
+                    pendingAppointmentForPicker?.available_time || ""
+                }
+                maxSlots={pendingAppointmentForPicker?.max_slots || 1}
+                getSlotOccupancy={(slot) => {
+                    if (!pendingAppointmentForPicker) return 0;
+                    return countSlotBookings(pendingAppointmentForPicker, slot);
+                }}
+                onClose={() => {
+                    setPickerOpen(false);
+                    setPendingAppointmentForPicker(null);
+                }}
+                onConfirm={handleConfirmArrivalTime}
             />
 
             <ModalApplicationList

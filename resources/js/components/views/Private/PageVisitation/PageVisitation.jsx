@@ -85,9 +85,9 @@ export default function PageVisitation() {
                     <Form>
                         <Form.Item name="school_purpose_id">
                             <FloatSelect
-                                label="Filter by School Purpose"
+                                label="Filter by Category"
                                 name="school_purpose_id"
-                                placeholder="Select School Purpose"
+                                placeholder="Select Category"
                                 options={[
                                     { value: "1", label: "Enrollment" },
                                     { value: "2", label: "Transferee" },
@@ -196,7 +196,7 @@ export default function PageVisitation() {
                             }}
                         />
                         <Table.Column
-                            title="School Purpose"
+                            title="Categories"
                             key="school_purpose"
                             dataIndex="school_purpose"
                             sorter
