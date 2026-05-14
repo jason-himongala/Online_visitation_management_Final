@@ -537,8 +537,8 @@ export default function ModalVisitorInformationForm(props) {
                     <Col span={24}>
                         <Form.Item name="school_purpose_id">
                             <FloatSelect
-                                label="School Purpose"
-                                placeholder="School Purpose"
+                                label="Categories"
+                                placeholder="Select Category"
                                 options={
                                     dataSchoolPurpose?.data?.map((purpose) => ({
                                         value: purpose.id,
@@ -593,8 +593,11 @@ export default function ModalVisitorInformationForm(props) {
                                     fontSize: "12px",
                                 }}
                             >
-                                Upload a PDF or Word document. Maximum file
-                                size: 5MB.
+                                <b>
+                                    Upload a formal request letter (PDF or Word
+                                    format, max 5MB) addressed to the university
+                                    for visitation approval.
+                                </b>
                             </Text>
 
                             {isUploading ? (
