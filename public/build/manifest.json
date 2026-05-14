@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-DTaRYEvg.css",
+    "file": "assets/app-C8Ow0MFp.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
@@ -24,21 +24,18 @@
     "file": "assets/Montserrat-Regular-D3UCWjz4.ttf",
     "src": "resources/fonts/Montserrat/static/Montserrat-Regular.ttf"
   },
-  "resources/img/login_bg.png": {
-    "file": "assets/login_bg-DVy9_nGS.png",
-    "src": "resources/img/login_bg.png"
+  "resources/img/csu_bg.png": {
+    "file": "assets/csu_bg-BJsmL5my.png",
+    "src": "resources/img/csu_bg.png"
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-C6pxkldf.js",
+    "file": "assets/app-Di-Pm6FS.js",
     "name": "app",
     "src": "resources/js/app.jsx",
-    "isEntry": true,
-    "css": [
-      "assets/app-D-Ncpkvi.css"
-    ]
+    "isEntry": true
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-Bs5c2Otq.css",
+    "file": "assets/app-Beo6usDp.css",
     "src": "resources/sass/app.scss",
     "isEntry": true
   }

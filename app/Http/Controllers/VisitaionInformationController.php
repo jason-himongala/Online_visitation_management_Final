@@ -169,6 +169,7 @@ class VisitaionInformationController extends Controller
                         'profile_id' => $request->profile_id,
                         'remarks' => $request->remarks ?? 'Submitted',
                         'appointment_schedule_id' => $appointment['appointment_schedule_id'],
+                        'selected_time' => $appointment['time'] ?? null,
                         'purpose_of_visit_id' => $request->purpose_of_visit_id,
                         'purpose_of_visit' => $request->purpose_of_visit,
                         'status' => 'pending',

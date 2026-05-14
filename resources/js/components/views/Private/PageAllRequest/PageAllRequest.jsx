@@ -256,7 +256,11 @@ export default function PageAllRequest() {
                         <Table.Column
                             title="Date&Time"
                             key="available_time"
-                            dataIndex="available_time"
+                            render={(_, record) =>
+                                record.selected_time ||
+                                record.time ||
+                                record.available_time
+                            }
                             width={150}
                         />
 

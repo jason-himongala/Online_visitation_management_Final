@@ -25,6 +25,7 @@ import { GET } from "../../../../providers/useAxiosQuery";
 import { useTableScrollOnTop } from "../../../../providers/CustomTableFilter";
 import FloatSelect from "../../../../providers/FloatSelect";
 import ModalVisitorInformationForm from "./ModalVisitorInformationForm";
+import ArrivalTimePickerModal from "./ArrivalTimePickerModal";
 import ModalApplicationList from "./ModalApplicationList";
 
 export default function PageVisitContent(props) {
@@ -60,6 +61,10 @@ export default function PageVisitContent(props) {
 
     const [currentDate, setCurrentDate] = useState(dayjs());
     const location = useLocation();
+    const [selectedAppointments, setSelectedAppointments] = useState([]);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [pendingAppointmentForPicker, setPendingAppointmentForPicker] =
+        useState(null);
 
     const handlePrevMonth = (e) => {
         e.stopPropagation();
@@ -79,7 +84,7 @@ export default function PageVisitContent(props) {
         `api/departments`,
         "department_list",
         () => {},
-        false
+        false,
     );
 
     // const dataSource = [
@@ -105,7 +110,7 @@ export default function PageVisitContent(props) {
         `api/appointment_schedule`,
         "appointment_schedule_list",
         () => {},
-        false
+        false,
     );
 
     const getEventData = (date, events) => {
@@ -123,7 +128,7 @@ export default function PageVisitContent(props) {
     const dateCellRender = (value) => {
         const eventData = getEventData(
             value,
-            dataAppointmentSchedules?.data || []
+            dataAppointmentSchedules?.data || [],
         );
         return (
             <ul
@@ -138,6 +143,10 @@ export default function PageVisitContent(props) {
                         key={index}
                         style={{ cursor: "pointer" }}
                         onClick={() => {
+                            console.log(
+                                "PageVisitContent: calendar item clicked",
+                                item,
+                            );
                             if (item.appointment_type === "Not Available") {
                                 notification.error({
                                     message: "Unavailable",
@@ -146,10 +155,9 @@ export default function PageVisitContent(props) {
                                 });
                                 return;
                             }
-                            setToggleModalVisitorInformationForm({
-                                open: true,
-                                data: item,
-                            });
+                            // Open arrival time picker first so user picks exact time
+                            setPendingAppointmentForPicker(item);
+                            setPickerOpen(true);
                         }}
                     >
                         <Typography.Text
@@ -159,8 +167,8 @@ export default function PageVisitContent(props) {
                                     item.appointment_type === "Not Available"
                                         ? "red"
                                         : item.appointment_type === "Available"
-                                        ? "green"
-                                        : "inherit",
+                                          ? "green"
+                                          : "inherit",
                                 display: "inline-block",
                                 textAlign: "center",
                             }}
@@ -281,7 +289,7 @@ export default function PageVisitContent(props) {
                                                         {
                                                             open: true,
                                                             data: text,
-                                                        }
+                                                        },
                                                     );
                                                 }}
                                             />
@@ -328,7 +336,7 @@ export default function PageVisitContent(props) {
                                         (item) =>
                                             !tableFilter.department_id ||
                                             item.department_id ===
-                                                tableFilter.department_id
+                                                tableFilter.department_id,
                                     )}
                                     bordered
                                     rowKey={(record) => record.key}
@@ -403,6 +411,25 @@ export default function PageVisitContent(props) {
                 </Card>
             </Col>
 
+            <ArrivalTimePickerModal
+                isOpen={pickerOpen}
+                availableTime={
+                    pendingAppointmentForPicker?.available_time || ""
+                }
+                onClose={() => setPickerOpen(false)}
+                onConfirm={(time) => {
+                    if (!pendingAppointmentForPicker) return;
+                    const appt = { ...pendingAppointmentForPicker, time };
+                    setSelectedAppointments((prev) => [...prev, appt]);
+                    setToggleModalVisitorInformationForm({
+                        open: true,
+                        data: appt,
+                    });
+                    setPickerOpen(false);
+                    setPendingAppointmentForPicker(null);
+                }}
+            />
+
             <ModalVisitorInformationForm
                 toggleModalVisitorInformationForm={
                     toggleModalVisitorInformationForm
@@ -410,6 +437,8 @@ export default function PageVisitContent(props) {
                 setToggleModalVisitorInformationForm={
                     setToggleModalVisitorInformationForm
                 }
+                selectedAppointments={selectedAppointments}
+                setSelectedAppointments={setSelectedAppointments}
             />
 
             <ModalApplicationList

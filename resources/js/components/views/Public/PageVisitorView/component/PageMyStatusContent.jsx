@@ -146,6 +146,12 @@ export default function PageMyStatusContent() {
                                     {item.purpose_of_visit}
                                 </Typography.Text>
                                 <div style={{ fontSize: 12, color: "#555" }}>
+                                    Date & Time:{" "}
+                                    {item.selected_time ||
+                                        item.time ||
+                                        item.available_time}
+                                </div>
+                                <div style={{ fontSize: 12, color: "#555" }}>
                                     Submitted:{" "}
                                     {new Date(
                                         item.created_at,
@@ -233,7 +239,10 @@ export default function PageMyStatusContent() {
                             <b>Visitor :</b> {selectedItem.email}
                         </Typography.Paragraph>
                         <Typography.Paragraph>
-                            <b>Date & Time :</b> {selectedItem.available_time}
+                            <b>Date & Time :</b>{" "}
+                            {selectedItem.selected_time ||
+                                selectedItem.time ||
+                                selectedItem.available_time}
                         </Typography.Paragraph>
                         <Typography.Paragraph>
                             <b>Purpose :</b> {selectedItem.purpose_of_visit}
